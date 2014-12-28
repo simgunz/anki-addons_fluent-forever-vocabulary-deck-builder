@@ -16,8 +16,32 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.  #
 #########################################################################
 
-"""
-Entry point for Fluent Forever Vocabulary Deck Builder add-on for Anki
-"""
+import os
 
-import ffvocdeckbuilder.ffvocdeckbuilder
+from PyQt4.QtGui import QIcon
+
+from anki import hooks
+
+from aqt import mw
+
+iconsDir = os.path.join(mw.pm.addonFolder(), 'ffvocdeckbuilder', 'icons')
+
+def enableVocabularyBuilderView(self):
+    return
+
+def onSetupEditorButtons(self):
+    """Add an a button to the editor to activate the vocabulary deck building
+    mode.
+    """
+    # 'text' must be non empty otherwise the function tries to find an icon
+    # into the anki path
+    editorButton = self._addButton(
+        "ffvocdeckbuilder",
+        lambda self=self: enableVocabularyBuilderView(self),
+        tip=u"Build language deck...", text=" ",
+        check=True)
+    editorButton.setIcon(QIcon(os.path.join(iconsDir, 'dictionary.png')))
+    # Remove the empty text to center align the icon
+    editorButton.setText("")
+    
+hooks.addHook("setupEditorButtons", onSetupEditorButtons)
