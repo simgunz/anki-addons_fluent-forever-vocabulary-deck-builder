@@ -1,2 +1,2 @@
-anki-addons_fluent-forever-vocabulary-deck-builder
-==================================================
+anki-addons_fluent-forever-vocabulary-deck-builder DEMO
+=======================================================
