@@ -22,7 +22,7 @@ from PyQt4.QtGui import QIcon
 
 from anki import hooks
 
-from aqt import mw
+from aqt import mw, editor
 
 iconsDir = os.path.join(mw.pm.addonFolder(), 'ffvocdeckbuilder', 'icons')
 
@@ -43,5 +43,14 @@ def onSetupEditorButtons(self):
     editorButton.setIcon(QIcon(os.path.join(iconsDir, 'dictionary.png')))
     # Remove the empty text to center align the icon
     editorButton.setText("")
-    
+
+def enableDeckBuilderButton(self, val=True):
+    """Disable the editor button when the note type is not 'FF basic vocabulary'
+    """
+    if val and (self.note.model()['name'] != "FF basic vocabulary"):
+        self._buttons["ffvocdeckbuilder"].setEnabled(False)
+
 hooks.addHook("setupEditorButtons", onSetupEditorButtons)
+
+editor.Editor.enableButtons = hooks.wrap(
+    editor.Editor.enableButtons, enableDeckBuilderButton)
