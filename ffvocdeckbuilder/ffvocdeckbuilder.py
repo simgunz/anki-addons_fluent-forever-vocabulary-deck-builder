@@ -47,8 +47,11 @@ def onSetupEditorButtons(self):
 def enableDeckBuilderButton(self, val=True):
     """Disable the editor button when the note type is not 'FF basic vocabulary'
     """
-    if val and (self.note.model()['name'] != "FF basic vocabulary"):
-        self._buttons["ffvocdeckbuilder"].setEnabled(False)
+    if self.note:
+        if self.note.model()['name'] == "FF basic vocabulary":
+            self._buttons["ffvocdeckbuilder"].setEnabled(True)
+        else:
+            self._buttons["ffvocdeckbuilder"].setEnabled(False)
 
 hooks.addHook("setupEditorButtons", onSetupEditorButtons)
 
