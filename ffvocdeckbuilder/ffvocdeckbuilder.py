@@ -17,6 +17,7 @@
 #########################################################################
 
 import os
+import pdb
 
 from PyQt4.QtGui import QIcon
 
@@ -24,10 +25,18 @@ from anki import hooks
 
 from aqt import mw, editor
 
+from noteeditor import NoteEditor
+
 iconsDir = os.path.join(mw.pm.addonFolder(), 'ffvocdeckbuilder', 'icons')
 
-def enableVocabularyBuilderView(self):
-    return
+
+def toggleVocabularyBuilderView(self, checked):
+    if not self.vocDeckBuilder:
+        self.vocDeckBuilder = NoteEditor(self)
+    if checked:
+        self.vocDeckBuilder.activate()
+    else:
+        self.vocDeckBuilder.deactivate()
 
 def onSetupEditorButtons(self):
     """Add an a button to the editor to activate the vocabulary deck building
@@ -37,7 +46,7 @@ def onSetupEditorButtons(self):
     # into the anki path
     editorButton = self._addButton(
         "ffvocdeckbuilder",
-        lambda self=self: enableVocabularyBuilderView(self),
+        self.toggleVocabularyBuilderView,
         tip=u"Build language deck...", text=" ",
         check=True)
     editorButton.setIcon(QIcon(os.path.join(iconsDir, 'dictionary.png')))
@@ -57,3 +66,6 @@ hooks.addHook("setupEditorButtons", onSetupEditorButtons)
 
 editor.Editor.enableButtons = hooks.wrap(
     editor.Editor.enableButtons, enableDeckBuilderButton)
+
+editor.Editor.toggleVocabularyBuilderView = toggleVocabularyBuilderView
+editor.Editor.vocDeckBuilder = None
