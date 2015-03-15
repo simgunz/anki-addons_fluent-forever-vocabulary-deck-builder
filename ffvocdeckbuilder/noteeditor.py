@@ -20,6 +20,8 @@ import anki
 from anki import hooks
 from aqt.editor import Editor
 
+_exRootPath="/media/dataHD/development/anki/anki-addons_fluent-forever-vocabulary-deck-builder/_anki-addons_fluent-forever-vocabulary-deck-builder/ffvocdeckbuilder"
+
 class NoteEditor(object):
 
     def __init__(self, editor):
