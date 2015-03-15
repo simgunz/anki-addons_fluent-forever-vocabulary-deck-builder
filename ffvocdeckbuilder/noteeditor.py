@@ -27,6 +27,18 @@ class NoteEditor(object):
         self.web = editor.web
         self.webMainFrame = self.web.page().mainFrame()
 
+    def activate(self):
+        self._loadNoteVanilla = self.editor.loadNote
+        self.editor.loadNote = wrap(self.editor, Editor.loadNote, loadNoteWithVoc)
+        self._setNoteVanilla = self.editor.setNote
+        self.editor.setNote = wrap(self.editor, Editor.setNote, setNoteWithVoc)
+        self.editor.loadNote()
+
+    def deactivate(self):
+        self.editor.loadNote = self._loadNoteVanilla
+        self.editor.setNote = self._setNoteVanilla
+        self.editor.loadNote()
+
 def wrap(instance, old, new, pos="after"):
     "Override an existing function."
     def repl(*args, **kwargs):
@@ -39,3 +51,9 @@ def wrap(instance, old, new, pos="after"):
         else:
             return new(_old=old, *args, **kwargs)
     return types.MethodType(repl, instance, instance.__class__)
+
+def loadNoteWithVoc(self):
+    pass
+
+def setNoteWithVoc(self, note, hide=True, focus=False):
+    pass
