@@ -16,6 +16,8 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.  #
 #########################################################################
 import types
+from extmodules.tempdir import tempdir
+
 import anki
 from anki import hooks
 from aqt.editor import Editor
@@ -79,9 +81,14 @@ _galleryCss = """
 class NoteEditor(object):
 
     def __init__(self, editor):
+        self.tempDir = tempdir.TempDir()
         self.editor = editor
         self.web = editor.web
         self.webMainFrame = self.web.page().mainFrame()
+
+    def __del__(self):
+        #FIXME: Call this destructor explicitly somewhere
+        self.tempDir.dissolve()
 
     def loadCssStyleSheet(self):
         css = str(self.webMainFrame.findFirstElement("style").toInnerXml())
