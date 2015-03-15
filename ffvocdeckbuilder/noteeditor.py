@@ -26,3 +26,16 @@ class NoteEditor(object):
         self.editor = editor
         self.web = editor.web
         self.webMainFrame = self.web.page().mainFrame()
+
+def wrap(instance, old, new, pos="after"):
+    "Override an existing function."
+    def repl(*args, **kwargs):
+        if pos == "after":
+            old(*args, **kwargs)
+            return new(*args, **kwargs)
+        elif pos == "before":
+            new(*args, **kwargs)
+            return old(*args, **kwargs)
+        else:
+            return new(_old=old, *args, **kwargs)
+    return types.MethodType(repl, instance, instance.__class__)
