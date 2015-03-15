@@ -37,6 +37,45 @@ _galleryHtml = """
 </div>
 """.format(**locals())
 
+_galleryCss = """
+#normal2, #normal3, #normal4, #normal5 {
+    display: none;
+}
+#gallery {
+    margin: 0 auto;
+}
+#currentimg img {
+    height: 130px;
+    border: 6px solid #0033FF;
+    margin: 6px;
+    float: left;
+}
+#thumbs {
+    margin: 0px auto 0px auto;
+    float: left;
+}
+#thumbs img {
+    height: 130px;
+    border: none;
+}
+#thumbs a:link, #thumbs a:visited {
+    color: #EEE;
+    height: 130px;
+    border: 6px solid #555;
+    margin: 6px;
+    float: left;
+}
+#thumbs a:hover {
+    border: 6px solid #888;
+}
+#audiogallery form {
+    float: left;
+}
+#ipaselector {
+    font-size: 20px;
+}
+"""
+
 class NoteEditor(object):
 
     def __init__(self, editor):
@@ -44,12 +83,18 @@ class NoteEditor(object):
         self.web = editor.web
         self.webMainFrame = self.web.page().mainFrame()
 
+    def loadCssStyleSheet(self):
+        css = str(self.webMainFrame.findFirstElement("style").toInnerXml())
+        css += _galleryCss
+        self.webMainFrame.findFirstElement("style").setInnerXml(css)
+
     def showGallery(self, word):
         gallery = _galleryHtml.replace('IMGNAME', word.lower())
         #FIXME: Use BeautifulSoup?
         self.webMainFrame.findFirstElement("#f3").setOuterXml(gallery)
 
     def activate(self):
+        self.loadCssStyleSheet()
         self._loadNoteVanilla = self.editor.loadNote
         self.editor.loadNote = wrap(self.editor, Editor.loadNote, loadNoteWithVoc)
         self._setNoteVanilla = self.editor.setNote
@@ -78,4 +123,4 @@ def loadNoteWithVoc(self):
     self.vocDeckBuilder.showGallery(self.note['Word'])
 
 def setNoteWithVoc(self, note, hide=True, focus=False):
-    pass
+    self.vocDeckBuilder.loadCssStyleSheet()
