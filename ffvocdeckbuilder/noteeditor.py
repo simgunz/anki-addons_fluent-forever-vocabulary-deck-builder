@@ -91,14 +91,14 @@ class NoteEditor(object):
         self.tempDir.dissolve()
 
     def loadCssStyleSheet(self):
-        css = str(self.webMainFrame.findFirstElement("style").toInnerXml())
+        css = str(self.webMainFrame.findFirstElement('style').toInnerXml())
         css += _galleryCss
-        self.webMainFrame.findFirstElement("style").setInnerXml(css)
+        self.webMainFrame.findFirstElement('style').setInnerXml(css)
 
     def showGallery(self, word):
         gallery = _galleryHtml.replace('IMGNAME', word.lower())
         #FIXME: Use BeautifulSoup?
-        self.webMainFrame.findFirstElement("#f3").setOuterXml(gallery)
+        self.webMainFrame.findFirstElement('#f3').setOuterXml(gallery)
 
     def activate(self):
         self.loadCssStyleSheet()
@@ -113,13 +113,13 @@ class NoteEditor(object):
         self.editor.setNote = self._setNoteVanilla
         self.editor.loadNote()
 
-def wrap(instance, old, new, pos="after"):
+def wrap(instance, old, new, pos='after'):
     "Override an existing function."
     def repl(*args, **kwargs):
-        if pos == "after":
+        if pos == 'after':
             old(*args, **kwargs)
             return new(*args, **kwargs)
-        elif pos == "before":
+        elif pos == 'before':
             new(*args, **kwargs)
             return old(*args, **kwargs)
         else:
