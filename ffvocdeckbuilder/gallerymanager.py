@@ -78,3 +78,17 @@ class GalleryManager:
             #FIXME: Use requests to download the images
         #FIXME: Check how tts download the files in the correct folder
         return imageUrls
+
+    def linkHandler(self, l):
+        #FIXME: Why does QUrl add a path??
+        if re.match("img[0-9]+", l) is not None:
+            idx=int(l.replace("img", ""))
+            currentImg = '<img src="%s"/>' % (self.wordThumbs[self.currentWord][idx])
+            self.webMainFrame.findFirstElement('#currentimg').setInnerXml(currentImg)
+            name, ext = os.path.splitext(self.wordUrls[self.currentWord]['image'][idx])
+            #FIXME Add language prefix
+            currentImg = os.path.join(self.tempDir.name, 'ipa_dict_da_' + self.currentWord + ext)
+            self.currentImg[self.currentWord] = currentImg
+            #fileName = os.path.join(fold, 'thumb_' + word.lower() + '_' + str(i))
+            urlretrieve(self.wordUrls[self.currentWord]['image'][idx], currentImg)
+            fileCol = self.editor.mw.col.media.addFile(currentImg)
