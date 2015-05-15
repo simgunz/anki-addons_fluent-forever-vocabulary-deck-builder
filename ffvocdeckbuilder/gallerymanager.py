@@ -33,6 +33,7 @@ class GalleryManager:
         self.wordThumbs = {}
         self.wordUrls = {}
         self.currentImg = dict()
+        self.chosenImg = ""
         self.provider = provider.lower()
         if provider.lower() == "bing":
             from extmodules.bingsearchapi import bingsearchapi
@@ -43,6 +44,7 @@ class GalleryManager:
         self.tempDir.dissolve()
 
     def buildGallery(self, word, specterm="", nThumbs=5):
+        self.chosenImg = ""
         self.currentWord = word
         query = word + " " + specterm
         if not self.wordUrls.has_key(word):
@@ -91,4 +93,9 @@ class GalleryManager:
             self.currentImg[self.currentWord] = currentImg
             #fileName = os.path.join(fold, 'thumb_' + word.lower() + '_' + str(i))
             urlretrieve(self.wordUrls[self.currentWord]['image'][idx], currentImg)
-            fileCol = self.editor.mw.col.media.addFile(currentImg)
+            self.chosenImg = currentImg
+
+    def finalizePreviousSelection(self):
+        if self.chosenImg != "":
+            self.editor.mw.col.media.addFile(self.chosenImg)
+            self.chosenImg = ""

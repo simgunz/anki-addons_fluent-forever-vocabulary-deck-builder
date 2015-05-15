@@ -80,6 +80,7 @@ class NoteEditor(object):
 
     def __del__(self):
         #FIXME: Call this destructor explicitly somewhere
+        self.galleryManager.finalizePreviousSelection()
         self.galleryManager.__del__()
 
     def loadCssStyleSheet(self):
@@ -100,6 +101,7 @@ class NoteEditor(object):
         self.editor.loadNote()
 
     def deactivate(self):
+        self.galleryManager.finalizePreviousSelection()
         self.editor.loadNote = self._loadNoteVanilla
         self.editor.setNote = self._setNoteVanilla
         self.editor.ffNoteEditorLinkHandler = ''
@@ -124,6 +126,7 @@ def wrap(instance, old, new, pos='after'):
     return types.MethodType(repl, instance, instance.__class__)
 
 def loadNoteWithVoc(self):
+    self.vocDeckBuilder.galleryManager.finalizePreviousSelection()
     self.vocDeckBuilder.showGallery(self.note['Word'])
 
 def setNoteWithVoc(self, note, hide=True, focus=False):
