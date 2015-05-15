@@ -7,6 +7,7 @@ http://social.msdn.microsoft.com/Forums/pl-PL/windowsazuretroubleshooting/thread
 
 import requests # Get from https://github.com/kennethreitz/requests
 import string
+import warnings
 
 class BingSearchAPI():
     bing_api = "https://api.datamarket.azure.com/Bing/Search/"
@@ -40,7 +41,10 @@ class BingSearchAPI():
         for key,value in params.iteritems():
             request += '&' + key + '=' + str(value)
         request = self.bing_api + self.replace_symbols(request)
-        return requests.get(request, auth=('', self.key))
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            return requests.get(request, auth=('', self.key))
 
 
 if __name__ == "__main__":
