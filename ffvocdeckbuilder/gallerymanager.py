@@ -50,9 +50,9 @@ class GalleryManager:
         if not self.wordUrls.has_key(word):
             self.wordThumbs[word] = []
             self.wordUrls[word] = self.getUrls(query, nThumbs)
-            for i in range(nThumbs-1):
+            for i, th in enumerate(self.wordUrls[word]['thumb']):
                 fileName = os.path.join(self.tempDir.name, 'thumb_' + word + '_' + str(i) )
-                urlretrieve(self.wordUrls[word]['thumb'][i], fileName)
+                urlretrieve(th, fileName)
                 self.wordThumbs[word].append(fileName)
         #Build html gallery
         gallery = '<div id="gallery">'
@@ -62,8 +62,8 @@ class GalleryManager:
         else:
             gallery += '<img src="%s/ffvocdeckbuilder/images/no_image.png"/>' % self.editor.mw.pm.addonFolder()
         gallery += '</div><div id="thumbs">'
-        for i in range(nThumbs-1):
-            gallery += '<a href="img%i"><img src="%s" alt="" /></a>\n' % (i, self.wordThumbs[word][i])
+        for i, wd in enumerate(self.wordThumbs[word]):
+            gallery += '<a href="img%i"><img src="%s" alt="" /></a>\n' % (i, wd)
         gallery += '</div></div>'
         self.webMainFrame.findFirstElement("#f3").setOuterXml(gallery)
         #FIXME: Use BeautifulSoup?
@@ -74,9 +74,9 @@ class GalleryManager:
             params = {'$format': 'json',
                       '$top': nThumbs}
             results = self.servant.search('Image', query, params).json()
-            for i in range(1, nThumbs):
-                imageUrls['thumb'].append(results['d']['results'][i]['Thumbnail']['MediaUrl'])
-                imageUrls['image'].append(results['d']['results'][i]['MediaUrl'])
+            for res in results['d']['results']:
+                imageUrls['thumb'].append(res['Thumbnail']['MediaUrl'])
+                imageUrls['image'].append(res['MediaUrl'])
             #FIXME: Use requests to download the images
         #FIXME: Check how tts download the files in the correct folder
         return imageUrls
