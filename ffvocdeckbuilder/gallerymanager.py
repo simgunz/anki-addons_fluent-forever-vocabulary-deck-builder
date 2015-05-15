@@ -33,8 +33,8 @@ class GalleryManager:
         self.tempDir = tempdir.TempDir()
         self.wordThumbs = {}
         self.wordUrls = {}
-        self.currentImg = dict()
-        self.chosenImg = ""
+        self.currentImg = ""
+        self.chosenImgPath = ""
         self.provider = provider.lower()
         if provider.lower() == "bing":
             from extmodules.bingsearchapi import bingsearchapi
@@ -46,6 +46,12 @@ class GalleryManager:
 
     def buildGallery(self, word, specterm="", nThumbs=5):
         self.chosenImg = ""
+        self.currentNote = self.editor.note
+        m = re.match(r'<img src="(.*)" />', self.currentNote['Picture'])
+        if m:
+            self.currentImg = m.group(1)
+        else:
+            self.currentImg = ""
         self.currentWord = word
         query = word + " " + specterm
         if not self.wordUrls.has_key(word):
@@ -58,8 +64,8 @@ class GalleryManager:
         #Build html gallery
         gallery = '<div id="gallery">'
         gallery += '<div id="currentimg">'
-        if self.currentImg.has_key(self.currentWord):
-            gallery += '<img src="%s"/>' % self.currentImg[self.currentWord]
+        if self.currentImg != "":
+            gallery += '<img src="%s"/>' % self.currentImg
         else:
             gallery += '<img src="%s/ffvocdeckbuilder/images/no_image.png"/>' % self.editor.mw.pm.addonFolder()
         gallery += '</div><div id="thumbs">'
@@ -87,17 +93,19 @@ class GalleryManager:
         #FIXME: Why does QUrl add a path??
         if re.match("img[0-9]+", l) is not None:
             idx=int(l.replace("img", ""))
-            currentImg = '<img src="%s"/>' % (self.wordThumbs[self.currentWord][idx])
-            self.webMainFrame.findFirstElement('#currentimg').setInnerXml(currentImg)
+            newThumbnail = '<img src="%s"/>' % (self.wordThumbs[self.currentWord][idx])
+            self.webMainFrame.findFirstElement('#currentimg').setInnerXml(newThumbnail)
             name, ext = os.path.splitext(self.wordUrls[self.currentWord]['image'][idx])
             #FIXME Add language prefix
-            currentImg = os.path.join(self.tempDir.name, 'ipa_dict_da_' + self.currentWord + ext)
-            self.currentImg[self.currentWord] = currentImg
+            newImgName = "ipa_dict_%s_%s%s" % (_countryCode, self.currentWord, ext)
+            newImgPath = os.path.join(self.tempDir.name, newImgName)
             #fileName = os.path.join(fold, 'thumb_' + word.lower() + '_' + str(i))
-            urlretrieve(self.wordUrls[self.currentWord]['image'][idx], currentImg)
-            self.chosenImg = currentImg
+            urlretrieve(self.wordUrls[self.currentWord]['image'][idx], newImgPath)
+            self.chosenImgPath = newImgPath
 
     def finalizePreviousSelection(self):
-        if self.chosenImg != "":
-            self.editor.mw.col.media.addFile(self.chosenImg)
-            self.chosenImg = ""
+        if self.chosenImgPath != "":
+            imgName = self.editor.mw.col.media.addFile(self.chosenImgPath)
+            self.currentNote['Picture'] = '<img src="%s" />' % imgName
+            self.currentNote.flush()
+            self.chosenImgPath = ""
