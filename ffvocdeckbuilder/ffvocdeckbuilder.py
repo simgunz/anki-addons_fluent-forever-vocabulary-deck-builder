@@ -23,7 +23,7 @@ from PyQt4.QtGui import QIcon
 
 from anki import hooks
 
-from aqt import mw, editor
+from aqt import mw, editor, browser
 
 from noteeditor import NoteEditor
 
@@ -62,10 +62,17 @@ def enableDeckBuilderButton(self, val=True):
         else:
             self._buttons["ffvocdeckbuilder"].setEnabled(False)
 
+def closeEvent(self, event):
+    if self.editor.vocDeckBuilder:
+        self.editor.vocDeckBuilder.__del__()
+
 hooks.addHook("setupEditorButtons", onSetupEditorButtons)
 
 editor.Editor.enableButtons = hooks.wrap(
     editor.Editor.enableButtons, enableDeckBuilderButton)
+
+browser.Browser.closeEvent = hooks.wrap(
+    browser.Browser.closeEvent, closeEvent, "before")
 
 editor.Editor.toggleVocabularyBuilderView = toggleVocabularyBuilderView
 editor.Editor.vocDeckBuilder = None
