@@ -36,7 +36,7 @@ class BingSearchAPI():
             Click on Bing Search API. Then download the Bing API Schema Guide
             (which is oddly a word document file...pretty lame for a web api doc)
         '''
-        request = source + '?Query="'  + str(query) + '"'
+        request = source + '?Query="'  + query + '"'
         for key,value in params.iteritems():
             request += '&' + key + '=' + str(value)
         request = self.bing_api + self.replace_symbols(request)
