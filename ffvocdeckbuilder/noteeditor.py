@@ -17,6 +17,7 @@
 #########################################################################
 import types
 import os
+import re
 
 import anki
 from anki import hooks
@@ -95,12 +96,19 @@ class NoteEditor(object):
         self.editor.loadNote = wrap(self.editor, Editor.loadNote, loadNoteWithVoc)
         self._setNoteVanilla = self.editor.setNote
         self.editor.setNote = wrap(self.editor, Editor.setNote, setNoteWithVoc)
+        self.editor.web.setLinkHandler(self.ffNoteEditorLinkHandler)
         self.editor.loadNote()
 
     def deactivate(self):
         self.editor.loadNote = self._loadNoteVanilla
         self.editor.setNote = self._setNoteVanilla
+        self.editor.ffNoteEditorLinkHandler = ''
         self.editor.loadNote()
+
+    def ffNoteEditorLinkHandler(self, l):
+        l = os.path.basename(l)
+        if re.match("img[0-9]+", l) is not None:
+            self.galleryManager.linkHandler(l)
 
 def wrap(instance, old, new, pos='after'):
     "Override an existing function."
