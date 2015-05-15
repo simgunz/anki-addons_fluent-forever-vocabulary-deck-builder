@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #########################################################################
 # Copyright (C) 2015 by Simone Gaiarin <simgunz@gmail.com>              #
 #                                                                       #
@@ -15,6 +16,23 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.  #
 #########################################################################
 
-class galleryloader:
-    def __init__(self, provider):
-        pass
+from extmodules.tempdir import tempdir
+
+_apikey="YOURKEY"
+
+class GalleryManager:
+    def __init__(self, editor, provider):
+        self.editor = editor
+        self.webMainFrame = self.editor.web.page().mainFrame()
+        self.tempDir = tempdir.TempDir()
+        self.wordThumbs = {}
+        self.wordUrls = {}
+        self.currentImg = dict()
+        self.provider = provider.lower()
+        if provider.lower() == "bing":
+            from extmodules.bingsearchapi import bingsearchapi
+            self.servant = bingsearchapi.BingSearchAPI(_apikey)
+
+    def __del__(self):
+        #FIXME: Call this destructor explicitly somewhere
+        self.tempDir.dissolve()
