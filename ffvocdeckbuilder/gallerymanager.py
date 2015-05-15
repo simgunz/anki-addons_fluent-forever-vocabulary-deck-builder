@@ -24,6 +24,7 @@ from urllib import urlretrieve
 from extmodules.tempdir import tempdir
 
 _apikey="YOURKEY"
+_countryCode='dk'
 
 class GalleryManager:
     def __init__(self, editor, provider):
@@ -73,6 +74,7 @@ class GalleryManager:
         if self.provider == "bing":
             params = {'$format': 'json',
                       '$top': nThumbs}
+            query += u' loc:' + unicode(_countryCode)
             results = self.servant.search('Image', query, params).json()
             for res in results['d']['results']:
                 imageUrls['thumb'].append(res['Thumbnail']['MediaUrl'])
