@@ -17,6 +17,9 @@
 #########################################################################
 
 import json
+import os
+import re
+from urllib import urlretrieve
 
 from extmodules.tempdir import tempdir
 
@@ -38,6 +41,30 @@ class GalleryManager:
     def __del__(self):
         #FIXME: Call this destructor explicitly somewhere
         self.tempDir.dissolve()
+
+    def buildGallery(self, word, specterm="", nThumbs=5):
+        self.currentWord = word
+        query = word + " " + specterm
+        if not self.wordUrls.has_key(word):
+            self.wordThumbs[word] = []
+            self.wordUrls[word] = self.getUrls(query, nThumbs)
+            for i in range(nThumbs-1):
+                fileName = os.path.join(self.tempDir.name, 'thumb_' + word + '_' + str(i) )
+                urlretrieve(self.wordUrls[word]['thumb'][i], fileName)
+                self.wordThumbs[word].append(fileName)
+        #Build html gallery
+        gallery = '<div id="gallery">'
+        gallery += '<div id="currentimg">'
+        if self.currentImg.has_key(self.currentWord):
+            gallery += '<img src="%s"/>' % self.currentImg[self.currentWord]
+        else:
+            gallery += '<img src="%s/ffvocdeckbuilder/images/no_image.png"/>' % self.editor.mw.pm.addonFolder()
+        gallery += '</div><div id="thumbs">'
+        for i in range(nThumbs-1):
+            gallery += '<a href="img%i"><img src="%s" alt="" /></a>\n' % (i, self.wordThumbs[word][i])
+        gallery += '</div></div>'
+        self.webMainFrame.findFirstElement("#f3").setOuterXml(gallery)
+        #FIXME: Use BeautifulSoup?
 
     def getUrls(self, query, nThumbs):
         imageUrls = {'thumb':[], 'image':[]}
