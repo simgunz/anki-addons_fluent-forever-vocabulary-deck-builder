@@ -16,6 +16,8 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.  #
 #########################################################################
 
+import json
+
 from extmodules.tempdir import tempdir
 
 _apikey="YOURKEY"
@@ -36,3 +38,16 @@ class GalleryManager:
     def __del__(self):
         #FIXME: Call this destructor explicitly somewhere
         self.tempDir.dissolve()
+
+    def getUrls(self, query, nThumbs):
+        imageUrls = {'thumb':[], 'image':[]}
+        if self.provider == "bing":
+            params = {'$format': 'json',
+                      '$top': nThumbs}
+            results = self.servant.search('Image', query, params).json()
+            for i in range(1, nThumbs):
+                imageUrls['thumb'].append(results['d']['results'][i]['Thumbnail']['MediaUrl'])
+                imageUrls['image'].append(results['d']['results'][i]['MediaUrl'])
+            #FIXME: Use requests to download the images
+        #FIXME: Check how tts download the files in the correct folder
+        return imageUrls
