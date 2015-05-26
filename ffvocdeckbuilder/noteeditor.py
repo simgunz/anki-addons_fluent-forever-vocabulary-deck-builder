@@ -16,28 +16,13 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.  #
 #########################################################################
 import types
-from extmodules.tempdir import tempdir
+import os
+import re
 
 import anki
 from anki import hooks
 from aqt.editor import Editor
-
-_exRootPath="/media/dataHD/development/anki/anki-addons_fluent-forever-vocabulary-deck-builder/_anki-addons_fluent-forever-vocabulary-deck-builder/ffvocdeckbuilder"
-
-_galleryHtml = """
-<div id="gallery">
-    <div id="currentimg">
-        <img src="{_exRootPath}/images/no_image.png"/>
-    </div>
-    <div id="thumbs">
-        <a href="javascript: changeImage(1);"><img src="{_exRootPath}/images/IMGNAME1.png" alt="" /></a>
-        <a href="javascript: changeImage(2);"><img src="{_exRootPath}/images/IMGNAME2.png" alt="" /></a>
-        <a href="javascript: changeImage(3);"><img src="{_exRootPath}/images/IMGNAME3.png" alt="" /></a>
-        <a href="javascript: changeImage(4);"><img src="{_exRootPath}/images/IMGNAME4.png" alt="" /></a>
-        <a href="javascript: changeImage(5);"><img src="{_exRootPath}/images/IMGNAME5.png" alt="" /></a>
-    </div>
-</div>
-""".format(**locals())
+from gallerymanager import GalleryManager
 
 _galleryCss = """
 #normal2, #normal3, #normal4, #normal5 {
@@ -78,17 +63,25 @@ _galleryCss = """
 }
 """
 
+_nPreload = 8
+
 class NoteEditor(object):
 
     def __init__(self, editor):
-        self.tempDir = tempdir.TempDir()
         self.editor = editor
         self.web = editor.web
         self.webMainFrame = self.web.page().mainFrame()
+        self.currentWord = ''
+        self.wordUrls = {}
+        self.wordThumbs = {}
+        #self.nextNotes = list(_nPreload)
+        #self.prevNotes = list(_nPreload)
+        self.galleryManager = GalleryManager(self.editor, "Bing")
 
     def __del__(self):
         #FIXME: Call this destructor explicitly somewhere
-        self.tempDir.dissolve()
+        self.galleryManager.finalizePreviousSelection()
+        self.galleryManager.__del__()
 
     def loadCssStyleSheet(self):
         css = str(self.webMainFrame.findFirstElement('style').toInnerXml())
@@ -96,9 +89,7 @@ class NoteEditor(object):
         self.webMainFrame.findFirstElement('style').setInnerXml(css)
 
     def showGallery(self, word):
-        gallery = _galleryHtml.replace('IMGNAME', word.lower())
-        #FIXME: Use BeautifulSoup?
-        self.webMainFrame.findFirstElement('#f3').setOuterXml(gallery)
+        self.galleryManager.buildGallery(word, nThumbs=_nPreload)
 
     def activate(self):
         self.loadCssStyleSheet()
@@ -106,12 +97,20 @@ class NoteEditor(object):
         self.editor.loadNote = wrap(self.editor, Editor.loadNote, loadNoteWithVoc)
         self._setNoteVanilla = self.editor.setNote
         self.editor.setNote = wrap(self.editor, Editor.setNote, setNoteWithVoc)
+        self.editor.web.setLinkHandler(self.ffNoteEditorLinkHandler)
         self.editor.loadNote()
 
     def deactivate(self):
+        self.galleryManager.finalizePreviousSelection()
         self.editor.loadNote = self._loadNoteVanilla
         self.editor.setNote = self._setNoteVanilla
+        self.editor.ffNoteEditorLinkHandler = ''
         self.editor.loadNote()
+
+    def ffNoteEditorLinkHandler(self, l):
+        l = os.path.basename(l)
+        if re.match("img[0-9]+", l) is not None:
+            self.galleryManager.linkHandler(l)
 
 def wrap(instance, old, new, pos='after'):
     "Override an existing function."
@@ -127,6 +126,7 @@ def wrap(instance, old, new, pos='after'):
     return types.MethodType(repl, instance, instance.__class__)
 
 def loadNoteWithVoc(self):
+    self.vocDeckBuilder.galleryManager.finalizePreviousSelection()
     self.vocDeckBuilder.showGallery(self.note['Word'])
 
 def setNoteWithVoc(self, note, hide=True, focus=False):
