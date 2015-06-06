@@ -23,6 +23,7 @@ import anki
 from anki import hooks
 from aqt.editor import Editor
 from gallerymanager import GalleryManager
+from pronunciationmanager import PronunciationManager
 
 _galleryCss = """
 #normal2, #normal3, #normal4, #normal5 {
@@ -77,11 +78,13 @@ class NoteEditor(object):
         #self.nextNotes = list(_nPreload)
         #self.prevNotes = list(_nPreload)
         self.galleryManager = GalleryManager(self.editor, "Bing")
+        self.pronunciationManager = PronunciationManager(self.editor, "Forvo")
 
     def __del__(self):
         #FIXME: Call this destructor explicitly somewhere
         self.galleryManager.finalizePreviousSelection()
         self.galleryManager.__del__()
+        self.pronunciationManager.__del__()
 
     def loadCssStyleSheet(self):
         css = str(self.webMainFrame.findFirstElement('style').toInnerXml())

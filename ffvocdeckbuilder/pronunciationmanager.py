@@ -17,12 +17,18 @@
 #########################################################################
 
 from extmodules.tempdir import tempdir
+from extmodules.downloadaudio.downloaders import forvo
+
 
 class PronunciationManager:
-    def __init__(self, editor):
+    def __init__(self, editor, provider):
         self.editor = editor
         self.webMainFrame = self.editor.web.page().mainFrame()
         self.tempDir = tempdir.TempDir()
+        self.provider = provider.lower()
+        if self.provider == "forvo":
+            self.servant = forvo.ForvoDownloader()
 
     def __del__(self):
+        self.servant.__del__()
         self.tempDir.dissolve()
