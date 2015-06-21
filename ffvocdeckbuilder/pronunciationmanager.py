@@ -16,7 +16,10 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.  #
 #########################################################################
 
+import re
 import subprocess
+
+from anki.sound import play
 
 from extmodules.tempdir import tempdir
 from extmodules.downloadaudio.downloaders import forvo
@@ -85,3 +88,9 @@ class PronunciationManager:
             subprocess.call(ushlex.split(cmd))
             ret.append(newfile)
         return ret
+
+    def linkHandler(self, l):
+        if re.match("sound[0-9]+", l) is not None:
+            idx=int(l.replace("sound", ""))
+            playSound = self.audios[idx]
+            play(playSound)
