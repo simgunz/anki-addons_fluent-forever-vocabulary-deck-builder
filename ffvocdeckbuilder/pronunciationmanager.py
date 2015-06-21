@@ -16,6 +16,8 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.  #
 #########################################################################
 
+import subprocess
+
 from extmodules.tempdir import tempdir
 from extmodules.downloadaudio.downloaders import forvo
 from extmodules.downloadaudio.field_data import FieldData
