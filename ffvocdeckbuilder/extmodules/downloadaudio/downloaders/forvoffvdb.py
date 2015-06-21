@@ -31,17 +31,15 @@ class ForvoDownloader(AudioDownloader):
         self.file_extension = u'.ogg'
         self.path_code = 'pathogg'
         # Keep this secret:
-        self.url = 'http://apifree.forvo.com/action/word-pronunciations/' \
-            'format/json/order/rate-desc/limit/3/' \
-            'key/' + _apikey + '/word/'
         self.icon_url = 'http://www.forvo.com/'
         self.gender_dict = {'f': u'♀', 'm': u'♂'}
         self.field_data = None
 
-    def download_files(self, field_data):
+    def download_files(self, field_data, language, nAudio=5):
         """
         Get pronunciations of a word from Forvo
         """
+        self.language = language
         self.downloads_list = []
         self.field_data = field_data
         if field_data.split:
@@ -49,6 +47,9 @@ class ForvoDownloader(AudioDownloader):
         if not field_data.word:
             return
         self.maybe_get_icon()
+        self.url = 'http://apifree.forvo.com/action/word-pronunciations/' \
+            'format/json/order/rate-desc/limit/%d/' \
+            'key/%s/word/' % (nAudio, _apikey)
         # Caveat! The old code used json.load(response) with a
         # file-like object.  now we ues json.loads(get_data()) with a
         # string. Don't confuse load() with loads()!
