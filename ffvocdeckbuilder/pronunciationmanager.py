@@ -23,6 +23,7 @@ from extmodules.downloadaudio.downloaders import forvo
 from extmodules.downloadaudio.field_data import FieldData
 from extmodules import ushlex
 
+_language='XX'
 
 class PronunciationManager:
     def __init__(self, editor, provider):
