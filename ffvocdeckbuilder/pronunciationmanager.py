@@ -60,7 +60,7 @@ class PronunciationManager:
         #gallery += '</div><div id="thumbs">'
         gallery += '<form action="">'
         for i, af in enumerate(self.audios):
-            gallery += '<input class="container" onchange="py.run("ffvdb");" type="radio" name="pronunciation" value="%s">' \
+            gallery += '<input class="container" type="radio" name="pronunciation" value="%s">' \
                        '<a href="sound%d"><img class="container" src="%s/ffvocdeckbuilder/images/replay.png" alt="play"' \
                            'style="max-width: 32px; max-height: 1em; min-height:24px;" /></a>' % (self.audios[i], i, self.editor.mw.pm.addonFolder())
                        #'style="max-width: 32px; max-height: 1em; min-height:24px;" /></a>' % (self.audios[i].file_path, i, self.editor.mw.pm.addonFolder())
