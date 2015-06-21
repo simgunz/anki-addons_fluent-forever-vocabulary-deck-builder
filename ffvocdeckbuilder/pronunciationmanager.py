@@ -17,6 +17,7 @@
 #########################################################################
 
 import re
+import shutil
 import subprocess
 
 from anki.sound import play
@@ -83,6 +84,7 @@ class PronunciationManager:
         #Normalise and noise filter the downloaded audio tracks
         for i, el in enumerate(self.servant.downloads_list):
             newfile = u"/tmp/ipa_voc_da_%s%d.ogg" % (word, i)
+            shutil.move(el.file_path, newfile)
             cmd = u"%s/ffvocdeckbuilder/scripts/filteraudio %s" % (self.editor.mw.pm.addonFolder(),
                                                     newfile)
             subprocess.call(ushlex.split(cmd))
