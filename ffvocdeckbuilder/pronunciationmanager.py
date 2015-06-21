@@ -23,7 +23,7 @@ import subprocess
 from anki.sound import play
 
 from extmodules.tempdir import tempdir
-from extmodules.downloadaudio.downloaders import forvo
+from extmodules.downloadaudio.downloaders import forvoffvdb
 from extmodules.downloadaudio.field_data import FieldData
 from extmodules import ushlex
 
@@ -36,7 +36,7 @@ class PronunciationManager:
         self.tempDir = tempdir.TempDir()
         self.provider = provider.lower()
         if self.provider == "forvo":
-            self.servant = forvo.ForvoDownloader()
+            self.servant = forvoffvdb.ForvoDownloader()
 
     def __del__(self):
         #self.servant.__del__()
