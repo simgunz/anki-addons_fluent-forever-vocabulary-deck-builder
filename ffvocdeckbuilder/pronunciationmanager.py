@@ -30,5 +30,5 @@ class PronunciationManager:
             self.servant = forvo.ForvoDownloader()
 
     def __del__(self):
-        self.servant.__del__()
+        #self.servant.__del__()
         self.tempDir.dissolve()
