@@ -115,7 +115,7 @@ class IpaManager:
         #Add the current IPAs as red text and selected
         for c in cIpas:
             gallery += u'<option selected="selected" style="color:red;" value="{0}">{0}; {1}'.format(c, 'Current IPA')
-        for i, v in enumerate(self.ipa[word]):
+        for v in self.ipa[word]:
             gallery += u'<option value="{0}">{0}; {1}'.format(v['ipa'], v['provider'])
             if v.has_key('spec'):
                 gallery += u', {0}'.format(v['spec'])
