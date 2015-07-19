@@ -30,11 +30,23 @@ import sys
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
+_currentLanguage='XX'
+
 class IpaManager:
     def __init__(self, editor):
         self.editor = editor
         self.webMainFrame = self.editor.web.page().mainFrame()
         self.ipa = {}
+        self.loadLanguageCodes()
+
+    def loadLanguageCodes(self):
+        self.languageCodes = {}
+        fileName = u"{0}/ffvocdeckbuilder/files/iso-639-1-language-codes" \
+            .format(self.editor.mw.pm.addonFolder())
+        with open(fileName) as f:
+            for line in f:
+                (key, val) = line.split(',')
+                self.languageCodes[key] = val.rstrip('\n')
 
     def downloadIpa(self, word):
         found = list()
@@ -44,7 +56,8 @@ class IpaManager:
             soup = BeautifulSoup(r)
             rawIpa = soup.find_all("span", class_="IPA")
             for s in rawIpa:
-                if s.findPrevious('h2').span.get_text() == 'Danish':
+                foundIpaLanguage = s.findPrevious('h2').span.get_text()
+                if re.match(self.languageCodes[_currentLanguage], foundIpaLanguage):
                     found.append({'provider': 'Wen', 'ipa' : s.get_text()})
                     a = s.findPrevious('span', id=re.compile('Etymology_\d+'))
                     if a:
