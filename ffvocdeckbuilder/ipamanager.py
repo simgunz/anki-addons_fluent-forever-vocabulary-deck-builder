@@ -32,6 +32,27 @@ sys.setdefaultencoding('utf-8')
 
 _currentLanguage='XX'
 
+_javaFunctions="""
+formatMulticolumn = function(){
+  var s = document.getElementsByTagName('SELECT')[0].options,
+      l = 0,
+      d = '';
+  for(i = 0; i < s.length; i++){
+    if(s[i].text.length > l) l = s[i].text.length;
+  }
+  for(i = 0; i < s.length; i++){
+    d = '';
+    line = s[i].text.split(';');
+    l1 = (l - line[0].length);
+    for(j = 0; j < l1; j++){
+      d += '\u00a0';
+    }
+    s[i].text = line[0] + d + line[1];
+  }
+  $('#ipaselector').css('font-family', '"Courier New", Courier, monospace')
+};
+"""
+
 class IpaManager:
     def __init__(self, editor):
         self.editor = editor
@@ -73,9 +94,10 @@ class IpaManager:
         gallery += u'<option value="">'
         for i, v in enumerate(self.ipa[word]):
             gallery += u'<option value="{2}">{0} ({1}'.format(v['ipa'], v['provider'], i)
-            print gallery
             if v.has_key('spec'):
                 gallery += u', {0}'.format(v['spec'])
             gallery += u')</option>'
         gallery += u'</select></form></div>'
         self.webMainFrame.findFirstElement("#f6").setOuterXml(gallery)
+        self.editor.web.eval(_javaFunctions)
+        self.editor.web.eval("formatMulticolumn();")
