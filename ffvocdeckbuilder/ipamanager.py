@@ -70,8 +70,8 @@ class IpaManager:
                 self.languageCodes[key] = val.rstrip('\n')
 
     def downloadIpa(self, word):
-        found = list()
         if not self.ipa.has_key(word):
+            found = list()
             url = u'https://en.wiktionary.org/wiki/{0}'.format(word)
             r = urllib.urlopen(url).read()
             soup = BeautifulSoup(r)
