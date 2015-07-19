@@ -106,9 +106,15 @@ class IpaManager:
         self.currentNote = self.editor.note
         if not self.ipa.has_key(word):
             self.downloadIpa(word)
+
+        #Find IPAs currently in the note
+        cIpas = re.findall('\[[^\]]+\]|\/[^\/]+\/', self.currentNote['IPA transcription'])
+
         gallery = u'<div id="ipagallery">'
         gallery += u'<select onchange="getSelectValues(this)" id="ipaselector" name="ipa" multiple>'
-        gallery += u'<option value="">'
+        #Add the current IPAs as red text and selected
+        for c in cIpas:
+            gallery += u'<option selected="selected" style="color:red;" value="{0}">{0}; {1}'.format(c, 'Current IPA')
         for i, v in enumerate(self.ipa[word]):
             gallery += u'<option value="{0}">{0}; {1}'.format(v['ipa'], v['provider'])
             if v.has_key('spec'):
