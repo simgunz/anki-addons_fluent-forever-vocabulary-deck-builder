@@ -25,11 +25,6 @@ from bs4 import BeautifulSoup
 
 from extmodules.tempdir import tempdir
 
-#FIXME: These command added because KDevelop default encoding is Ascii??
-import sys
-reload(sys)
-sys.setdefaultencoding('utf-8')
-
 _currentLanguage='XX'
 
 _javaFunctions="""
@@ -90,7 +85,7 @@ class IpaManager:
 
             #Wiktionary
             url = u'https://en.wiktionary.org/wiki/{0}'.format(word)
-            r = urllib.urlopen(url).read()
+            r = urllib.urlopen(url.encode('utf-8')).read()
             soup = BeautifulSoup(r)
             rawIpa = soup.find_all("span", class_="IPA")
             for s in rawIpa:
