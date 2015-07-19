@@ -67,7 +67,7 @@ class IpaManager:
     def buildGallery(self, word, nThumbs=5):
         if not self.ipa.has_key(word):
             self.downloadIpa(word)
-        gallery = u'<div id="audiogallery">'
+        gallery = u'<div id="ipagallery">'
         gallery += u'<select id="ipaselector" name="example">'
         for i, v in enumerate(self.ipa[word]):
             gallery += u'<option value="{2}">{0} ({1}'.format(v['ipa'], v['provider'], i)
