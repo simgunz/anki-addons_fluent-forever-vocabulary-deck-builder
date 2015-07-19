@@ -89,7 +89,6 @@ class IpaManager:
         if not self.ipa.has_key(word):
             self.downloadIpa(word)
         gallery = u'<div id="ipagallery">'
-        gallery = u'<form>'
         gallery += u'<select id="ipaselector" name="ipa" multiple>'
         gallery += u'<option value="">'
         for i, v in enumerate(self.ipa[word]):
@@ -97,7 +96,7 @@ class IpaManager:
             if v.has_key('spec'):
                 gallery += u', {0}'.format(v['spec'])
             gallery += u')</option>'
-        gallery += u'</select></form></div>'
+        gallery += u'</select></div>'
         self.webMainFrame.findFirstElement("#f6").setOuterXml(gallery)
         self.editor.web.eval(_javaFunctions)
         self.editor.web.eval("formatMulticolumn();")
