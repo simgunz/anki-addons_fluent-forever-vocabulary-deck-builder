@@ -68,12 +68,14 @@ class IpaManager:
         if not self.ipa.has_key(word):
             self.downloadIpa(word)
         gallery = u'<div id="ipagallery">'
-        gallery += u'<select id="ipaselector" name="example">'
+        gallery = u'<form>'
+        gallery += u'<select id="ipaselector" name="ipa" multiple>'
+        gallery += u'<option value="">'
         for i, v in enumerate(self.ipa[word]):
             gallery += u'<option value="{2}">{0} ({1}'.format(v['ipa'], v['provider'], i)
             print gallery
             if v.has_key('spec'):
                 gallery += u', {0}'.format(v['spec'])
             gallery += u')</option>'
-        gallery += u'</select></div>'
+        gallery += u'</select></form></div>'
         self.webMainFrame.findFirstElement("#f6").setOuterXml(gallery)
