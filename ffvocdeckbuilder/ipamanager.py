@@ -72,6 +72,8 @@ class IpaManager:
     def downloadIpa(self, word):
         if not self.ipa.has_key(word):
             found = list()
+
+            #Wiktionary
             url = u'https://en.wiktionary.org/wiki/{0}'.format(word)
             r = urllib.urlopen(url).read()
             soup = BeautifulSoup(r)
@@ -79,7 +81,7 @@ class IpaManager:
             for s in rawIpa:
                 foundIpaLanguage = s.findPrevious('h2').span.get_text()
                 if re.match(self.languageCodes[_currentLanguage], foundIpaLanguage):
-                    found.append({'provider': 'Wen', 'ipa' : s.get_text()})
+                    found.append({'provider': 'Wiktionary (en)', 'ipa' : s.get_text().rstrip(' ')})
                     a = s.findPrevious('span', id=re.compile('Etymology_\d+'))
                     if a:
                         found[-1]['spec'] = a.get_text()
