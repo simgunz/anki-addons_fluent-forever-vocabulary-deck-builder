@@ -20,4 +20,10 @@
 Entry point for Fluent Forever Vocabulary Deck Builder add-on for Anki
 """
 
+import os, sys
+
+#Add folder extmodules to path in order to provide all the required libraries
+rootPath=os.path.dirname(os.path.realpath(__file__))
+sys.path.append(os.path.join(rootPath, 'ffvocdeckbuilder', 'extmodules'))
+
 import ffvocdeckbuilder.ffvocdeckbuilder
