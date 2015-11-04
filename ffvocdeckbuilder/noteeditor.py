@@ -94,6 +94,9 @@ class NoteEditor(object):
     def showGallery(self, word):
         self.galleryManager.buildGallery(word, nThumbs=_nPreload)
 
+    def showPronunciationGallery(self, word):
+        self.pronunciationManager.buildGallery(word)
+
     def activate(self):
         self.loadCssStyleSheet()
         self._loadNoteVanilla = self.editor.loadNote
@@ -133,6 +136,7 @@ def wrap(instance, old, new, pos='after'):
 def loadNoteWithVoc(self):
     self.vocDeckBuilder.galleryManager.finalizePreviousSelection()
     self.vocDeckBuilder.showGallery(self.note['Word'])
+    self.vocDeckBuilder.showPronunciationGallery(self.note['Word'])
 
 def setNoteWithVoc(self, note, hide=True, focus=False):
     self.vocDeckBuilder.loadCssStyleSheet()
