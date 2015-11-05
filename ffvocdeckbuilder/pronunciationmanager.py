@@ -34,6 +34,7 @@ class PronunciationManager:
         self.editor = editor
         self.webMainFrame = self.editor.web.page().mainFrame()
         self.tempDir = tempdir.TempDir()
+        self.audios = {}
         self.provider = provider.lower()
         if self.provider == "forvo":
             self.servant = forvoffvdb.ForvoDownloader()
@@ -42,6 +43,10 @@ class PronunciationManager:
         #self.servant.__del__()
         self.tempDir.dissolve()
 
+    def downloadAudio(self, word):
+        if not self.audios.has_key(word):
+            self.audios[word] = self.getAudio(word, 1)
+
     def buildGallery(self, word, nThumbs=5):
         """Creates an html gallery for the pronunciation tracks.
 
@@ -49,8 +54,9 @@ class PronunciationManager:
         and for each track display a play button which is used to reproduce the track.
         """
 
+        if not self.audios.has_key(word):
+            self.downloadAudio(word)
         self.currentWord = word
-        self.audios = self.getAudio(word, 1)
         #Build html gallery
         gallery = '<div id="audiogallery">'
         #gallery += '<div id="currentaudio">'
@@ -60,10 +66,10 @@ class PronunciationManager:
             #gallery += '<img src="%s/ffvocdeckbuilder/images/no_image.png"/>' % self.editor.mw.pm.addonFolder()
         #gallery += '</div><div id="thumbs">'
         gallery += '<form action="">'
-        for i, af in enumerate(self.audios):
-            gallery += '<input class="container" type="radio" name="pronunciation" value="%s">' \
+        for i, af in enumerate(self.audios[word]):
+            gallery += '<input class="container" onclick="setFfvdbPronunciation(%d)" type="radio" name="pronunciation" value="%s">' \
                        '<a href="sound%d"><img class="container" src="%s/ffvocdeckbuilder/images/replay.png" alt="play"' \
-                           'style="max-width: 32px; max-height: 1em; min-height:24px;" /></a>' % (self.audios[i], i, self.editor.mw.pm.addonFolder())
+                           'style="max-width: 32px; max-height: 1em; min-height:24px;" /></a>' % (self.audios[word][i], i, self.editor.mw.pm.addonFolder())
                        #'style="max-width: 32px; max-height: 1em; min-height:24px;" /></a>' % (self.audios[i].file_path, i, self.editor.mw.pm.addonFolder())
         gallery += '</form>\n'
         gallery += '</div>\n'
@@ -94,5 +100,5 @@ class PronunciationManager:
     def linkHandler(self, l):
         if re.match("sound[0-9]+", l) is not None:
             idx=int(l.replace("sound", ""))
-            playSound = self.audios[idx]
+            playSound = self.audios[self.currentWord][idx]
             play(playSound)
