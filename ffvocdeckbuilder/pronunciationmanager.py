@@ -29,6 +29,11 @@ from extmodules import ushlex
 
 _language='XX'
 
+_myScript="""
+function setFfvdbPronunciation(n) {
+    py.run("ffvdb:setpronunciation:" + n);
+}
+"""
 class PronunciationManager:
     def __init__(self, editor, provider):
         self.editor = editor
@@ -53,9 +58,13 @@ class PronunciationManager:
         Show radio buttons to choose among the different pronuciation tracks
         and for each track display a play button which is used to reproduce the track.
         """
+        #Load our javascript code
+        #FIXME: Add this to an activate function
 
+        self.editor.web.eval(_myScript)
         if not self.audios.has_key(word):
             self.downloadAudio(word)
+        self.currentNote = self.editor.note
         self.currentWord = word
         #Build html gallery
         gallery = '<div id="audiogallery">'
@@ -69,7 +78,7 @@ class PronunciationManager:
         for i, af in enumerate(self.audios[word]):
             gallery += '<input class="container" onclick="setFfvdbPronunciation(%d)" type="radio" name="pronunciation" value="%s">' \
                        '<a href="sound%d"><img class="container" src="%s/ffvocdeckbuilder/images/replay.png" alt="play"' \
-                           'style="max-width: 32px; max-height: 1em; min-height:24px;" /></a>' % (self.audios[word][i], i, self.editor.mw.pm.addonFolder())
+                           'style="max-width: 32px; max-height: 1em; min-height:24px;" /></a>' % (i, self.audios[word][i], i, self.editor.mw.pm.addonFolder())
                        #'style="max-width: 32px; max-height: 1em; min-height:24px;" /></a>' % (self.audios[i].file_path, i, self.editor.mw.pm.addonFolder())
         gallery += '</form>\n'
         gallery += '</div>\n'
@@ -96,6 +105,21 @@ class PronunciationManager:
             subprocess.call(ushlex.split(cmd))
             ret.append(newfile)
         return ret
+
+    def setPronunciation(self, n):
+    	"""Callback called when a radio button is clicked. The first radio button (-2)
+    	means delete the sound, the second (-1) means keep current sound, they others (0..N) allow to
+    	select the downloaded sounds.
+    	"""
+        if n == -2:
+            self.chosenSnd = ''
+        elif n == -1:
+            self.chosenSnd = "[sound:%s]" % self.currentSound
+        else:
+            sndName = self.editor.mw.col.media.addFile(self.audios[self.currentWord][n])
+            self.chosenSnd = "[sound:%s]" % sndName
+
+        self.currentNote['Pronunciation sound'] = self.chosenSnd
 
     def linkHandler(self, l):
         if re.match("sound[0-9]+", l) is not None:
