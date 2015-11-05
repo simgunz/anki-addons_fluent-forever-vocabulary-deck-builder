@@ -103,6 +103,9 @@ class NoteEditor(object):
         self.editor.loadNote = wrap(self.editor, Editor.loadNote, loadNoteWithVoc)
         self._setNoteVanilla = self.editor.setNote
         self.editor.setNote = wrap(self.editor, Editor.setNote, setNoteWithVoc)
+        self._bridgeVanilla = self.editor.bridge
+        self.editor.bridge = wrap(self.editor, Editor.bridge, extendedBridge)
+        self.editor.web.setBridge(self.editor.bridge)
         self.editor.web.setLinkHandler(self.ffNoteEditorLinkHandler)
         self.editor.loadNote()
 
@@ -110,6 +113,8 @@ class NoteEditor(object):
         self.galleryManager.finalizePreviousSelection()
         self.editor.loadNote = self._loadNoteVanilla
         self.editor.setNote = self._setNoteVanilla
+        self.editor.bridge = self._bridgeVanilla
+        self.editor.web.setBridge(self.editor.bridge)
         self.editor.ffNoteEditorLinkHandler = ''
         self.editor.loadNote()
 
@@ -140,3 +145,8 @@ def loadNoteWithVoc(self):
 
 def setNoteWithVoc(self, note, hide=True, focus=False):
     self.vocDeckBuilder.loadCssStyleSheet()
+
+def extendedBridge(self, str):
+    ar = str.split(':')
+    if ar[1] == 'setpronunciation':
+        self.vocDeckBuilder.pronunciationManager.setPronunciation(int(ar[2]))
