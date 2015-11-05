@@ -82,7 +82,7 @@ class PronunciationManager:
                        #'style="max-width: 32px; max-height: 1em; min-height:24px;" /></a>' % (self.audios[i].file_path, i, self.editor.mw.pm.addonFolder())
         gallery += '</form>\n'
         gallery += '</div>\n'
-        self.webMainFrame.findFirstElement("#f4").setOuterXml(gallery)
+        self.webMainFrame.findFirstElement("#f5").setOuterXml(gallery)
 
     def getAudio(self, word, nThumbs):
         """Download, normalize and filter pronunciations track from the given service.
