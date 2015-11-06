@@ -23,6 +23,7 @@ import anki
 from anki import hooks
 from aqt.editor import Editor
 from gallerymanager import GalleryManager
+from pronunciationmanager import PronunciationManager
 
 _galleryCss = """
 #normal2, #normal3, #normal4, #normal5 {
@@ -77,11 +78,13 @@ class NoteEditor(object):
         #self.nextNotes = list(_nPreload)
         #self.prevNotes = list(_nPreload)
         self.galleryManager = GalleryManager(self.editor, "Bing")
+        self.pronunciationManager = PronunciationManager(self.editor, "Forvo")
 
     def __del__(self):
         #FIXME: Call this destructor explicitly somewhere
         self.galleryManager.finalizePreviousSelection()
         self.galleryManager.__del__()
+        self.pronunciationManager.__del__()
 
     def loadCssStyleSheet(self):
         css = str(self.webMainFrame.findFirstElement('style').toInnerXml())
@@ -91,12 +94,18 @@ class NoteEditor(object):
     def showGallery(self, word):
         self.galleryManager.buildGallery(word, nThumbs=_nPreload)
 
+    def showPronunciationGallery(self, word):
+        self.pronunciationManager.buildGallery(word)
+
     def activate(self):
         self.loadCssStyleSheet()
         self._loadNoteVanilla = self.editor.loadNote
         self.editor.loadNote = wrap(self.editor, Editor.loadNote, loadNoteWithVoc)
         self._setNoteVanilla = self.editor.setNote
         self.editor.setNote = wrap(self.editor, Editor.setNote, setNoteWithVoc)
+        self._bridgeVanilla = self.editor.bridge
+        self.editor.bridge = wrap(self.editor, Editor.bridge, extendedBridge)
+        self.editor.web.setBridge(self.editor.bridge)
         self.editor.web.setLinkHandler(self.ffNoteEditorLinkHandler)
         self.editor.loadNote()
 
@@ -104,6 +113,8 @@ class NoteEditor(object):
         self.galleryManager.finalizePreviousSelection()
         self.editor.loadNote = self._loadNoteVanilla
         self.editor.setNote = self._setNoteVanilla
+        self.editor.bridge = self._bridgeVanilla
+        self.editor.web.setBridge(self.editor.bridge)
         self.editor.ffNoteEditorLinkHandler = ''
         self.editor.loadNote()
 
@@ -111,6 +122,8 @@ class NoteEditor(object):
         l = os.path.basename(l)
         if re.match("img[0-9]+", l) is not None:
             self.galleryManager.linkHandler(l)
+        if re.match("sound.*", l) is not None:
+            self.pronunciationManager.linkHandler(l)
 
 def wrap(instance, old, new, pos='after'):
     "Override an existing function."
@@ -128,6 +141,12 @@ def wrap(instance, old, new, pos='after'):
 def loadNoteWithVoc(self):
     self.vocDeckBuilder.galleryManager.finalizePreviousSelection()
     self.vocDeckBuilder.showGallery(self.note['Word'])
+    self.vocDeckBuilder.showPronunciationGallery(self.note['Word'])
 
 def setNoteWithVoc(self, note, hide=True, focus=False):
     self.vocDeckBuilder.loadCssStyleSheet()
+
+def extendedBridge(self, str):
+    ar = str.split(':')
+    if ar[1] == 'setpronunciation':
+        self.vocDeckBuilder.pronunciationManager.setPronunciation(int(ar[2]))

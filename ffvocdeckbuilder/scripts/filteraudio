@@ -1,0 +1,43 @@
+#!/bin/bash
+
+SOXAMOUNT=0.21
+
+function setstartposition()
+{
+    durarr=($(echo $1 | tr ":" " " | tr "." " "))
+    mills=$((durarr[3]-50))
+    if [ $mills -lt 0 ]; then
+        durarr[2]=$((durarr[2]-1))
+    fi
+    durarr[3]=$(((durarr[3]+50)%100))
+    noisestartposition=${durarr[0]}:${durarr[1]}:${durarr[2]}.${durarr[3]}
+}
+
+cd $(dirname "$1")
+fin=$(basename "$1")
+
+#Normalize
+fout="norm-$fin"
+sox "$fin" "$fout" gain -n -2
+fin="$fout"
+
+#Remove noise
+fout="filtered-$fin"
+foutsilence="silenced-$fin"
+duration=$(ffmpeg -i "$fin" 2>&1 | grep Duration | awk '/Duration/ {print substr($2, 0, length($2)-1)}')
+setstartposition $duration
+ffmpeg -i "$fin" -vn -ss $noisestartposition -t 00:00:00.500 noiseaud.wav > /dev/null 2>&1
+sox noiseaud.wav -n noiseprof noise.prof > /dev/null 2>&1
+sox "$fin" "$fout" noisered noise.prof $SOXAMOUNT > /dev/null 2>&1
+#Shorten silence longer than 0.15s seconds down to 0.15s
+#the first part (1 0.1 0%) which remove instead of shorten the silence
+#at the beginning of the track cannot be removed, so we set the threshold to 0%
+#to avoid it's successuful
+
+sox "$fout" "$foutsilence" silence 1 0.1 1% reverse silence 1 0.1 1% reverse
+rm noise.prof noiseaud.wav
+
+#Backup and finalize
+cp "$1" "$(dirname $1)/original-$(basename $1)"
+cp "$foutsilence" "$1"
+cd -
