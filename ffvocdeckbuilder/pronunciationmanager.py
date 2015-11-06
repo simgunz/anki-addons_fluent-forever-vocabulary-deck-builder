@@ -65,19 +65,24 @@ class PronunciationManager:
         if not self.audios.has_key(word):
             self.downloadAudio(word)
         self.currentNote = self.editor.note
+        m = re.match(r'\[sound:(.*)\]', self.currentNote['Pronunciation sound'])
+        if m:
+            self.currentSound = m.group(1)
+        else:
+            self.currentSound = ""
         self.currentWord = word
         #Build html gallery
         gallery = '<div id="audiogallery">'
-        #gallery += '<div id="currentaudio">'
-        #if self.currentImg != "":
-            #gallery += '<img src="%s"/>' % self.currentImg
-        #else:
-            #gallery += '<img src="%s/ffvocdeckbuilder/images/no_image.png"/>' % self.editor.mw.pm.addonFolder()
-        #gallery += '</div><div id="thumbs">'
         gallery += '<form action="">'
-
-        gallery += '<input class="container" onclick="setFfvdbPronunciation(-2)" type="radio" name="pronunciation" value="%s" checked>' \
-                   '<img class="container" src="%s/ffvocdeckbuilder/icons/no_sound.png" style="max-width: 32px; max-height: 1em; min-height:24px;"/>' % (self.currentSound, self.editor.mw.pm.addonFolder())
+        if self.currentSound != "":
+            gallery += '<input class="container" onclick="setFfvdbPronunciation(-2)" type="radio" name="pronunciation" value="%s">' \
+                       '<img class="container" src="%s/ffvocdeckbuilder/icons/no_sound.png" style="max-width: 32px; max-height: 1em; min-height:24px;"/>' % (self.currentSound, self.editor.mw.pm.addonFolder())
+            gallery += '<input class="container" onclick="setFfvdbPronunciation(-1)" type="radio" name="pronunciation" value="%s" checked>' \
+                       '<a href="soundCurrent"><img class="container" src="%s/ffvocdeckbuilder/icons/current_sound.png" alt="play"' \
+                           'style="max-width: 32px; max-height: 1em; min-height:24px;" /></a>' % (self.currentSound, self.editor.mw.pm.addonFolder())
+        else:
+            gallery += '<input class="container" onclick="setFfvdbPronunciation(-2)" type="radio" name="pronunciation" value="%s" checked>' \
+                       '<img class="container" src="%s/ffvocdeckbuilder/icons/no_sound.png" style="max-width: 32px; max-height: 1em; min-height:24px;"/>' % (self.currentSound, self.editor.mw.pm.addonFolder())
         for i, af in enumerate(self.audios[word]):
             gallery += '<input class="container" onclick="setFfvdbPronunciation(%d)" type="radio" name="pronunciation" value="%s">' \
                        '<a href="sound%d"><img class="container" src="%s/ffvocdeckbuilder/images/replay.png" alt="play"' \
@@ -128,4 +133,7 @@ class PronunciationManager:
         if re.match("sound[0-9]+", l) is not None:
             idx=int(l.replace("sound", ""))
             playSound = self.audios[self.currentWord][idx]
+            play(playSound)
+        elif l == 'soundCurrent':
+            playSound = self.currentSound
             play(playSound)

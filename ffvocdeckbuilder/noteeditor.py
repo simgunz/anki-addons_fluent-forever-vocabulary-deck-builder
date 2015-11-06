@@ -122,7 +122,7 @@ class NoteEditor(object):
         l = os.path.basename(l)
         if re.match("img[0-9]+", l) is not None:
             self.galleryManager.linkHandler(l)
-        if re.match("sound[0-9]+", l) is not None:
+        if re.match("sound.*", l) is not None:
             self.pronunciationManager.linkHandler(l)
 
 def wrap(instance, old, new, pos='after'):
