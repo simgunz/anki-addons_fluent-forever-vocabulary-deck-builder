@@ -75,6 +75,9 @@ class PronunciationManager:
             #gallery += '<img src="%s/ffvocdeckbuilder/images/no_image.png"/>' % self.editor.mw.pm.addonFolder()
         #gallery += '</div><div id="thumbs">'
         gallery += '<form action="">'
+
+        gallery += '<input class="container" onclick="setFfvdbPronunciation(-2)" type="radio" name="pronunciation" value="%s" checked>' \
+                   '<img class="container" src="%s/ffvocdeckbuilder/icons/no_sound.png" style="max-width: 32px; max-height: 1em; min-height:24px;"/>' % (self.currentSound, self.editor.mw.pm.addonFolder())
         for i, af in enumerate(self.audios[word]):
             gallery += '<input class="container" onclick="setFfvdbPronunciation(%d)" type="radio" name="pronunciation" value="%s">' \
                        '<a href="sound%d"><img class="container" src="%s/ffvocdeckbuilder/images/replay.png" alt="play"' \
