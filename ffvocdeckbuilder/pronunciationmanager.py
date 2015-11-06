@@ -85,7 +85,7 @@ class PronunciationManager:
                        '<img class="container" src="%s/ffvocdeckbuilder/icons/no_sound.png" style="max-width: 32px; max-height: 1em; min-height:24px;"/>' % (self.currentSound, self.editor.mw.pm.addonFolder())
         for i, af in enumerate(self.audios[word]):
             gallery += '<input class="container" onclick="setFfvdbPronunciation(%d)" type="radio" name="pronunciation" value="%s">' \
-                       '<a href="sound%d"><img class="container" src="%s/ffvocdeckbuilder/images/replay.png" alt="play"' \
+                       '<a href="sound%d"><img class="container" src="%s/ffvocdeckbuilder/icons/play.png" alt="play"' \
                            'style="max-width: 32px; max-height: 1em; min-height:24px;" /></a>' % (i, self.audios[word][i], i, self.editor.mw.pm.addonFolder())
                        #'style="max-width: 32px; max-height: 1em; min-height:24px;" /></a>' % (self.audios[i].file_path, i, self.editor.mw.pm.addonFolder())
         gallery += '</form>\n'
