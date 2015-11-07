@@ -44,6 +44,15 @@ class GalleryManager:
         #FIXME: Call this destructor explicitly somewhere
         self.tempDir.dissolve()
 
+    def downloadPictures(self, word, query, nThumbs):
+        if not self.wordUrls.has_key(word):
+            self.wordThumbs[word] = []
+            self.wordUrls[word] = self.getUrls(query, nThumbs)
+            for i, th in enumerate(self.wordUrls[word]['thumb']):
+                fileName = os.path.join(self.tempDir.name, 'thumb_' + word + '_' + str(i) )
+                urlretrieve(th, fileName)
+                self.wordThumbs[word].append(fileName)
+
     def buildGallery(self, word, specterm="", nThumbs=5):
         self.chosenImg = ""
         self.currentNote = self.editor.note
@@ -55,14 +64,9 @@ class GalleryManager:
         self.currentWord = word
         query = word + " " + specterm
         if not self.wordUrls.has_key(word):
-            self.wordThumbs[word] = []
-            self.wordUrls[word] = self.getUrls(query, nThumbs)
-            for i, th in enumerate(self.wordUrls[word]['thumb']):
-                fileName = os.path.join(self.tempDir.name, 'thumb_' + word + '_' + str(i) )
-                urlretrieve(th, fileName)
-                self.wordThumbs[word].append(fileName)
+            self.downloadPictures(word, query, nThumbs)
         #Build html gallery
-        gallery = '<div id="gallery">'
+        gallery = '<div style="width:90\% float:left" id="gallery">'
         gallery += '<div id="currentimg">'
         if self.currentImg != "":
             gallery += '<img src="%s"/>' % self.currentImg
@@ -72,13 +76,19 @@ class GalleryManager:
         for i, wd in enumerate(self.wordThumbs[word]):
             gallery += '<a href="img%i"><img src="%s" alt="" /></a>\n' % (i, wd)
         gallery += '</div></div>'
-        self.webMainFrame.findFirstElement("#f3").setOuterXml(gallery)
+        #Keep input field and reduce its size in order to allow drag and drop
+        #FIXME: Find a more elegant solution to allow drag and drop
+        oxml = self.webMainFrame.findFirstElement("#f4").toOuterXml()
+        oxml = oxml.replace('style="','style="width:4%; float:left; ' )
+        oxml += gallery
+        self.webMainFrame.findFirstElement("#f4").setOuterXml(oxml)
         #FIXME: Use BeautifulSoup?
 
     def getUrls(self, query, nThumbs):
         imageUrls = {'thumb':[], 'image':[]}
         if self.provider == "bing":
             params = {'$format': 'json',
+                      #'Market':'"da-DK"',
                       '$top': nThumbs}
             query += u' loc:' + unicode(_countryCode)
             results = self.servant.search('Image', query, params).json()
@@ -106,6 +116,6 @@ class GalleryManager:
     def finalizePreviousSelection(self):
         if self.chosenImgPath != "":
             imgName = self.editor.mw.col.media.addFile(self.chosenImgPath)
-            self.currentNote['Picture'] = '<img src="%s" />' % imgName
+            self.currentNote['Picture'] = self.currentNote['Picture'] + '<img src="%s" />' % imgName
             self.currentNote.flush()
             self.chosenImgPath = ""
