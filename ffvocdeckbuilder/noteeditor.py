@@ -170,11 +170,17 @@ where id in %s""" % ids2str(
         self.preloadedNotesIds += newPreloadNotesIds
         #Download each note media by spawning new threads
         newPreloadNotes = list()
+        wordDownloadList = list()
         for i in range(len(newPreloadNotesIds)):
             newPreloadNotes.append(self.mw.col.getNote(newPreloadNotesIds[i]))
+            wordDownloadList.append(newPreloadNotes[i]['Word'])
 
             thrImg = threading.Thread(target=self.galleryManager.downloadPictures, args=(newPreloadNotes[i]['Word'], newPreloadNotes[i]['Word'], _nGalleryThumbs), kwargs={})
             thrImg.start()
+
+        # Put single string args between [] or it is considered as many args as the length of the string
+        thrAudio = threading.Thread(target=self.pronunciationManager.downloadAudios, args=([wordDownloadList]), kwargs={})
+        thrAudio.start()
 
 def wrap(instance, old, new, pos='after'):
     "Override an existing function."
