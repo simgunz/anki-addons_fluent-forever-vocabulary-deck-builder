@@ -51,6 +51,21 @@ formatMulticolumn = function(){
   }
   $('#ipaselector').css('font-family', '"Courier New", Courier, monospace')
 };
+
+function getSelectValues(select) {
+  var result = [];
+  var options = select && select.options;
+  var opt;
+
+  for (var i=0, iLen=options.length; i<iLen; i++) {
+    opt = options[i];
+
+    if (opt.selected) {
+      result.push(opt.value || opt.text);
+    }
+  }
+  py.run("ffvdb:setipa:" + result);
+}
 """
 
 class IpaManager:
@@ -88,17 +103,23 @@ class IpaManager:
             self.ipa[word] = found
 
     def buildGallery(self, word, nThumbs=5):
+        self.currentNote = self.editor.note
         if not self.ipa.has_key(word):
             self.downloadIpa(word)
         gallery = u'<div id="ipagallery">'
-        gallery += u'<select id="ipaselector" name="ipa" multiple>'
+        gallery += u'<select onchange="getSelectValues(this)" id="ipaselector" name="ipa" multiple>'
         gallery += u'<option value="">'
         for i, v in enumerate(self.ipa[word]):
-            gallery += u'<option value="{2}">{0} ({1}'.format(v['ipa'], v['provider'], i)
+            gallery += u'<option value="{0}">{0}; {1}'.format(v['ipa'], v['provider'])
             if v.has_key('spec'):
                 gallery += u', {0}'.format(v['spec'])
-            gallery += u')</option>'
+            gallery += u'</option>'
         gallery += u'</select></div>'
         self.webMainFrame.findFirstElement("#f6").setOuterXml(gallery)
         self.editor.web.eval(_javaFunctions)
         self.editor.web.eval("formatMulticolumn();")
+
+    def setIpa(self, ipaTxt):
+        self.currentNote['IPA transcription'] = ipaTxt
+        #FIXME: Flush only once at the end from noteeditor
+        self.currentNote.flush()
