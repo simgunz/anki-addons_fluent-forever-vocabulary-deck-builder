@@ -66,7 +66,7 @@ class GalleryManager:
         if not self.wordUrls.has_key(word):
             self.downloadPictures(word, query, nThumbs)
         #Build html gallery
-        gallery = '<div id="gallery">'
+        gallery = '<div style="width:90\% float:left" id="gallery">'
         gallery += '<div id="currentimg">'
         if self.currentImg != "":
             gallery += '<img src="%s"/>' % self.currentImg
@@ -76,7 +76,12 @@ class GalleryManager:
         for i, wd in enumerate(self.wordThumbs[word]):
             gallery += '<a href="img%i"><img src="%s" alt="" /></a>\n' % (i, wd)
         gallery += '</div></div>'
-        self.webMainFrame.findFirstElement("#f3").setOuterXml(gallery)
+        #Keep input field and reduce its size in order to allow drag and drop
+        #FIXME: Find a more elegant solution to allow drag and drop
+        oxml = self.webMainFrame.findFirstElement("#f4").toOuterXml()
+        oxml = oxml.replace('style="','style="width:4%; float:left; ' )
+        oxml += gallery
+        self.webMainFrame.findFirstElement("#f4").setOuterXml(oxml)
         #FIXME: Use BeautifulSoup?
 
     def getUrls(self, query, nThumbs):
