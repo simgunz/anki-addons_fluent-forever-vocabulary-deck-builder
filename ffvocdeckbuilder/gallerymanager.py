@@ -88,6 +88,7 @@ class GalleryManager:
         imageUrls = {'thumb':[], 'image':[]}
         if self.provider == "bing":
             params = {'$format': 'json',
+                      #'Market':'"da-DK"',
                       '$top': nThumbs}
             query += u' loc:' + unicode(_countryCode)
             results = self.servant.search('Image', query, params).json()
