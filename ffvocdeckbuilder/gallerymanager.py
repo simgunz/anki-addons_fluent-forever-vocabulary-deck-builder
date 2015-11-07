@@ -115,6 +115,6 @@ class GalleryManager:
     def finalizePreviousSelection(self):
         if self.chosenImgPath != "":
             imgName = self.editor.mw.col.media.addFile(self.chosenImgPath)
-            self.currentNote['Picture'] = '<img src="%s" />' % imgName
+            self.currentNote['Picture'] = self.currentNote['Picture'] + '<img src="%s" />' % imgName
             self.currentNote.flush()
             self.chosenImgPath = ""
