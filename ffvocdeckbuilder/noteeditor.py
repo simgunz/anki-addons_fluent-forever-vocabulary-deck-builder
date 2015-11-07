@@ -21,6 +21,7 @@ import re
 
 import anki
 from anki import hooks
+from anki.utils import ids2str
 from aqt.editor import Editor
 from gallerymanager import GalleryManager
 from pronunciationmanager import PronunciationManager
@@ -70,6 +71,7 @@ class NoteEditor(object):
 
     def __init__(self, editor):
         self.editor = editor
+        self.mw = self.editor.mw
         self.web = editor.web
         self.webMainFrame = self.web.page().mainFrame()
         self.currentWord = ''
@@ -124,6 +126,16 @@ class NoteEditor(object):
             self.galleryManager.linkHandler(l)
         if re.match("sound.*", l) is not None:
             self.pronunciationManager.linkHandler(l)
+
+    def getNotes(self, idxs):
+        """
+        Return the note ids of the notes corresponding to the browser rows given by idx
+        Adapted from aqt.browser.selectedNotes
+        """
+        return self.mw.col.db.list("""
+select distinct nid from cards
+where id in %s""" % ids2str(
+    [self.browser.model.cards[idx] for idx in idxs]))
 
 def wrap(instance, old, new, pos='after'):
     "Override an existing function."
