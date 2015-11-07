@@ -44,6 +44,15 @@ class GalleryManager:
         #FIXME: Call this destructor explicitly somewhere
         self.tempDir.dissolve()
 
+    def downloadPictures(self, word, query, nThumbs):
+        if not self.wordUrls.has_key(word):
+            self.wordThumbs[word] = []
+            self.wordUrls[word] = self.getUrls(query, nThumbs)
+            for i, th in enumerate(self.wordUrls[word]['thumb']):
+                fileName = os.path.join(self.tempDir.name, 'thumb_' + word + '_' + str(i) )
+                urlretrieve(th, fileName)
+                self.wordThumbs[word].append(fileName)
+
     def buildGallery(self, word, specterm="", nThumbs=5):
         self.chosenImg = ""
         self.currentNote = self.editor.note
@@ -55,12 +64,7 @@ class GalleryManager:
         self.currentWord = word
         query = word + " " + specterm
         if not self.wordUrls.has_key(word):
-            self.wordThumbs[word] = []
-            self.wordUrls[word] = self.getUrls(query, nThumbs)
-            for i, th in enumerate(self.wordUrls[word]['thumb']):
-                fileName = os.path.join(self.tempDir.name, 'thumb_' + word + '_' + str(i) )
-                urlretrieve(th, fileName)
-                self.wordThumbs[word].append(fileName)
+            self.downloadPictures(word, query, nThumbs)
         #Build html gallery
         gallery = '<div id="gallery">'
         gallery += '<div id="currentimg">'
