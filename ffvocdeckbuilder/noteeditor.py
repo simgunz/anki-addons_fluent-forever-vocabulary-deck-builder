@@ -27,6 +27,7 @@ from anki.utils import ids2str
 from aqt.editor import Editor
 from gallerymanager import GalleryManager
 from pronunciationmanager import PronunciationManager
+from ipamanager import IpaManager
 
 _galleryCss = """
 #normal2, #normal3, #normal4, #normal5 {
@@ -85,6 +86,7 @@ class NoteEditor(object):
         #self.prevNotes = list(_nPreload)
         self.galleryManager = GalleryManager(self.editor, "Bing")
         self.pronunciationManager = PronunciationManager(self.editor, "Forvo")
+        self.ipaManager = IpaManager(self.editor)
 
     def __del__(self):
         #FIXME: Call this destructor explicitly somewhere
@@ -102,6 +104,9 @@ class NoteEditor(object):
 
     def showPronunciationGallery(self, word):
         self.pronunciationManager.buildGallery(word)
+
+    def showIpaGallery(self, word):
+        self.ipaManager.buildGallery(word)
 
     def activate(self):
         self.loadCssStyleSheet()
@@ -199,6 +204,7 @@ def loadNoteWithVoc(self):
     self.vocDeckBuilder.galleryManager.finalizePreviousSelection()
     self.vocDeckBuilder.showGallery(self.note['Word'])
     self.vocDeckBuilder.showPronunciationGallery(self.note['Word'])
+    self.vocDeckBuilder.showIpaGallery(self.note['Word'])
     self.vocDeckBuilder.preload(_nPreload)
 
 def setNoteWithVoc(self, note, hide=True, focus=False):
