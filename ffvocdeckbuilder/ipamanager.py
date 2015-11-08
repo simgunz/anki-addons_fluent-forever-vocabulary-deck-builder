@@ -102,6 +102,10 @@ class IpaManager:
                         found[-1]['spec'] = a.get_text()
             self.ipa[word] = found
 
+    def downloadIpas(self, wordList):
+        for word in wordList:
+            self.downloadIpa(word)
+
     def buildGallery(self, word, nThumbs=5):
         self.currentNote = self.editor.note
         if not self.ipa.has_key(word):

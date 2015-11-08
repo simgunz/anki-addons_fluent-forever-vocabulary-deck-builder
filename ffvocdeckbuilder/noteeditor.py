@@ -187,6 +187,9 @@ where id in %s""" % ids2str(
         thrAudio = threading.Thread(target=self.pronunciationManager.downloadAudios, args=([wordDownloadList]), kwargs={})
         thrAudio.start()
 
+        thrIpa= threading.Thread(target=self.ipaManager.downloadIpas, args=([wordDownloadList]), kwargs={})
+        thrIpa.start()
+
 def wrap(instance, old, new, pos='after'):
     "Override an existing function."
     def repl(*args, **kwargs):
