@@ -87,6 +87,10 @@ class NoteEditor(object):
         self.galleryManager = GalleryManager(self.editor, "Bing")
         self.pronunciationManager = PronunciationManager(self.editor, "Forvo")
         self.ipaManager = IpaManager(self.editor)
+        f = open('/home/simone/WIP/anki-da/articles-et', 'r')
+        self.farticle = f.read().splitlines()
+        self.preloadNotesIdx = []
+        f.close()
 
     def __del__(self):
         #FIXME: Call this destructor explicitly somewhere
@@ -146,6 +150,19 @@ class NoteEditor(object):
 select distinct nid from cards
 where id in %s""" % ids2str(
     [self.browser.model.cards[idx] for idx in idxs]))
+
+    def parseArticle(self, word):
+        if self.editor.note['Article'] == '' and self.editor.note['PoS'].lower() == 'noun':
+            for el in self.farticle:
+                a=el.decode('utf-8')
+                b= unicode(word.lower())
+                print type(a)
+                print type(b)
+                if a == b:
+                    self.editor.note['Article'] = 'et'
+                    return
+            self.editor.note['Article'] = 'en?'
+            self.editor.note.flush()
 
     def preload(self, nPreload):
         """ Preload media for the next cards in the browser tableView
@@ -210,6 +227,7 @@ def loadNoteWithVoc(self):
     self.vocDeckBuilder.showPronunciationGallery(self.note['Word'])
     self.vocDeckBuilder.showIpaGallery(self.note['Word'])
     self.vocDeckBuilder.preload(_nPreload)
+    self.vocDeckBuilder.parseArticle(self.note['Word'])
 
 def setNoteWithVoc(self, note, hide=True, focus=False):
     self.vocDeckBuilder.loadCssStyleSheet()
