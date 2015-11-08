@@ -117,6 +117,7 @@ class NoteEditor(object):
         self._bridgeVanilla = self.editor.bridge
         self.editor.bridge = wrap(self.editor, Editor.bridge, extendedBridge)
         self.editor.web.setBridge(self.editor.bridge)
+        self.editor.addButtonsToTagBar()
         self.editor.web.setLinkHandler(self.ffNoteEditorLinkHandler)
         self.editor.loadNote()
 

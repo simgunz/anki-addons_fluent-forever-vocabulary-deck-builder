@@ -63,6 +63,20 @@ def enableDeckBuilderButton(self, val=True):
         else:
             self._buttons["ffvocdeckbuilder"].setEnabled(False)
 
+def addButtonsToTagBar(self):
+    from aqt.qt import QPushButton, QGroupBox
+    btnPrev = QPushButton("Previous")
+    btnNext = QPushButton("Next")
+    #The tag groupbox
+    gb = self.widget.findChild(QGroupBox)
+    ly = gb.layout()
+    ly.addWidget(btnPrev, 1, 2)
+    ly.addWidget(btnNext, 1, 3)
+
+    browser = self.parentWindow
+    btnPrev.clicked.connect(browser.onPreviousCard)
+    btnNext.clicked.connect(browser.onNextCard)
+
 #BROWSER
 def closeEvent(self, event):
     if self.editor.vocDeckBuilder:
@@ -73,8 +87,10 @@ hooks.addHook("setupEditorButtons", onSetupEditorButtons)
 editor.Editor.enableButtons = hooks.wrap(
     editor.Editor.enableButtons, enableDeckBuilderButton)
 
-browser.Browser.closeEvent = hooks.wrap(
-    browser.Browser.closeEvent, closeEvent, "before")
-
 editor.Editor.toggleVocabularyBuilderView = toggleVocabularyBuilderView
 editor.Editor.vocDeckBuilder = None
+
+editor.Editor.addButtonsToTagBar = addButtonsToTagBar
+
+browser.Browser.closeEvent = hooks.wrap(
+    browser.Browser.closeEvent, closeEvent, "before")
