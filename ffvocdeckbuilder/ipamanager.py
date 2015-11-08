@@ -102,7 +102,7 @@ class IpaManager:
                 foundIpaLanguage = s.findPrevious('h2').span.get_text()
                 if re.match(self.languageCodes[_currentLanguage], foundIpaLanguage):
                     found.append({'provider': 'Wiktionary (en)', 'ipa' : s.get_text().rstrip(' ')})
-                    a = s.findPrevious('span', id=re.compile('Etymology_\d+'))
+                    a = s.findPrevious('span', id=re.compile('Etymology(_\d+)*'))
                     if a:
                         found[-1]['spec'] = a.get_text()
                     #Retrieve word gender from Wiktionary
