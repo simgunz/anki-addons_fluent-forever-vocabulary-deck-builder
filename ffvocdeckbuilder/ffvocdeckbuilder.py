@@ -67,17 +67,20 @@ def addButtonsToTagBar(self):
     from aqt.qt import QPushButton, QGroupBox
     btnPrev = QPushButton("Previous")
     btnNext = QPushButton("Next")
+    btnSkip = QPushButton("Skip and Suspend")
     btnClone = QPushButton("Clone note")
     #The tag groupbox
     gb = self.widget.findChild(QGroupBox)
     ly = gb.layout()
     ly.addWidget(btnPrev, 1, 2)
     ly.addWidget(btnNext, 1, 3)
+    ly.addWidget(btnSkip, 1, 4)
     ly.addWidget(btnClone, 1, 5)
 
     browser = self.parentWindow
     btnPrev.clicked.connect(browser.onPreviousCard)
     btnNext.clicked.connect(browser.onNextCard)
+    #btnSkip.clicked.connect(browser.onSkipAndSuspend)
     #btnSkip.clicked.connect(self.vocDeckBuilder.cloneNote())
 
 #BROWSER
@@ -85,6 +88,20 @@ def closeEvent(self, event):
     if self.editor.vocDeckBuilder:
         self.editor.vocDeckBuilder.__del__()
 
+def onSkipAndSuspend(self):
+    #FIXME: Assign to Browser
+    b = self.model.getCard(self.form.tableView.selectionModel().currentIndex())
+    a = self.model.getCard(self.form.tableView.selectionModel().currentIndex()).note().cards()
+    cc = []
+    for c in a:
+        cc.append(c.id)
+    self.editor.saveNow()
+    self.col.sched.suspendCards(cc)
+    self.model.reset()
+    self.mw.requireReset()
+    self.onNextCard()
+
+#Wrap methods and assign new methods
 hooks.addHook("setupEditorButtons", onSetupEditorButtons)
 
 editor.Editor.enableButtons = hooks.wrap(
@@ -97,3 +114,5 @@ editor.Editor.addButtonsToTagBar = addButtonsToTagBar
 
 browser.Browser.closeEvent = hooks.wrap(
     browser.Browser.closeEvent, closeEvent, "before")
+
+browser.Browser.onSkipAndSuspend = onSkipAndSuspend
