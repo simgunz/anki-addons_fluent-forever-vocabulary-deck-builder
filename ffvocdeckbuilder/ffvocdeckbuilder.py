@@ -67,15 +67,18 @@ def addButtonsToTagBar(self):
     from aqt.qt import QPushButton, QGroupBox
     btnPrev = QPushButton("Previous")
     btnNext = QPushButton("Next")
+    btnClone = QPushButton("Clone note")
     #The tag groupbox
     gb = self.widget.findChild(QGroupBox)
     ly = gb.layout()
     ly.addWidget(btnPrev, 1, 2)
     ly.addWidget(btnNext, 1, 3)
+    ly.addWidget(btnClone, 1, 5)
 
     browser = self.parentWindow
     btnPrev.clicked.connect(browser.onPreviousCard)
     btnNext.clicked.connect(browser.onNextCard)
+    #btnSkip.clicked.connect(self.vocDeckBuilder.cloneNote())
 
 #BROWSER
 def closeEvent(self, event):

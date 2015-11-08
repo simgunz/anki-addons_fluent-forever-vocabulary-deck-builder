@@ -208,6 +208,35 @@ where id in %s""" % ids2str(
         thrIpa= threading.Thread(target=self.ipaManager.downloadIpas, args=([wordDownloadList]), kwargs={})
         thrIpa.start()
 
+    def cloneNote(self):
+        self.browser = aqt.dialogs.open("Browser", self.mw)
+        nid = self.browser.selectedNotes()
+        note = self.mw.col.getNote(nid)
+        model = note._model
+
+        # Assign model to deck
+        #mw.col.decks.select(deck['id'])
+        #mw.col.decks.get(deck)['mid'] = model['id']
+        #mw.col.decks.save(deck)
+
+        ## Assign deck to model
+        #mw.col.models.setCurrent(model)
+        #mw.col.models.current()['did'] = deck['id']
+        #mw.col.models.save(model)
+
+        ## Create new note
+        #note_copy = mw.col.newNote()
+        ## Copy tags and fields (all model fields) from original note
+        #note_copy.tags = note.tags
+        #note_copy.fields = note.fields
+
+        ## Refresh note and add to database
+        #note_copy.flush()
+        #mw.col.addNote(note_copy)
+
+    ## Reset collection and main window
+    #mw.col.reset()
+
 def wrap(instance, old, new, pos='after'):
     "Override an existing function."
     def repl(*args, **kwargs):
