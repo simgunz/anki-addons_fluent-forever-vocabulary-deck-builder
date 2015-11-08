@@ -105,6 +105,10 @@ class IpaManager:
                     a = s.findPrevious('span', id=re.compile('Etymology_\d+'))
                     if a:
                         found[-1]['spec'] = a.get_text()
+                    #Retrieve word gender from Wiktionary
+                    a = s.findNext('abbr')
+                    if a:
+                        found[-1]['gender'] = a.get_text()
             self.ipa[word] = found
 
     def downloadIpas(self, wordList):
