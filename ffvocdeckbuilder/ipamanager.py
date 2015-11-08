@@ -86,7 +86,7 @@ class IpaManager:
             #Wiktionary
             url = u'https://en.wiktionary.org/wiki/{0}'.format(word)
             r = urllib.urlopen(url.encode('utf-8')).read()
-            soup = BeautifulSoup(r)
+            soup = BeautifulSoup(r, 'html.parser')
             rawIpa = soup.find_all("span", class_="IPA")
             for s in rawIpa:
                 foundIpaLanguage = s.findPrevious('h2').span.get_text()
