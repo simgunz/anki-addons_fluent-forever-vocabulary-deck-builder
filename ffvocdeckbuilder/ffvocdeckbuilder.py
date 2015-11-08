@@ -30,6 +30,7 @@ from noteeditor import NoteEditor
 iconsDir = os.path.join(mw.pm.addonFolder(), 'ffvocdeckbuilder', 'icons')
 
 
+#EDITOR
 def toggleVocabularyBuilderView(self, checked):
     if not self.vocDeckBuilder:
         self.vocDeckBuilder = NoteEditor(self)
@@ -62,6 +63,7 @@ def enableDeckBuilderButton(self, val=True):
         else:
             self._buttons["ffvocdeckbuilder"].setEnabled(False)
 
+#BROWSER
 def closeEvent(self, event):
     if self.editor.vocDeckBuilder:
         self.editor.vocDeckBuilder.__del__()
