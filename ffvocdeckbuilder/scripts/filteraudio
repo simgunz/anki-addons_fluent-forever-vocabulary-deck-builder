@@ -34,7 +34,7 @@ sox "$fin" "$fout" noisered noise.prof $SOXAMOUNT > /dev/null 2>&1
 #at the beginning of the track cannot be removed, so we set the threshold to 0%
 #to avoid it's successuful
 
-sox "$fout" "$foutsilence" silence 1 0.1 1% reverse silence 1 0.1 1% reverse
+sox "$fout" "$foutsilence" silence 1 0.1 0.5% reverse silence 1 0.1 0.5% reverse
 rm noise.prof noiseaud.wav
 
 #Backup and finalize
