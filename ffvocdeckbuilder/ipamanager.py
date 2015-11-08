@@ -83,6 +83,16 @@ class IpaManager:
         if not self.ipa.has_key(word):
             found = list()
 
+            if _currentLanguage == 'da':
+                #Den Danske Ordbog
+                url = u'http://ordnet.dk/ddo/ordbog?query={0}'.format(word)
+                r = urllib.urlopen(url.encode('utf-8')).read()
+                soup = BeautifulSoup(r, 'html.parser')
+                rawIpa = soup.find_all("span", class_="lydskrift")
+                rawTxt = soup.find_all("div", id="id-udt")
+                for i, s in enumerate(rawIpa):
+                    found.append({'provider': 'Den Danske Ordbog', 'ipa' : s.get_text()})
+
             #Wiktionary
             url = u'https://en.wiktionary.org/wiki/{0}'.format(word)
             r = urllib.urlopen(url.encode('utf-8')).read()
