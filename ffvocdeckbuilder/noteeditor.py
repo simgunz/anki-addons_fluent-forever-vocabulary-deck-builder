@@ -37,7 +37,7 @@ _galleryCss = """
     margin: 0 auto;
 }
 #currentimg img {
-    height: 130px;
+    height: 70px;
     border: 6px solid #0033FF;
     margin: 6px;
     float: left;
@@ -47,12 +47,12 @@ _galleryCss = """
     float: left;
 }
 #thumbs img {
-    height: 130px;
+    height: 70px;
     border: none;
 }
 #thumbs a:link, #thumbs a:visited {
     color: #EEE;
-    height: 130px;
+    height: 70px;
     border: 6px solid #555;
     margin: 6px;
     float: left;
