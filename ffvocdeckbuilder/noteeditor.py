@@ -123,6 +123,10 @@ class NoteEditor(object):
         self.editor.web.setBridge(self.editor.bridge)
         self.editor.addButtonsToTagBar()
         self.editor.web.setLinkHandler(self.ffNoteEditorLinkHandler)
+        #Set the search field filter in order to display only unsuspended card 1 (one card per note)
+        self.browser = aqt.dialogs.open("Browser", self.mw)
+        self.browser.form.searchEdit.lineEdit().setText("deck:current card:1 -is:suspended")
+
         self.editor.loadNote()
 
     def deactivate(self):
