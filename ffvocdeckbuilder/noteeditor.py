@@ -25,6 +25,8 @@ import aqt
 from anki import hooks
 from anki.utils import ids2str
 from aqt.editor import Editor
+from aqt.qt import QUrl, QDesktopServices
+
 from gallerymanager import GalleryManager
 from pronunciationmanager import PronunciationManager
 from ipamanager import IpaManager
@@ -108,9 +110,10 @@ class NoteEditor(object):
 
         fNames = self.webMainFrame.findAllElements(".fname")
         oxml = fNames[0].toOuterXml()
-        oxml += '<td rowspan="6"><iframe src="https://en.wiktionary.org/wiki/%s#Danish" width="600" height="200" scrolling="yes"></iframe></td>' \
-                '<td rowspan="6"><iframe src="http://ordnet.dk/ddo/ordbog?query=%s" width="600" height="200" scrolling="yes"></iframe></td>' \
+        oxml += '<td rowspan="6"><iframe id="wikitionary" src="https://en.wiktionary.org/wiki/%s#Danish" width="490" height="200" scrolling="yes"></iframe></td>' \
+                '<td rowspan="6"><iframe id="ddo" src="http://ordnet.dk/ddo/ordbog?query=%s" width="490" height="200" scrolling="yes"></iframe></td>' \
                     % (word, word)
+        self.iframes = ['en.wiktionary.org', 'ordnet.dk']
         fNames[0].setOuterXml(oxml)
 
         #import requests
@@ -166,12 +169,28 @@ class NoteEditor(object):
         self.editor.ffNoteEditorLinkHandler = ''
         self.editor.loadNote()
 
-    def ffNoteEditorLinkHandler(self, l):
-        l = os.path.basename(l)
+    def ffNoteEditorLinkHandler(self, link):
+        l = os.path.basename(link)
         if re.match("img[0-9]+", l) is not None:
             self.galleryManager.linkHandler(l)
-        if re.match("sound.*", l) is not None:
+        elif re.match("sound.*", l) is not None:
             self.pronunciationManager.linkHandler(l)
+        else:
+            #FIXME: Very bug prone implementation. Change self.iframes to something more robust
+            # Manage real web links
+            # First try to guess from which IFrame the link comes from by analyzing
+            # the destination URL. Open in the same IFrame if the host of the destination link
+            # is the same otherwise open is system browser
+            linkHandled = False
+            for i, childframe in enumerate(self.webMainFrame.childFrames()):
+                host = QUrl(link).host()
+                if self.iframes[i].find(host) != -1:
+                    childframe.setUrl(QUrl(link))
+                    linkHandled = True
+                    break
+            if not linkHandled:
+                QDesktopServices.openUrl(QUrl(link))
+
 
     def getNotes(self, idxs):
         """
