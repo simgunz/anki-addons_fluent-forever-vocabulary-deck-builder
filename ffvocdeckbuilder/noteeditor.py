@@ -71,6 +71,10 @@ _galleryCss = """
 _nPreload = 5
 _nGalleryThumbs = 8
 
+_articleSoundEnabled=True
+
+_language='xx'
+
 class NoteEditor(object):
 
     def __init__(self, editor):
@@ -184,6 +188,7 @@ where id in %s""" % ids2str(
         #Retrieve row index of card currently selected in the browser. Note that only one row can be selected otherwise the editor
         #would not be visible, so we do need to perform any check on this condition
         selectedRows = self.browser.form.tableView.selectionModel().selectedRows()
+        #FIXME: Check how many rows there are before the end
         selectedRowIdx = selectedRows[0].row()
         #Generate list of row indexes of the notes to be preloaded and retrieve their ids.
         #Note that if in the browser the filter card:1 is not set in the search bar, on different rows there
@@ -211,6 +216,20 @@ where id in %s""" % ids2str(
 
         thrIpa= threading.Thread(target=self.ipaManager.downloadIpas, args=([wordDownloadList]), kwargs={})
         thrIpa.start()
+
+    def addArticleSound(self):
+        """Add the sound of the article to the corresponding field
+
+        The article will be pronunced together with word in the anki card in order to
+        memorize it together with word.
+
+        BUG:A warning should be emitted if the article sound is missing. Or better a wizard to add it.
+        """
+        a = self.currentNote['Article']
+        if _articleSoundEnabled and self.currentNote['Article']:
+            self.currentNote['Article pronunciation'] = '[sound:ipa_voc_article_{0}_{1}.ogg]' \
+                .format(_language, self.currentNote['Article'])
+            self.currentNote.flush()
 
     def cloneNote(self):
         self.browser = aqt.dialogs.open("Browser", self.mw)
@@ -261,6 +280,9 @@ def loadNoteWithVoc(self):
     self.vocDeckBuilder.showIpaGallery(self.note['Word'])
     self.vocDeckBuilder.preload(_nPreload)
     self.vocDeckBuilder.parseArticle(self.note['Word'])
+    if hasattr(self, 'note'):
+        self.vocDeckBuilder.currentNote = self.note
+        self.vocDeckBuilder.addArticleSound()
 
 def setNoteWithVoc(self, note, hide=True, focus=False):
     self.vocDeckBuilder.loadCssStyleSheet()
