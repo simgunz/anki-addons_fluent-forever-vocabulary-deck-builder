@@ -99,6 +99,42 @@ class NoteEditor(object):
         css += _galleryCss
         self.webMainFrame.findFirstElement('style').setInnerXml(css)
 
+    def showIFrames(self, word):
+        tdElems = self.webMainFrame.findAllElements("td")
+        #for i in range(5):
+            #oxml = tdElems[i].toOuterXml()
+            #oxml = oxml.replace('<td width="100%">', '<td width="30%">')
+            #tdElems[i].setOuterXml(oxml)
+
+        fNames = self.webMainFrame.findAllElements(".fname")
+        oxml = fNames[0].toOuterXml()
+        oxml += '<td rowspan="6"><iframe src="https://en.wiktionary.org/wiki/%s#Danish" width="600" height="200" scrolling="yes"></iframe></td>' \
+                '<td rowspan="6"><iframe src="http://ordnet.dk/ddo/ordbog?query=%s" width="600" height="200" scrolling="yes"></iframe></td>' \
+                    % (word, word)
+        fNames[0].setOuterXml(oxml)
+
+        #import requests
+        #from lxml import html
+
+        ##storing response
+        #response = requests.get('http://ordnet.dk/ddo/ordbog?query=%s' % word)
+        ##creating lxml tree from response body
+        #tree = html.fromstring(response.text)
+
+        ##Finding all anchor tags in response
+        #print tree.xpath('//divass="campaign"]/a/@href'
+
+        #http://ordnet.dk/ddo/ordbog?query=%s
+        oxml = tdElems[9].toOuterXml()
+        oxml = oxml.replace('<td', '<td colspan="3"')
+        tdElems[9].setOuterXml(oxml)
+
+
+        #oxml = fNames[4].toOuterXml()
+        #oxml += '<td rowspan="6"><iframe src="http://ordnet.dk/ddo/ordbog?query=%s" width="800" height="200" scrolling="yes"></iframe></td>' % word
+        #fNames[4].setOuterXml(oxml)
+
+
     def showGallery(self, word):
         self.galleryManager.buildGallery(word, nThumbs=_nGalleryThumbs)
 
@@ -210,6 +246,7 @@ def loadNoteWithVoc(self):
     self.vocDeckBuilder.showPronunciationGallery(self.note['Word'])
     self.vocDeckBuilder.showIpaGallery(self.note['Word'])
     self.vocDeckBuilder.preload(_nPreload)
+    self.vocDeckBuilder.showIFrames(self.note['Word'])
 
 def setNoteWithVoc(self, note, hide=True, focus=False):
     self.vocDeckBuilder.loadCssStyleSheet()
