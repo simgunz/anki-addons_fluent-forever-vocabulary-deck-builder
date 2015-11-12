@@ -218,3 +218,5 @@ def extendedBridge(self, str):
     ar = str.split(':')
     if ar[1] == 'setpronunciation':
         self.vocDeckBuilder.pronunciationManager.setPronunciation(int(ar[2]))
+    elif ar[1] == 'setipa':
+        self.vocDeckBuilder.ipaManager.setIpa(ar[2])
