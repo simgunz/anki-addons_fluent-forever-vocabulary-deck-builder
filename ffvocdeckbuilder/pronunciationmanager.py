@@ -119,10 +119,10 @@ class PronunciationManager:
         return ret
 
     def setPronunciation(self, n):
-    	"""Callback called when a radio button is clicked. The first radio button (-2)
-    	means delete the sound, the second (-1) means keep current sound, they others (0..N) allow to
-    	select the downloaded sounds.
-    	"""
+        """Callback called when a radio button is clicked. The first radio button (-2)
+        means delete the sound, the second (-1) means keep current sound, they others (0..N) allow to
+        select the downloaded sounds.
+        """
         if n == -2:
             self.chosenSnd = ''
         elif n == -1:
@@ -132,6 +132,7 @@ class PronunciationManager:
             self.chosenSnd = "[sound:%s]" % sndName
 
         self.currentNote['Pronunciation sound'] = self.chosenSnd
+        self.currentNote.flush()
 
     def linkHandler(self, l):
         if re.match("sound[0-9]+", l) is not None:
