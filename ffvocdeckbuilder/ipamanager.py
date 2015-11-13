@@ -103,19 +103,23 @@ class IpaManager:
 
     def buildGallery(self, word, nThumbs=5):
         self.currentNote = self.editor.note
+        self.currentWord = word
         if not self.ipa.has_key(word):
             self.downloadIpa(word)
 
         #Find IPAs currently in the note
-        cIpas = re.findall('\[[^\]]+\]|\/[^\/]+\/', self.currentNote['IPA transcription'])
+        self.currentIpas = re.findall('\[[^\]]+\]|\/[^\/]+\/', self.currentNote['IPA transcription'])
 
         gallery = u'<div id="ipagallery">'
         gallery += u'<select onchange="getSelectValues(this)" id="ipaselector" name="ipa" multiple>'
         #Add the current IPAs as red text and selected
-        for c in cIpas:
-            gallery += u'<option selected="selected" style="color:red;" value="{0}">{0}; {1}'.format(c, 'Current IPA')
-        for v in self.ipa[word]:
-            gallery += u'<option value="{0}">{0}; {1}'.format(v['ipa'], v['provider'])
+        for i, c in enumerate(self.currentIpas):
+            gallery += u'<option selected="selected" style="color:red;" value="ipac{2}">{0}; {1}'.format(c, 'Current IPA', i)
+        for i, v in enumerate(self.ipa[word]):
+            if v.has_key('gender'):
+                gallery += u'<option value="ipa{3}">{0}; {2} {1}'.format(v['ipa'], v['provider'], v['gender'], i)
+            else:
+                gallery += u'<option value="ipa{2}">{0}; {1}'.format(v['ipa'], v['provider'], i)
             if v.has_key('spec'):
                 gallery += u', {0}'.format(v['spec'])
             gallery += u'</option>'
@@ -125,6 +129,11 @@ class IpaManager:
         self.editor.web.eval("formatMulticolumn();")
 
     def setIpa(self, ipaTxt):
-        self.currentNote['IPA transcription'] = ipaTxt
-        #FIXME: Flush only once at the end from noteeditor
-        self.currentNote.flush()
+        if re.match("ipa", ipaTxt) is not None:
+            self.currentNote['IPA transcription'] = ''
+            for i in re.findall("ipac([0-9]+)", ipaTxt):
+                self.currentNote['IPA transcription'] += self.currentIpas[int(i)] + ' '
+            for i in re.findall("ipa([0-9]+)", ipaTxt):
+                self.currentNote['IPA transcription'] += self.ipa[self.currentWord][int(i)]['ipa'] + ' '
+                #FIXME: Flush only once at the end from noteeditor
+            self.currentNote.flush()
