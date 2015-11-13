@@ -119,10 +119,10 @@ class PronunciationManager:
         return ret
 
     def setPronunciation(self, n):
-    	"""Callback called when a radio button is clicked. The first radio button (-2)
-    	means delete the sound, the second (-1) means keep current sound, they others (0..N) allow to
-    	select the downloaded sounds.
-    	"""
+        """Callback called when a radio button is clicked. The first radio button (-2)
+        means delete the sound, the second (-1) means keep current sound, they others (0..N) allow to
+        select the downloaded sounds.
+        """
         if n == -2:
             self.chosenSnd = ''
         elif n == -1:
