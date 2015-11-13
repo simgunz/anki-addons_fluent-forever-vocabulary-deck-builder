@@ -132,6 +132,7 @@ class PronunciationManager:
             self.chosenSnd = "[sound:%s]" % sndName
 
         self.currentNote['Pronunciation sound'] = self.chosenSnd
+        self.currentNote.flush()
 
     def linkHandler(self, l):
         if re.match("sound[0-9]+", l) is not None:
