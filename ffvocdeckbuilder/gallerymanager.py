@@ -69,12 +69,12 @@ class GalleryManager:
         gallery = '<div style="width:90\% float:left" id="gallery">'
         gallery += '<div id="currentimg">'
         if self.currentImg != "":
-            gallery += '<img src="%s"/>' % self.currentImg
+            gallery += u'<img src="{0}"/>'.format(self.currentImg)
         else:
-            gallery += '<img src="%s/ffvocdeckbuilder/images/no_image.png"/>' % self.editor.mw.pm.addonFolder()
+            gallery += u'<img src="{0}/ffvocdeckbuilder/images/no_image.png"/>'.format(self.editor.mw.pm.addonFolder())
         gallery += '</div><div id="thumbs">'
         for i, wd in enumerate(self.wordThumbs[word]):
-            gallery += '<a href="img%i"><img src="%s" alt="" /></a>\n' % (i, wd)
+            gallery += u'<a href="img{0}"><img src="{1}" alt="" /></a>\n'.format(i, wd)
         gallery += '</div></div>'
         #Keep input field and reduce its size in order to allow drag and drop
         #FIXME: Find a more elegant solution to allow drag and drop
@@ -103,11 +103,11 @@ class GalleryManager:
         #FIXME: Why does QUrl add a path??
         if re.match("img[0-9]+", l) is not None:
             idx=int(l.replace("img", ""))
-            newThumbnail = '<img src="%s"/>' % (self.wordThumbs[self.currentWord][idx])
+            newThumbnail = u'<img src="{0}"/>'.format(self.wordThumbs[self.currentWord][idx])
             self.webMainFrame.findFirstElement('#currentimg').setInnerXml(newThumbnail)
             name, ext = os.path.splitext(self.wordUrls[self.currentWord]['image'][idx])
             #FIXME Add language prefix
-            newImgName = "ipa_dict_%s_%s%s" % (_countryCode, self.currentWord, ext)
+            newImgName = u"ipa_dict_{0}_{1}{2}".format(_countryCode, self.currentWord, ext)
             newImgPath = os.path.join(self.tempDir.name, newImgName)
             #fileName = os.path.join(fold, 'thumb_' + word.lower() + '_' + str(i))
             urlretrieve(self.wordUrls[self.currentWord]['image'][idx], newImgPath)
@@ -116,6 +116,6 @@ class GalleryManager:
     def finalizePreviousSelection(self):
         if self.chosenImgPath != "":
             imgName = self.editor.mw.col.media.addFile(self.chosenImgPath)
-            self.currentNote['Picture'] = self.currentNote['Picture'] + '<img src="%s" />' % imgName
+            self.currentNote['Picture'] = self.currentNote['Picture'] + u'<img src="{0}" />'.format(imgName)
             self.currentNote.flush()
             self.chosenImgPath = ""

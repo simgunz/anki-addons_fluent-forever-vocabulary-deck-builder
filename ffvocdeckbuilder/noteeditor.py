@@ -142,10 +142,10 @@ class NoteEditor(object):
         Return the note ids of the notes corresponding to the browser rows given by idx
         Adapted from aqt.browser.selectedNotes
         """
-        return self.mw.col.db.list("""
+        return self.mw.col.db.list(u"""
 select distinct nid from cards
-where id in %s""" % ids2str(
-    [self.browser.model.cards[idx] for idx in idxs]))
+where id in {0}""".format(ids2str(
+    [self.browser.model.cards[idx] for idx in idxs])))
 
     def preload(self, nPreload):
         """ Preload media for the next cards in the browser tableView

@@ -79,18 +79,18 @@ class PronunciationManager:
         gallery = '<div id="audiogallery">'
         gallery += '<form action="">'
         if self.currentSound != "":
-            gallery += '<input class="container" onclick="setFfvdbPronunciation(-2)" type="radio" name="pronunciation" value="%s">' \
-                       '<img class="container" src="%s/ffvocdeckbuilder/icons/no_sound.png" style="max-width: 32px; max-height: 1em; min-height:24px;"/>' % (self.currentSound, self.editor.mw.pm.addonFolder())
-            gallery += '<input class="container" onclick="setFfvdbPronunciation(-1)" type="radio" name="pronunciation" value="%s" checked>' \
-                       '<a href="soundCurrent"><img class="container" src="%s/ffvocdeckbuilder/icons/current_sound.png" alt="play"' \
-                           'style="max-width: 32px; max-height: 1em; min-height:24px;" /></a>' % (self.currentSound, self.editor.mw.pm.addonFolder())
+            gallery += u'<input class="container" onclick="setFfvdbPronunciation(-2)" type="radio" name="pronunciation" value="{0}">' \
+                       u'<img class="container" src="{1}/ffvocdeckbuilder/icons/no_sound.png" style="max-width: 32px; max-height: 1em; min-height:24px;"/>'.format(self.currentSound, self.editor.mw.pm.addonFolder())
+            gallery += u'<input class="container" onclick="setFfvdbPronunciation(-1)" type="radio" name="pronunciation" value="{0}" checked>' \
+                       u'<a href="soundCurrent"><img class="container" src="{1}/ffvocdeckbuilder/icons/current_sound.png" alt="play"' \
+                       u'style="max-width: 32px; max-height: 1em; min-height:24px;" /></a>'.format(self.currentSound, self.editor.mw.pm.addonFolder())
         else:
-            gallery += '<input class="container" onclick="setFfvdbPronunciation(-2)" type="radio" name="pronunciation" value="%s" checked>' \
-                       '<img class="container" src="%s/ffvocdeckbuilder/icons/no_sound.png" style="max-width: 32px; max-height: 1em; min-height:24px;"/>' % (self.currentSound, self.editor.mw.pm.addonFolder())
+            gallery += u'<input class="container" onclick="setFfvdbPronunciation(-2)" type="radio" name="pronunciation" value="{0}" checked>' \
+                       u'<img class="container" src="{1}/ffvocdeckbuilder/icons/no_sound.png" style="max-width: 32px; max-height: 1em; min-height:24px;"/>'.format(self.currentSound, self.editor.mw.pm.addonFolder())
         for i, af in enumerate(self.audios[word]):
-            gallery += '<input class="container" onclick="setFfvdbPronunciation(%d)" type="radio" name="pronunciation" value="%s">' \
-                       '<a href="sound%d"><img class="container" src="%s/ffvocdeckbuilder/icons/play.png" alt="play"' \
-                           'style="max-width: 32px; max-height: 1em; min-height:24px;" /></a>' % (i, self.audios[word][i], i, self.editor.mw.pm.addonFolder())
+            gallery += u'<input class="container" onclick="setFfvdbPronunciation({0})" type="radio" name="pronunciation" value="{1}">' \
+                       u'<a href="sound{0}"><img class="container" src="{2}/ffvocdeckbuilder/icons/play.png" alt="play"' \
+                       u'style="max-width: 32px; max-height: 1em; min-height:24px;" /></a>'.format(i, self.audios[word][i], self.editor.mw.pm.addonFolder())
                        #'style="max-width: 32px; max-height: 1em; min-height:24px;" /></a>' % (self.audios[i].file_path, i, self.editor.mw.pm.addonFolder())
         gallery += '</form>\n'
         gallery += '</div>\n'
@@ -110,9 +110,9 @@ class PronunciationManager:
         ret = list()
         #Normalise and noise filter the downloaded audio tracks
         for i, el in enumerate(self.servant.downloads_list):
-            newfile = u"/tmp/ipa_voc_da_%s%d.ogg" % (word, i)
+            newfile = u"/tmp/ipa_voc_da_{0}{1}.ogg".format(word, i)
             shutil.move(el.file_path, newfile)
-            cmd = u"%s/ffvocdeckbuilder/scripts/filteraudio %s" % (self.editor.mw.pm.addonFolder(),
+            cmd = u"{0}/ffvocdeckbuilder/scripts/filteraudio {1}".format(self.editor.mw.pm.addonFolder(),
                                                     newfile)
             subprocess.call(ushlex.split(cmd))
             ret.append(newfile)
@@ -126,10 +126,10 @@ class PronunciationManager:
         if n == -2:
             self.chosenSnd = ''
         elif n == -1:
-            self.chosenSnd = "[sound:%s]" % self.currentSound
+            self.chosenSnd = u"[sound:{0}]".format(self.currentSound)
         else:
             sndName = self.editor.mw.col.media.addFile(self.audios[self.currentWord][n])
-            self.chosenSnd = "[sound:%s]" % sndName
+            self.chosenSnd = u"[sound:{0}]".format(sndName)
 
         self.currentNote['Pronunciation sound'] = self.chosenSnd
         self.currentNote.flush()
