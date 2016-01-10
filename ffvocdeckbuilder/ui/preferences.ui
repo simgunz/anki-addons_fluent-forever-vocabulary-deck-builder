@@ -31,7 +31,7 @@
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QLineEdit" name="lineEdit">
+       <widget class="QLineEdit" name="leForvoAPI">
         <property name="inputMask">
          <string>NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN</string>
         </property>
@@ -45,7 +45,7 @@
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="QLineEdit" name="lineEdit_2">
+       <widget class="QLineEdit" name="leBingAPI">
         <property name="inputMask">
          <string>NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN</string>
         </property>
@@ -68,7 +68,11 @@
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QComboBox" name="comboBox"/>
+       <widget class="QComboBox" name="cbPreferredLanguage">
+        <property name="editable">
+         <bool>true</bool>
+        </property>
+       </widget>
       </item>
       <item row="1" column="0">
        <widget class="QLabel" name="label_8">
@@ -78,7 +82,11 @@
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="QComboBox" name="comboBox_2"/>
+       <widget class="QComboBox" name="cbSecondaryLanguage">
+        <property name="editable">
+         <bool>true</bool>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
