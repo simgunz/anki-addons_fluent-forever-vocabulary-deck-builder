@@ -20,6 +20,8 @@ import os
 import re
 import threading
 
+from configobj import ConfigObj
+
 import anki
 import aqt
 from anki import hooks
@@ -84,6 +86,7 @@ class NoteEditor(object):
         self.wordThumbs = {}
         #self.nextNotes = list(_nPreload)
         #self.prevNotes = list(_nPreload)
+        self.loadPreferences()
         self.galleryManager = GalleryManager(self.editor, "Bing")
         self.pronunciationManager = PronunciationManager(self.editor, "Forvo")
         self.ipaManager = IpaManager(self.editor)
@@ -93,6 +96,15 @@ class NoteEditor(object):
         self.galleryManager.finalizePreviousSelection()
         self.galleryManager.__del__()
         self.pronunciationManager.__del__()
+
+    def loadPreferences(self):
+        #Load user config
+        self.user = self.mw.pm.name
+        config = ConfigObj('ffvdb.ini')
+        if config.has_key(self.user ):
+            self.config = config[self.user]
+        else:
+            self.config = ""
 
     def loadCssStyleSheet(self):
         css = str(self.webMainFrame.findFirstElement('style').toInnerXml())
