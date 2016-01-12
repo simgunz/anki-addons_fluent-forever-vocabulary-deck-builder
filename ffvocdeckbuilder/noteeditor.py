@@ -87,7 +87,7 @@ class NoteEditor(object):
         #self.nextNotes = list(_nPreload)
         #self.prevNotes = list(_nPreload)
         self.loadPreferences()
-        self.galleryManager = GalleryManager(self.editor, "Bing")
+        self.galleryManager = GalleryManager(self.editor, self.config, "Bing")
         self.pronunciationManager = PronunciationManager(self.editor, self.config, "Forvo")
         self.ipaManager = IpaManager(self.editor)
 
