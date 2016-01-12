@@ -20,14 +20,13 @@ except ImportError:
 from ..download_entry import DownloadEntry
 from .downloader import AudioDownloader
 
-_apikey='APIKEY'
-
 
 class ForvoDownloader(AudioDownloader):
     """Download audio from Forvo"""
-    def __init__(self):
+    def __init__(self, apiKey):
         AudioDownloader.__init__(self)
         # Keep these two in sync
+        self.apiKey = apiKey
         self.file_extension = u'.ogg'
         self.path_code = 'pathogg'
         # Keep this secret:
@@ -49,7 +48,7 @@ class ForvoDownloader(AudioDownloader):
         self.maybe_get_icon()
         self.url = 'http://apifree.forvo.com/action/word-pronunciations/' \
             'format/json/order/rate-desc/limit/%d/' \
-            'key/%s/word/' % (nAudio, _apikey)
+            'key/%s/word/' % (nAudio, self.apiKey)
         # Caveat! The old code used json.load(response) with a
         # file-like object.  now we ues json.loads(get_data()) with a
         # string. Don't confuse load() with loads()!
