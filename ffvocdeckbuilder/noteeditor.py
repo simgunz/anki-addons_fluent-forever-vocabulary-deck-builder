@@ -88,7 +88,7 @@ class NoteEditor(object):
         #self.prevNotes = list(_nPreload)
         self.loadPreferences()
         self.galleryManager = GalleryManager(self.editor, "Bing")
-        self.pronunciationManager = PronunciationManager(self.editor, "Forvo")
+        self.pronunciationManager = PronunciationManager(self.editor, self.config, "Forvo")
         self.ipaManager = IpaManager(self.editor)
 
     def __del__(self):

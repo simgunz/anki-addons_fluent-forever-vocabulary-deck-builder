@@ -35,14 +35,18 @@ function setFfvdbPronunciation(n) {
 }
 """
 class PronunciationManager:
-    def __init__(self, editor, provider):
+    def __init__(self, editor, config, provider):
         self.editor = editor
+        self.config = config
         self.webMainFrame = self.editor.web.page().mainFrame()
         self.tempDir = tempdir.TempDir()
         self.audios = {}
         self.provider = provider.lower()
         if self.provider == "forvo":
-            self.servant = forvoffvdb.ForvoDownloader()
+            if not self.config['APIs']['forvo']:
+                #Load modal dialog to setup API
+                pass
+            self.servant = forvoffvdb.ForvoDownloader(self.config['APIs']['forvo'])
 
     def __del__(self):
         #self.servant.__del__()
