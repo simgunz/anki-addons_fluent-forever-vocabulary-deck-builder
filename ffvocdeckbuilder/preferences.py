@@ -17,7 +17,7 @@ class Preferences(QDialog):
         uic.loadUi(mw.pm.addonFolder() + '/ffvocdeckbuilder/ui/preferences.ui', self);
         #These two instructions run the dialog as modal dialog
         self.loadLanguageCodes()
-        languages = sorted(self.languageCodes.values())
+        languages = sorted(self.languageCodesForward.values())
         self.cbPreferredLanguage.addItems(languages)
         self.cbSecondaryLanguage.addItems(languages)
         self.setModal(True)
@@ -28,8 +28,8 @@ class Preferences(QDialog):
         if self.config.has_key(self.user ):
             self.leApiForvo.setText(self.config[self.user ]['APIs']['forvo'])
             self.leApiBing.setText(self.config[self.user ]['APIs']['bing'])
-            self.cbPreferredLanguage.lineEdit().setText(self.config[self.user ]['Languages']['Primary'])
-            self.cbSecondaryLanguage.lineEdit().setText(self.config[self.user ]['Languages']['Secondary'])
+            self.cbPreferredLanguage.lineEdit().setText(self.languageCodesForward[self.config[self.user ]['Languages']['Primary']])
+            self.cbSecondaryLanguage.lineEdit().setText(self.languageCodesForward[self.config[self.user ]['Languages']['Secondary']])
 
         self.exec_()
 
@@ -40,8 +40,8 @@ class Preferences(QDialog):
             self.config[self.user ] = {'APIs': {}, 'Languages': {}}
         self.config[self.user ]['APIs']['forvo'] = self.leApiForvo.text()
         self.config[self.user ]['APIs']['bing'] = self.leApiBing.text()
-        self.config[self.user ]['Languages']['Primary'] = self.cbPreferredLanguage.currentText()
-        self.config[self.user ]['Languages']['Secondary'] = self.cbSecondaryLanguage.currentText()
+        self.config[self.user ]['Languages']['Primary'] = self.languageCodesBackward[self.cbPreferredLanguage.currentText()]
+        self.config[self.user ]['Languages']['Secondary'] = self.languageCodesBackward[self.cbSecondaryLanguage.currentText()]
         self.config.write()
         self.done(0)
 
@@ -49,10 +49,13 @@ class Preferences(QDialog):
         self.done(1)
 
     def loadLanguageCodes(self):
-        self.languageCodes = {}
+        self.languageCodesForward = {}
+        self.languageCodesBackward = {}
         fileName = u"{0}/ffvocdeckbuilder/files/iso-639-1-language-codes" \
             .format(self.mw.pm.addonFolder())
         with open(fileName) as f:
             for line in f:
-                (key, val) = line.split(',')
-                self.languageCodes[key] = val.rstrip('\n')
+                (code, language) = line.split(',')
+                code = code.rstrip('\n')
+                self.languageCodesForward[code] = language
+                self.languageCodesBackward[language] = code
