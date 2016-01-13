@@ -89,7 +89,7 @@ class NoteEditor(object):
         self.loadPreferences()
         self.galleryManager = GalleryManager(self.editor, self.config, "Bing")
         self.pronunciationManager = PronunciationManager(self.editor, self.config, "Forvo")
-        self.ipaManager = IpaManager(self.editor)
+        self.ipaManager = IpaManager(self.editor, self.config)
 
     def __del__(self):
         #FIXME: Call this destructor explicitly somewhere
