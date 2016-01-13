@@ -167,7 +167,11 @@ where id in {0}""".format(ids2str(
         #Generate list of row indexes of the notes to be preloaded and retrieve their ids.
         #Note that if in the browser the filter card:1 is not set in the search bar, on different rows there
         #can be different card of the same note, so we use set() to make the retrieved ids unique
-        rowIndexesToBePreloaded = range(selectedRowIdx + 1, selectedRowIdx + nPreload + 1)
+        #Limit number of notes to be preloaded if there are not enough in the browser after the current one
+        nPreloadEffective = min(self.browser.model.rowCount(None) - selectedRowIdx - 1, nPreload)
+        #NOTE: The number of NOTES preloaded may be lower than nPreloadEffective in case more than one card corresponding to
+        #the same note is among the ones to be preloaded
+        rowIndexesToBePreloaded = range(selectedRowIdx + 1, selectedRowIdx + nPreloadEffective + 1)
         preloadNotesIds = set(self.getNotes(rowIndexesToBePreloaded))
         #We want to keep track of which notes has been preloaded so we save their ids in self.preloadedNotesIds
         currentIds = set(self.preloadedNotesIds)
