@@ -27,22 +27,24 @@ from extmodules.downloadaudio.downloaders import forvoffvdb
 from extmodules.downloadaudio.field_data import FieldData
 from extmodules import ushlex
 
-_language='XX'
-
 _myScript="""
 function setFfvdbPronunciation(n) {
     py.run("ffvdb:setpronunciation:" + n);
 }
 """
 class PronunciationManager:
-    def __init__(self, editor, provider):
+    def __init__(self, editor, config, provider):
         self.editor = editor
+        self.config = config
         self.webMainFrame = self.editor.web.page().mainFrame()
         self.tempDir = tempdir.TempDir()
         self.audios = {}
         self.provider = provider.lower()
         if self.provider == "forvo":
-            self.servant = forvoffvdb.ForvoDownloader()
+            if not self.config['APIs']['forvo']:
+                #Load modal dialog to setup API
+                pass
+            self.servant = forvoffvdb.ForvoDownloader(self.config['APIs']['forvo'])
 
     def __del__(self):
         #self.servant.__del__()
@@ -106,7 +108,7 @@ class PronunciationManager:
            Returns a list containing the full file name of the downloaded tracks.
         """
         field_data = FieldData('Pronunciation sound', 'Word', word)
-        self.servant.download_files(field_data, _language)
+        self.servant.download_files(field_data, self.config['Languages']['Primary'])
         ret = list()
         #Normalise and noise filter the downloaded audio tracks
         for i, el in enumerate(self.servant.downloads_list):

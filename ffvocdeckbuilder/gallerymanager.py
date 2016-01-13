@@ -23,12 +23,12 @@ from urllib import urlretrieve
 
 from extmodules.tempdir import tempdir
 
-_apikey="YOURKEY"
 _countryCode='dk'
 
 class GalleryManager:
-    def __init__(self, editor, provider):
+    def __init__(self, editor, config, provider):
         self.editor = editor
+        self.config = config
         self.webMainFrame = self.editor.web.page().mainFrame()
         self.tempDir = tempdir.TempDir()
         self.wordThumbs = {}
@@ -38,7 +38,10 @@ class GalleryManager:
         self.provider = provider.lower()
         if provider.lower() == "bing":
             from extmodules.bingsearchapi import bingsearchapi
-            self.servant = bingsearchapi.BingSearchAPI(_apikey)
+            if not self.config['APIs']['bing']:
+                #Load modal dialog to setup API
+                pass
+            self.servant = bingsearchapi.BingSearchAPI(self.config['APIs']['bing'])
 
     def __del__(self):
         #FIXME: Call this destructor explicitly somewhere

@@ -19,13 +19,15 @@
 import os
 import pdb
 
-from PyQt4.QtGui import QIcon
+from PyQt4 import uic
+from PyQt4.QtGui import QIcon, QAction
 
 from anki import hooks
 
 from aqt import mw, editor, browser
 
 from noteeditor import NoteEditor
+import preferences
 
 iconsDir = os.path.join(mw.pm.addonFolder(), 'ffvocdeckbuilder', 'icons')
 
@@ -82,6 +84,21 @@ def closeEvent(self, event):
     if self.editor.vocDeckBuilder:
         self.editor.vocDeckBuilder.__del__()
 
+#LOCAL
+def config_menu():
+    """
+    Adds a menu item to the Tools menu in Anki's main window for
+    launching the configuration dialog.
+    """
+    preferencesAction = QAction(mw)
+    mw.form.menuTools.addAction(preferencesAction)
+    preferencesAction.setText(_(u"FFVDB.."))
+    preferencesAction.triggered.connect(openPreferencesDialog)
+
+def openPreferencesDialog():
+    #Creates and show the preferences dialog
+    preferences.Preferences(mw)
+
 hooks.addHook("setupEditorButtons", onSetupEditorButtons)
 
 editor.Editor.enableButtons = hooks.wrap(
@@ -94,3 +111,6 @@ editor.Editor.addButtonsToTagBar = addButtonsToTagBar
 
 browser.Browser.closeEvent = hooks.wrap(
     browser.Browser.closeEvent, closeEvent, "before")
+
+#Add action to open preferences dialog
+config_menu()

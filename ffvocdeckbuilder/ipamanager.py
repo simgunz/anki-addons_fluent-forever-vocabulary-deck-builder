@@ -25,8 +25,6 @@ from bs4 import BeautifulSoup
 
 from extmodules.tempdir import tempdir
 
-_currentLanguage='XX'
-
 _javaFunctions="""
 formatMulticolumn = function(){
   var s = document.getElementsByTagName('SELECT')[0].options,
@@ -64,8 +62,9 @@ function getSelectValues(select) {
 """
 
 class IpaManager:
-    def __init__(self, editor):
+    def __init__(self, editor, config):
         self.editor = editor
+        self.config = config
         self.webMainFrame = self.editor.web.page().mainFrame()
         self.ipa = {}
         self.loadLanguageCodes()
@@ -90,7 +89,7 @@ class IpaManager:
             rawIpa = soup.find_all("span", class_="IPA")
             for s in rawIpa:
                 foundIpaLanguage = s.findPrevious('h2').span.get_text()
-                if re.match(self.languageCodes[_currentLanguage], foundIpaLanguage):
+                if re.match(self.languageCodes[self.config['Languages']['Primary']], foundIpaLanguage):
                     found.append({'provider': 'Wiktionary (en)', 'ipa' : s.get_text().rstrip(' ')})
                     a = s.findPrevious('span', id=re.compile('Etymology_\d+'))
                     if a:

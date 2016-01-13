@@ -20,6 +20,8 @@ import os
 import re
 import threading
 
+from configobj import ConfigObj
+
 import anki
 import aqt
 from anki import hooks
@@ -84,15 +86,25 @@ class NoteEditor(object):
         self.wordThumbs = {}
         #self.nextNotes = list(_nPreload)
         #self.prevNotes = list(_nPreload)
-        self.galleryManager = GalleryManager(self.editor, "Bing")
-        self.pronunciationManager = PronunciationManager(self.editor, "Forvo")
-        self.ipaManager = IpaManager(self.editor)
+        self.loadPreferences()
+        self.galleryManager = GalleryManager(self.editor, self.config, "Bing")
+        self.pronunciationManager = PronunciationManager(self.editor, self.config, "Forvo")
+        self.ipaManager = IpaManager(self.editor, self.config)
 
     def __del__(self):
         #FIXME: Call this destructor explicitly somewhere
         self.galleryManager.finalizePreviousSelection()
         self.galleryManager.__del__()
         self.pronunciationManager.__del__()
+
+    def loadPreferences(self):
+        #Load user config
+        self.user = self.mw.pm.name
+        config = ConfigObj('ffvdb.ini')
+        if config.has_key(self.user ):
+            self.config = config[self.user]
+        else:
+            self.config = ""
 
     def loadCssStyleSheet(self):
         css = str(self.webMainFrame.findFirstElement('style').toInnerXml())
