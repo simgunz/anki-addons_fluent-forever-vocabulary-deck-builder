@@ -11,6 +11,9 @@ Download pronunciations from Forvo.
 """
 
 import urllib
+import threading
+
+from aqt import *
 
 try:
     import simplejson as json
@@ -53,7 +56,17 @@ class ForvoDownloader(AudioDownloader):
         # file-like object.  now we ues json.loads(get_data()) with a
         # string. Don't confuse load() with loads()!
         reply_dict = json.loads(self.get_data_from_url(self.query_url()))
-        self.get_items(reply_dict['items'])
+        try:
+            self.get_items(reply_dict['items'])
+        except TypeError:
+            if reply_dict[0] == u'Calling from incorrect domain.':
+                #Show message box only in main thread and do nothing in preloading threads
+                if threading.current_thread().__class__.__name__ == '_MainThread':
+                    msgBox = QMessageBox()
+                    msgBox.setText("The provided API for Forvo.com is wrong. Audio pronunciations will not be loaded.")
+                    msgBox.setIcon(QMessageBox.Warning)
+                    msgBox.exec_()
+                return
 
     def get_items(self, items_list):
         for itm in items_list:
