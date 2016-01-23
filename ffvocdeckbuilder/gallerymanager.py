@@ -129,8 +129,10 @@ class GalleryManager:
             imgScaled.save(imgPath)
 
     def finalizePreviousSelection(self):
-        if self.chosenImgPath != "":
-            imgName = self.editor.mw.col.media.addFile(self.chosenImgPath)
-            self.currentNote['Picture'] = self.currentNote['Picture'] + u'<img src="{0}" />'.format(imgName)
-            self.currentNote.flush()
-            self.chosenImgPath = ""
+        if hasattr(self, 'currentNote'):
+            #Resize the image chosen via the gallery and save it to the note
+            if self.chosenImgPath != "":
+                imgName = self.editor.mw.col.media.addFile(self.chosenImgPath)
+                self.currentNote['Picture'] = self.currentNote['Picture'] + u'<img src="{0}" />'.format(imgName)
+                self.currentNote.flush()
+                self.chosenImgPath = ""
