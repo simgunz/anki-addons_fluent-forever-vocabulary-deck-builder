@@ -137,3 +137,10 @@ class GalleryManager:
                 self.currentNote['Picture'] = self.currentNote['Picture'] + u'<img src="{0}" />'.format(imgName)
                 self.currentNote.flush()
                 self.chosenImgPath = ""
+
+            #FIXME:What about drag and sropped images?
+            #We need to resize all the images because the user may have added them outside the addon
+            pictures = re.findall('src="([^"]+)"', self.currentNote['Picture'])
+            for img in pictures:
+                #Resize the image chosen with ImageGallery
+                self.resizeImage(os.path.join(self.editor.mw.col.media.dir(), img))
