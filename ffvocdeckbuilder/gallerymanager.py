@@ -21,6 +21,8 @@ import os
 import re
 from urllib import urlretrieve
 
+from aqt import QImage, Qt
+
 from extmodules.tempdir import tempdir
 
 _countryCode='dk'
@@ -117,6 +119,14 @@ class GalleryManager:
             #fileName = os.path.join(fold, 'thumb_' + word.lower() + '_' + str(i))
             urlretrieve(self.wordUrls[self.currentWord]['image'][idx], newImgPath)
             self.chosenImgPath = newImgPath
+
+    def resizeImage(self, imgPath, desiredSize=400):
+        img = QImage(imgPath)
+        if (img.width() > desiredSize) or (img.height() > desiredSize):
+            imgScaled = img.scaled(desiredSize, desiredSize, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            #NOTE: Tries to determine the format from the extension in the file name.
+            #What happens if the file name doesn't have an extension? Should we manage this case?
+            imgScaled.save(imgPath)
 
     def finalizePreviousSelection(self):
         if self.chosenImgPath != "":
