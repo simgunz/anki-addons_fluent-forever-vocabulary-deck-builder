@@ -132,6 +132,7 @@ class GalleryManager:
         if hasattr(self, 'currentNote'):
             #Resize the image chosen via the gallery and save it to the note
             if self.chosenImgPath != "":
+                self.resizeImage(self.chosenImgPath)
                 imgName = self.editor.mw.col.media.addFile(self.chosenImgPath)
                 self.currentNote['Picture'] = self.currentNote['Picture'] + u'<img src="{0}" />'.format(imgName)
                 self.currentNote.flush()
