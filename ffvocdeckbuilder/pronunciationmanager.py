@@ -124,12 +124,10 @@ class PronunciationManager:
                 except:
                     pass
 
+            cleanAudioFile = self.cleanAudio(el.file_path)
             extension = os.path.splitext(cleanAudioFile)[1][1:].strip().lower()
             newfile = u"/tmp/ipa_voc_da_{0}{1}.{2}".format(word, i, extension)
-            shutil.move(el.file_path, newfile)
-            cmd = u"{0}/ffvocdeckbuilder/scripts/filteraudio {1}".format(self.editor.mw.pm.addonFolder(),
-                                                    newfile)
-            subprocess.call(ushlex.split(cmd))
+            shutil.move(cleanAudioFile, newfile)
             ret.append(newfile)
         return ret
 
