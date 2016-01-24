@@ -185,4 +185,16 @@ class PronunciationManager:
             noiseExtractorChain.flow_effects()
             noiseStream.close()
 
+            #Noise profiler
+            noiseStream = pysox.CSoxStream('noise.wav','r',inputAudioStream.get_signal())
+            dummyoutfile = pysox.CSoxStream('dummyout.wav', 'w', inputAudioStream.get_signal())
+
+            #The chain require an output file even if the noiseprof effect doesn't require it, so we create a dummy file
+            noiseProfilerChain = pysox.CEffectsChain(noiseStream, dummyoutfile)
+            noiseProfilerChain.add_effect(pysox.CEffect("noiseprof", [ b'noise.prof' ]))
+            noiseProfilerChain.flow_effects()
+            noiseStream.close()
+            dummyoutfile.close()
+
+        #We need to close and reopen the input audio or it doesn't work
         inputAudioStream.close()
