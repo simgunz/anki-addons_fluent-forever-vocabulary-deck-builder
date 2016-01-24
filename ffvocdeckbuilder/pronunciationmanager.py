@@ -52,7 +52,7 @@ class PronunciationManager:
 
     def downloadAudio(self, word):
         if not self.audios.has_key(word):
-                self.audios[word] = self.getAudio(word, 1)
+            self.audios[word] = self.getAudio(word, 1)
 
     def downloadAudios(self, wordList):
         for word in wordList:
