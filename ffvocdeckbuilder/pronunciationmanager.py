@@ -198,3 +198,25 @@ class PronunciationManager:
 
         #We need to close and reopen the input audio or it doesn't work
         inputAudioStream.close()
+
+        ##Apply all effects
+        inputAudioStream = pysox.CSoxStream(audioFile)
+        cleanedAudioFile = os.path.join(os.path.dirname(audioFile), 'cleaned-' + os.path.basename(audioFile))
+        cleanedAudioStream = pysox.CSoxStream(cleanedAudioFile,'w',inputAudioStream.get_signal())
+
+        noiseRemovalChain = pysox.CEffectsChain(inputAudioStream, cleanedAudioStream)
+
+        #Filter noise
+        if performNoiseFiltering:
+            noiseRemovalChain.add_effect(pysox.CEffect("noisered", [ b'noise.prof' ]))
+
+        noiseRemovalChain.flow_effects()
+        inputAudioStream.close()
+        cleanedAudioStream.close()
+
+        if performNoiseFiltering:
+            os.remove('noise.wav')
+            os.remove('noise.prof')
+            os.remove('dummyout.wav')
+
+        return cleanedAudioFile
