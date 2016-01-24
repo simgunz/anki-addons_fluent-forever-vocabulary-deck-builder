@@ -167,4 +167,22 @@ class PronunciationManager:
 
         sigInfo = inputAudioStream.get_signal().get_signalinfo()
         audioLength = sigInfo['length']/sigInfo['rate'] #In seconds
+
+        #If the audio track is too short we probably can't acquire a clean sample of noise, so it's better
+        #to not perform noise removal
+        if audioLength < 3*noiseSampleLength:
+            performNoiseFiltering = 0
+        else:
+            performNoiseFiltering = 1
+
+        #Acquire the noise profile from a piece of the audio track that contains only noise
+        if performNoiseFiltering:
+            #Extract part of track with only noise
+            noiseStream = pysox.CSoxStream('noise.wav','w',inputAudioStream.get_signal())
+
+            noiseExtractorChain = pysox.CEffectsChain(inputAudioStream, noiseStream)
+            noiseExtractorChain.add_effect(pysox.CEffect("trim", [b'-{0}'.format(noiseSampleLength)]))
+            noiseExtractorChain.flow_effects()
+            noiseStream.close()
+
         inputAudioStream.close()
