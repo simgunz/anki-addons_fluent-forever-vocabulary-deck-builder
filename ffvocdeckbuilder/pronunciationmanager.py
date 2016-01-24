@@ -157,3 +157,14 @@ class PronunciationManager:
         elif l == 'soundCurrent':
             playSound = self.currentSound
             play(playSound)
+
+    def cleanAudio(self, audioFile, noiseSampleLength=0.3):
+        '''Process the audio track in order to improve the quality
+
+        Remove noise, perform volume normalization, shorten the track by removing silence
+        '''
+        inputAudioStream = pysox.CSoxStream(audioFile)
+
+        sigInfo = inputAudioStream.get_signal().get_signalinfo()
+        audioLength = sigInfo['length']/sigInfo['rate'] #In seconds
+        inputAudioStream.close()
