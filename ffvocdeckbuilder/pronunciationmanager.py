@@ -216,6 +216,9 @@ class PronunciationManager:
         noiseRemovalChain.add_effect(pysox.CEffect("silence", [ b'1', b'0.1', b'0.5%']))
         noiseRemovalChain.add_effect(pysox.CEffect("reverse", []))
 
+        #Normalize
+        noiseRemovalChain.add_effect(pysox.CEffect("gain", [ b'-n', b'-2' ]))
+
         noiseRemovalChain.flow_effects()
         inputAudioStream.close()
         cleanedAudioStream.close()
