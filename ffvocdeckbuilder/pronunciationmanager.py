@@ -16,6 +16,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.  #
 #########################################################################
 
+import os
 import re
 import shutil
 import subprocess
@@ -25,7 +26,7 @@ from anki.sound import play
 from extmodules.tempdir import tempdir
 from extmodules.downloadaudio.downloaders import forvoffvdb
 from extmodules.downloadaudio.field_data import FieldData
-from extmodules import ushlex
+import pysox #External dep
 
 _myScript="""
 function setFfvdbPronunciation(n) {
