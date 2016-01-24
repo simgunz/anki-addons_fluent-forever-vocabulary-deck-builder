@@ -112,7 +112,17 @@ class PronunciationManager:
         ret = list()
         #Normalise and noise filter the downloaded audio tracks
         for i, el in enumerate(self.servant.downloads_list):
-            newfile = u"/tmp/ipa_voc_da_{0}{1}.ogg".format(word, i)
+            #Verify that the file is a proper audio file
+            #FIXME: This is forvo related. Shouldn't be managed in forvo servant?
+            with open(el.file_path, 'r') as f:
+                try:
+                    errorMessageFromForvo = f.readline()
+                    if errorMessageFromForvo == '["Audio request is expired."]':
+                        print('{0}: {1}'.format(el.file_path, errorMessageFromForvo))
+                        continue #Skip this audio pronunciation
+                except:
+                    pass
+            newfile = u"/tmp/ipa_voc_da_{0}{1}.mp3".format(word, i)
             shutil.move(el.file_path, newfile)
             cmd = u"{0}/ffvocdeckbuilder/scripts/filteraudio {1}".format(self.editor.mw.pm.addonFolder(),
                                                     newfile)
