@@ -30,8 +30,8 @@ class ForvoDownloader(AudioDownloader):
         AudioDownloader.__init__(self)
         # Keep these two in sync
         self.apiKey = apiKey
-        self.file_extension = u'.ogg'
-        self.path_code = 'pathogg'
+        self.file_extension = u'.mp3'
+        self.path_code = 'pathmp3'
         # Keep this secret:
         self.icon_url = 'http://www.forvo.com/'
         self.gender_dict = {'f': u'♀', 'm': u'♂'}
