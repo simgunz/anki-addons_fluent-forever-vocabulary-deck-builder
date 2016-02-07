@@ -16,6 +16,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.  #
 #########################################################################
 
+import os
 import re
 import shutil
 import subprocess
@@ -25,7 +26,7 @@ from anki.sound import play
 from extmodules.tempdir import tempdir
 from extmodules.downloadaudio.downloaders import forvoffvdb
 from extmodules.downloadaudio.field_data import FieldData
-from extmodules import ushlex
+import pysox #External dep
 
 _myScript="""
 function setFfvdbPronunciation(n) {
@@ -123,12 +124,10 @@ class PronunciationManager:
                 except:
                     pass
 
+            cleanAudioFile = self.cleanAudio(el.file_path)
             extension = os.path.splitext(cleanAudioFile)[1][1:].strip().lower()
             newfile = u"/tmp/ipa_voc_da_{0}{1}.{2}".format(word, i, extension)
-            shutil.move(el.file_path, newfile)
-            cmd = u"{0}/ffvocdeckbuilder/scripts/filteraudio {1}".format(self.editor.mw.pm.addonFolder(),
-                                                    newfile)
-            subprocess.call(ushlex.split(cmd))
+            shutil.move(cleanAudioFile, newfile)
             ret.append(newfile)
         return ret
 
@@ -156,3 +155,75 @@ class PronunciationManager:
         elif l == 'soundCurrent':
             playSound = self.currentSound
             play(playSound)
+
+    def cleanAudio(self, audioFile, noiseSampleLength=0.3):
+        '''Process the audio track in order to improve the quality
+
+        Remove noise, perform volume normalization, shorten the track by removing silence
+        '''
+        inputAudioStream = pysox.CSoxStream(audioFile)
+
+        sigInfo = inputAudioStream.get_signal().get_signalinfo()
+        audioLength = sigInfo['length']/sigInfo['rate'] #In seconds
+
+        #If the audio track is too short we probably can't acquire a clean sample of noise, so it's better
+        #to not perform noise removal
+        if audioLength < 3*noiseSampleLength:
+            performNoiseFiltering = 0
+        else:
+            performNoiseFiltering = 1
+
+        #Acquire the noise profile from a piece of the audio track that contains only noise
+        if performNoiseFiltering:
+            #Extract part of track with only noise
+            noiseStream = pysox.CSoxStream('noise.wav','w',inputAudioStream.get_signal())
+
+            noiseExtractorChain = pysox.CEffectsChain(inputAudioStream, noiseStream)
+            noiseExtractorChain.add_effect(pysox.CEffect("trim", [b'-{0}'.format(noiseSampleLength)]))
+            noiseExtractorChain.flow_effects()
+            noiseStream.close()
+
+            #Noise profiler
+            noiseStream = pysox.CSoxStream('noise.wav','r',inputAudioStream.get_signal())
+            dummyoutfile = pysox.CSoxStream('dummyout.wav', 'w', inputAudioStream.get_signal())
+
+            #The chain require an output file even if the noiseprof effect doesn't require it, so we create a dummy file
+            noiseProfilerChain = pysox.CEffectsChain(noiseStream, dummyoutfile)
+            noiseProfilerChain.add_effect(pysox.CEffect("noiseprof", [ b'noise.prof' ]))
+            noiseProfilerChain.flow_effects()
+            noiseStream.close()
+            dummyoutfile.close()
+
+        #We need to close and reopen the input audio or it doesn't work
+        inputAudioStream.close()
+
+        ##Apply all effects
+        inputAudioStream = pysox.CSoxStream(audioFile)
+        cleanedAudioFile = os.path.join(os.path.dirname(audioFile), 'cleaned-' + os.path.basename(audioFile))
+        cleanedAudioStream = pysox.CSoxStream(cleanedAudioFile,'w',inputAudioStream.get_signal())
+
+        noiseRemovalChain = pysox.CEffectsChain(inputAudioStream, cleanedAudioStream)
+
+        #Filter noise
+        if performNoiseFiltering:
+            noiseRemovalChain.add_effect(pysox.CEffect("noisered", [ b'noise.prof' ]))
+
+        #Remove silence
+        noiseRemovalChain.add_effect(pysox.CEffect("silence", [ b'1', b'0.1', b'0.5%']))
+        noiseRemovalChain.add_effect(pysox.CEffect("reverse", []))
+        noiseRemovalChain.add_effect(pysox.CEffect("silence", [ b'1', b'0.1', b'0.5%']))
+        noiseRemovalChain.add_effect(pysox.CEffect("reverse", []))
+
+        #Normalize
+        noiseRemovalChain.add_effect(pysox.CEffect("gain", [ b'-n', b'-2' ]))
+
+        noiseRemovalChain.flow_effects()
+        inputAudioStream.close()
+        cleanedAudioStream.close()
+
+        if performNoiseFiltering:
+            os.remove('noise.wav')
+            os.remove('noise.prof')
+            os.remove('dummyout.wav')
+
+        return cleanedAudioFile
