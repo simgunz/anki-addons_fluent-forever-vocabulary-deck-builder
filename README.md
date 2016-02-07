@@ -1,2 +1,32 @@
 anki-addons_fluent-forever-vocabulary-deck-builder DEMO
 =======================================================
+
+#Setup working environment
+
+1. Download anki from git
+2. Rename runanky to runanky.py
+3. In runanki.py change the line sys.path.insert(0, "/usr/share/anki") to sys.path.insert(0, "./anki")
+4. Assume . is anki master folder. In ./anki there may be a file anky.py with only comments. Remove this file
+   because it is imported in place of the module (__init__.py) causing errors.
+
+   To debug it:
+
+       import sys
+       sys.path.insert(0, "./anki")
+       print anki.__file__
+
+   you should get
+
+       anki/__init__.pyc
+
+#Setup KDevelop
+
+Create a launch script:
+
+    Interpreter: python (or python2) #Anki only supports python2
+    Always run the same file: (Point to runanki.py)
+
+#Know problems of KDevelop
+
+    * If we print something in the code, we can actually see the output on the shell online when the main executable is closed.
+      So we don't see the output realtime, which is extremely annoying.
