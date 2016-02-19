@@ -109,15 +109,16 @@ class GalleryManager:
     def linkHandler(self, l):
         #FIXME: Why does QUrl add a path??
         if re.match("img[0-9]+", l) is not None:
+            nid = self.currentNote.id
             idx=int(l.replace("img", ""))
-            newThumbnail = u'<img src="{0}"/>'.format(self.wordThumbs[self.currentWord][idx])
+            newThumbnail = u'<img src="{0}"/>'.format(self.wordThumbs[nid][idx])
             self.webMainFrame.findFirstElement('#currentimg').setInnerXml(newThumbnail)
-            name, ext = os.path.splitext(self.wordUrls[self.currentWord]['image'][idx])
+            name, ext = os.path.splitext(self.wordUrls[nid]['image'][idx])
             #FIXME Add language prefix
             newImgName = u"ipa_dict_{0}_{1}{2}".format(_countryCode, self.currentWord, ext)
             newImgPath = os.path.join(self.tempDir.name, newImgName)
             #fileName = os.path.join(fold, 'thumb_' + word.lower() + '_' + str(i))
-            urlretrieve(self.wordUrls[self.currentWord]['image'][idx], newImgPath)
+            urlretrieve(self.wordUrls[nid]['image'][idx], newImgPath)
             self.chosenImgPath = newImgPath
 
     def resizeImage(self, imgPath, desiredSize=400):
