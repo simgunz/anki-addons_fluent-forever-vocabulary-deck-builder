@@ -25,8 +25,6 @@ from aqt import QImage, Qt
 
 from extmodules.tempdir import tempdir
 
-_countryCode='dk'
-
 class GalleryManager:
     def __init__(self, editor, config, provider):
         self.editor = editor
@@ -97,7 +95,7 @@ class GalleryManager:
             params = {'$format': 'json',
                       #'Market':'"da-DK"',
                       '$top': nThumbs}
-            query += u' loc:' + unicode(_countryCode)
+            #query += u' loc:' + unicode(_countryCode)
             results = self.servant.search('Image', query, params).json()
             for res in results['d']['results']:
                 imageUrls['thumb'].append(res['Thumbnail']['MediaUrl'])
@@ -115,7 +113,7 @@ class GalleryManager:
             self.webMainFrame.findFirstElement('#currentimg').setInnerXml(newThumbnail)
             name, ext = os.path.splitext(self.wordUrls[nid]['image'][idx])
             #FIXME Add language prefix
-            newImgName = u"ipa_dict_{0}_{1}{2}".format(_countryCode, self.currentWord, ext)
+            newImgName = u"ipa_dict_{0}_{1}{2}".format(self.config['Languages']['Primary'], self.currentWord, ext)
             newImgPath = os.path.join(self.tempDir.name, newImgName)
             #fileName = os.path.join(fold, 'thumb_' + word.lower() + '_' + str(i))
             urlretrieve(self.wordUrls[nid]['image'][idx], newImgPath)
