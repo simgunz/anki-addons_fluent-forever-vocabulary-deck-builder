@@ -21,6 +21,8 @@ import os
 import re
 from urllib import urlretrieve
 
+from aqt import QImage, Qt
+
 from extmodules.tempdir import tempdir
 
 _countryCode='dk'
@@ -118,9 +120,27 @@ class GalleryManager:
             urlretrieve(self.wordUrls[self.currentWord]['image'][idx], newImgPath)
             self.chosenImgPath = newImgPath
 
+    def resizeImage(self, imgPath, desiredSize=400):
+        img = QImage(imgPath)
+        if (img.width() > desiredSize) or (img.height() > desiredSize):
+            imgScaled = img.scaled(desiredSize, desiredSize, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            #NOTE: Tries to determine the format from the extension in the file name.
+            #What happens if the file name doesn't have an extension? Should we manage this case?
+            imgScaled.save(imgPath)
+
     def finalizePreviousSelection(self):
-        if self.chosenImgPath != "":
-            imgName = self.editor.mw.col.media.addFile(self.chosenImgPath)
-            self.currentNote['Picture'] = self.currentNote['Picture'] + u'<img src="{0}" />'.format(imgName)
-            self.currentNote.flush()
-            self.chosenImgPath = ""
+        if hasattr(self, 'currentNote'):
+            #Resize the image chosen via the gallery and save it to the note
+            if self.chosenImgPath != "":
+                self.resizeImage(self.chosenImgPath)
+                imgName = self.editor.mw.col.media.addFile(self.chosenImgPath)
+                self.currentNote['Picture'] = self.currentNote['Picture'] + u'<img src="{0}" />'.format(imgName)
+                self.currentNote.flush()
+                self.chosenImgPath = ""
+
+            #FIXME:What about drag and sropped images?
+            #We need to resize all the images because the user may have added them outside the addon
+            pictures = re.findall('src="([^"]+)"', self.currentNote['Picture'])
+            for img in pictures:
+                #Resize the image chosen with ImageGallery
+                self.resizeImage(os.path.join(self.editor.mw.col.media.dir(), img))
