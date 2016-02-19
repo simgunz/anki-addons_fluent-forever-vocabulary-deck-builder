@@ -48,17 +48,19 @@ class GalleryManager:
         self.tempDir.dissolve()
 
     def downloadPictures(self, word, query, nThumbs):
-        if not self.wordUrls.has_key(word):
-            self.wordThumbs[word] = []
-            self.wordUrls[word] = self.getUrls(query, nThumbs)
-            for i, th in enumerate(self.wordUrls[word]['thumb']):
+        nid = self.currentNote.id
+        if not self.wordUrls.has_key(nid):
+            self.wordThumbs[nid] = []
+            self.wordUrls[nid] = self.getUrls(query, nThumbs)
+            for i, th in enumerate(self.wordUrls[nid]['thumb']):
                 fileName = os.path.join(self.tempDir.name, 'thumb_' + word + '_' + str(i) )
                 urlretrieve(th, fileName)
-                self.wordThumbs[word].append(fileName)
+                self.wordThumbs[nid].append(fileName)
 
     def buildGallery(self, word, specterm="", nThumbs=5):
         self.chosenImg = ""
         self.currentNote = self.editor.note
+        nid = self.currentNote.id
         m = re.match(r'<img src="(.*)" />', self.currentNote['Picture'])
         if m:
             self.currentImg = m.group(1)
@@ -66,7 +68,7 @@ class GalleryManager:
             self.currentImg = ""
         self.currentWord = word
         query = word + " " + specterm
-        if not self.wordUrls.has_key(word):
+        if not self.wordUrls.has_key(nid):
             self.downloadPictures(word, query, nThumbs)
         #Build html gallery
         gallery = '<div style="width:90\% float:left" id="gallery">'
@@ -76,7 +78,7 @@ class GalleryManager:
         else:
             gallery += u'<img src="{0}/ffvocdeckbuilder/images/no_image.png"/>'.format(self.editor.mw.pm.addonFolder())
         gallery += '</div><div id="thumbs">'
-        for i, wd in enumerate(self.wordThumbs[word]):
+        for i, wd in enumerate(self.wordThumbs[nid]):
             gallery += u'<a href="img{0}"><img src="{1}" alt="" /></a>\n'.format(i, wd)
         gallery += '</div></div>'
         #Keep input field and reduce its size in order to allow drag and drop
