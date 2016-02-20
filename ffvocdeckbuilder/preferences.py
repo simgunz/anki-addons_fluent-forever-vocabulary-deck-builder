@@ -2,9 +2,8 @@
 # Copyright: Simone Gaiarin <simgunz@gmail.com>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/licenses/gpl.html
 
-from configobj import ConfigObj
+from aqt import QDialog, QSettings
 
-from aqt.qt import *
 #FIXME: Is uic present in default installation?
 from PyQt4 import uic
 
@@ -20,29 +19,27 @@ class Preferences(QDialog):
         languages = sorted(self.languageCodesForward.values())
         self.cbPreferredLanguage.addItems(languages)
         self.cbSecondaryLanguage.addItems(languages)
-        self.setModal(True)
+        self.setModal(True) #Shade the parent window and prevent interaction with it
 
         #Load user config
         self.user = self.mw.pm.name
-        self.config = ConfigObj('ffvdb.ini')
-        if self.config.has_key(self.user ):
-            self.leApiForvo.setText(self.config[self.user ]['APIs']['forvo'])
-            self.leApiBing.setText(self.config[self.user ]['APIs']['bing'])
-            self.cbPreferredLanguage.lineEdit().setText(self.languageCodesForward[self.config[self.user ]['Languages']['Primary']])
-            self.cbSecondaryLanguage.lineEdit().setText(self.languageCodesForward[self.config[self.user ]['Languages']['Secondary']])
-
+        self.config = QSettings('FFVDB')
+        if self.user in self.config.childGroups():
+            self.config.beginGroup(self.user)
+            self.leApiForvo.setText(self.config.value('APIs/forvo'))
+            self.leApiBing.setText(self.config.value('APIs/bing'))
+            self.cbPreferredLanguage.lineEdit().setText(self.languageCodesForward[self.config.value('Languages/Primary')])
+            self.cbSecondaryLanguage.lineEdit().setText(self.languageCodesForward[self.config.value('Languages/Secondary')])
+            self.config.endGroup()
         self.exec_()
 
     def accept(self):
-        if not self.config:
-            self.config = ConfigObj('ffvdb.ini')
-        if not self.config.has_key(self.user ):
-            self.config[self.user ] = {'APIs': {}, 'Languages': {}}
-        self.config[self.user ]['APIs']['forvo'] = self.leApiForvo.text()
-        self.config[self.user ]['APIs']['bing'] = self.leApiBing.text()
-        self.config[self.user ]['Languages']['Primary'] = self.languageCodesBackward[self.cbPreferredLanguage.currentText()]
-        self.config[self.user ]['Languages']['Secondary'] = self.languageCodesBackward[self.cbSecondaryLanguage.currentText()]
-        self.config.write()
+        self.config.beginGroup(self.user)
+        self.config.setValue('APIs/forvo', self.leApiForvo.text())
+        self.config.setValue('APIs/bing', self.leApiBing.text())
+        self.config.setValue('Languages/Primary', self.languageCodesBackward[self.cbPreferredLanguage.currentText()])
+        self.config.setValue('Languages/Secondary', self.languageCodesBackward[self.cbSecondaryLanguage.currentText()])
+        self.config.endGroup()
         self.done(0)
 
     def reject(self):
