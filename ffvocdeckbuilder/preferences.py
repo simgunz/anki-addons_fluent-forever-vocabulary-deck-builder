@@ -20,7 +20,7 @@ class Preferences(QDialog):
         languages = sorted(self.languageCodesForward.values())
         self.cbPreferredLanguage.addItems(languages)
         self.cbSecondaryLanguage.addItems(languages)
-        self.setModal(True)
+        self.setModal(True) #Shade the parent window and prevent interaction with it
 
         #Load user config
         self.user = self.mw.pm.name
