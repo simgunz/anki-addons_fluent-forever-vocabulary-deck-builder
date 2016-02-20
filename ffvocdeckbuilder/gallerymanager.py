@@ -21,11 +21,10 @@ import os
 import re
 from urllib import urlretrieve
 
-from aqt import QImage, Qt
+import aqt
+from aqt import QImage, QImageReader, Qt, QMessageBox
 
 from extmodules.tempdir import tempdir
-
-_countryCode='dk'
 
 class GalleryManager:
     def __init__(self, editor, config, provider):
@@ -97,7 +96,7 @@ class GalleryManager:
             params = {'$format': 'json',
                       #'Market':'"da-DK"',
                       '$top': nThumbs}
-            query += u' loc:' + unicode(_countryCode)
+            #query += u' loc:' + unicode(_countryCode)
             results = self.servant.search('Image', query, params).json()
             for res in results['d']['results']:
                 imageUrls['thumb'].append(res['Thumbnail']['MediaUrl'])
@@ -109,16 +108,18 @@ class GalleryManager:
     def linkHandler(self, l):
         #FIXME: Why does QUrl add a path??
         if re.match("img[0-9]+", l) is not None:
+            nid = self.currentNote.id
             idx=int(l.replace("img", ""))
-            newThumbnail = u'<img src="{0}"/>'.format(self.wordThumbs[self.currentWord][idx])
+            newThumbnail = u'<img src="{0}"/>'.format(self.wordThumbs[nid][idx])
             self.webMainFrame.findFirstElement('#currentimg').setInnerXml(newThumbnail)
-            name, ext = os.path.splitext(self.wordUrls[self.currentWord]['image'][idx])
+            name, ext = os.path.splitext(self.wordUrls[nid]['image'][idx])
             #FIXME Add language prefix
-            newImgName = u"ipa_dict_{0}_{1}{2}".format(_countryCode, self.currentWord, ext)
+            newImgName = u"ipa_dict_{0}_{1}{2}".format(self.config['Languages']['Primary'], self.currentWord, ext)
             newImgPath = os.path.join(self.tempDir.name, newImgName)
             #fileName = os.path.join(fold, 'thumb_' + word.lower() + '_' + str(i))
-            urlretrieve(self.wordUrls[self.currentWord]['image'][idx], newImgPath)
+            urlretrieve(self.wordUrls[nid]['image'][idx], newImgPath)
             self.chosenImgPath = newImgPath
+            self.chosenIdx = idx
 
     def resizeImage(self, imgPath, desiredSize=400):
         img = QImage(imgPath)
@@ -129,11 +130,26 @@ class GalleryManager:
             imgScaled.save(imgPath)
 
     def finalizePreviousSelection(self):
+        """Resize the image chosen via the gallery and save it to the note
+
+        Sometimes the source image linked in the query is missing even tough the thumbnail is present (because
+        it's cached by google/bing). In this cases to avoid setting an empty image we set the downloaded thumbnail
+        and we warn the user.
+        """
         if hasattr(self, 'currentNote'):
-            #Resize the image chosen via the gallery and save it to the note
             if self.chosenImgPath != "":
-                self.resizeImage(self.chosenImgPath)
-                imgName = self.editor.mw.col.media.addFile(self.chosenImgPath)
+                chsImgPath = self.chosenImgPath
+                #Verify that the downloaded image is not corrupted.
+                #If it is we use the thumbnail as image and we warn the user
+                img = QImage(chsImgPath)
+                if img.format() == QImage.Format_Invalid:
+                    chsImgPath = self.wordThumbs[self.currentNote.id][self.chosenIdx]
+                    browser = aqt.dialogs.open("Browser", self.editor.mw) #I don't know better way to retrieve the instance of the browser
+                    QMessageBox.warning(browser,
+                                        'Image download error', 'It was not possible to download the full resolution image for the word <b>{0}</b>. '
+                                        'A lower resolution thumbnail has been used insted'.format(self.currentNote['Word']))
+                self.resizeImage(chsImgPath)
+                imgName = self.editor.mw.col.media.addFile(chsImgPath)
                 self.currentNote['Picture'] = self.currentNote['Picture'] + u'<img src="{0}" />'.format(imgName)
                 self.currentNote.flush()
                 self.chosenImgPath = ""
