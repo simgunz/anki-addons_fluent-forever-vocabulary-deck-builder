@@ -105,10 +105,12 @@ class IpaManager:
         self.currentWord = word
         if not self.ipa.has_key(word):
             self.downloadIpa(word)
-
+        #Find pos in model & make searchid 
+        pos=[i for i,sr in enumerate(self.currentNote.model()['flds']) \
+                if re.match('IPA transcription',sr['name'])]
+        s_id="#f"+str(pos[0])
         #Find IPAs currently in the note
         self.currentIpas = re.findall('\[[^\]]+\]|\/[^\/]+\/', self.currentNote['IPA transcription'])
-
         gallery = u'<div id="ipagallery">'
         gallery += u'<select onchange="getSelectValues(this)" id="ipaselector" name="ipa" multiple>'
         #Add the current IPAs as red text and selected
@@ -123,7 +125,7 @@ class IpaManager:
                 gallery += u', {0}'.format(v['spec'])
             gallery += u'</option>'
         gallery += u'</select></div>'
-        self.webMainFrame.findFirstElement("#f6").setOuterXml(gallery)
+        self.webMainFrame.findFirstElement(s_id).setOuterXml(gallery)
         self.editor.web.eval(_javaFunctions)
         self.editor.web.eval("formatMulticolumn();")
 
