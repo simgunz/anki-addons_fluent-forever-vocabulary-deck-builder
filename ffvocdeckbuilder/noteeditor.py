@@ -27,6 +27,7 @@ import aqt
 from anki import hooks
 from anki.utils import ids2str
 from aqt.editor import Editor
+from aqt.qt import *
 from gallerymanager import GalleryManager
 from pronunciationmanager import PronunciationManager
 from ipamanager import IpaManager
@@ -221,11 +222,15 @@ def wrap(instance, old, new, pos='after'):
     return types.MethodType(repl, instance, instance.__class__)
 
 def loadNoteWithVoc(self):
-    self.vocDeckBuilder.galleryManager.finalizePreviousSelection()
-    self.vocDeckBuilder.showGallery(self.note['Word'])
-    self.vocDeckBuilder.showPronunciationGallery(self.note['Word'])
-    self.vocDeckBuilder.showIpaGallery(self.note['Word'])
-    self.vocDeckBuilder.preload(_nPreload)
+    if isInternetOn(self):
+        self.vocDeckBuilder.galleryManager.finalizePreviousSelection()
+        self.vocDeckBuilder.showGallery(self.note['Word'])
+        self.vocDeckBuilder.showPronunciationGallery(self.note['Word'])
+        self.vocDeckBuilder.showIpaGallery(self.note['Word'])
+        self.vocDeckBuilder.preload(_nPreload)
+    else:
+        QMessageBox.warning (None,"Vocabulary Builder",\
+            "Please check your internet connection and try again!")   
 
 def setNoteWithVoc(self, note, hide=True, focus=False):
     self.vocDeckBuilder.loadCssStyleSheet()
@@ -236,3 +241,11 @@ def extendedBridge(self, str):
         self.vocDeckBuilder.pronunciationManager.setPronunciation(int(ar[2]))
     elif ar[1] == 'setipa':
         self.vocDeckBuilder.ipaManager.setIpa(ar[2])
+
+def isInternetOn(self):
+    import urllib2
+    try:
+        response=urllib2.urlopen('http://www.bing.com',timeout=1)
+        return True
+    except urllib2.URLError as err: 
+        return False
