@@ -66,18 +66,19 @@ def enableDeckBuilderButton(self, val=True):
             self._buttons["ffvocdeckbuilder"].setEnabled(False)
 
 def addButtonsToTagBar(self):
-    from aqt.qt import QPushButton, QGroupBox
-    btnPrev = QPushButton("Previous")
-    btnNext = QPushButton("Next")
-    #The tag groupbox
-    gb = self.widget.findChild(QGroupBox)
-    ly = gb.layout()
-    ly.addWidget(btnPrev, 1, 2)
-    ly.addWidget(btnNext, 1, 3)
-
-    browser = self.parentWindow
-    btnPrev.clicked.connect(browser.onPreviousCard)
-    btnNext.clicked.connect(browser.onNextCard)
+    #Add button only in browser
+    parent = self.parentWindow
+    if isinstance(parent,browser.Browser):
+        from aqt.qt import QPushButton, QGroupBox
+        btnPrev = QPushButton("Previous")
+        btnNext = QPushButton("Next")
+        #The tag groupbox
+        gb = self.widget.findChild(QGroupBox)
+        ly = gb.layout()
+        ly.addWidget(btnPrev, 1, 2)
+        ly.addWidget(btnNext, 1, 3)
+        btnPrev.clicked.connect(parent.onPreviousCard)
+        btnNext.clicked.connect(parent.onNextCard)
 
 #BROWSER
 def closeEvent(self, event):
