@@ -20,16 +20,17 @@ import os
 import re
 import threading
 
-from configobj import ConfigObj
+from ffvocdeckbuilder.extmodules.configobj.configobj import ConfigObj
 
 import anki
 import aqt
 from anki import hooks
 from anki.utils import ids2str
 from aqt.editor import Editor
-from gallerymanager import GalleryManager
-from pronunciationmanager import PronunciationManager
-from ipamanager import IpaManager
+
+from ffvocdeckbuilder.gallerymanager import GalleryManager
+from ffvocdeckbuilder.pronunciationmanager import PronunciationManager
+from ffvocdeckbuilder.ipamanager import IpaManager
 
 _galleryCss = """
 #normal2, #normal3, #normal4, #normal5 {

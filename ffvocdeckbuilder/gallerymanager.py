@@ -24,7 +24,7 @@ from urllib import urlretrieve
 import aqt
 from aqt import QImage, QImageReader, Qt, QMessageBox
 
-from extmodules.tempdir import tempdir
+from .extmodules.tempdir import tempdir
 
 class GalleryManager:
     def __init__(self, editor, config, provider):

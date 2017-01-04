@@ -27,8 +27,8 @@ from anki import hooks
 
 from aqt import mw, editor, browser
 
-from noteeditor import NoteEditor
-import preferences
+from . import preferences
+from .noteeditor import NoteEditor
 
 iconsDir = os.path.join(mw.pm.addonFolder(), 'ffvocdeckbuilder', 'icons')
 

@@ -23,7 +23,7 @@ import urllib
 from urllib import urlretrieve
 from bs4 import BeautifulSoup
 
-from extmodules.tempdir import tempdir
+from .extmodules.tempdir import tempdir
 
 _javaFunctions="""
 formatMulticolumn = function(){
