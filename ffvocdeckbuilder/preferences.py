@@ -5,7 +5,7 @@
 from aqt import QDialog, QSettings
 
 #FIXME: Is uic present in default installation?
-from PyQt4 import uic
+from PyQt5 import uic
 
 class Preferences(QDialog):
 

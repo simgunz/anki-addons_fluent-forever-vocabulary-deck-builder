@@ -19,8 +19,9 @@
 import os
 import pdb
 
-from PyQt4 import uic
-from PyQt4.QtGui import QIcon, QAction
+from PyQt5 import uic
+from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QAction
 
 from anki import hooks
 
