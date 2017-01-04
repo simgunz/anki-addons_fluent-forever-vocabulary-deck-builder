@@ -20,7 +20,7 @@ import json
 import os
 import re
 import urllib
-from urllib import urlretrieve
+from urllib.request import urlretrieve
 from bs4 import BeautifulSoup
 
 from .extmodules.tempdir import tempdir
@@ -105,7 +105,7 @@ class IpaManager:
         self.currentWord = word
         if not self.ipa.has_key(word):
             self.downloadIpa(word)
-        #Find pos in model & make searchid 
+        #Find pos in model & make searchid
         pos=[i for i,sr in enumerate(self.currentNote.model()['flds']) \
                 if re.match('IPA transcription',sr['name'])]
         s_id="#f"+str(pos[0])
