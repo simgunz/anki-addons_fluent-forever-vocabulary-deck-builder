@@ -1,11 +1,10 @@
-anki-addons_fluent-forever-vocabulary-deck-builder DEMO
-=======================================================
+anki-addons_fluent-forever-vocabulary-deck-builder
+==================================================
 
 #Setup working environment
 
 1. Download anki from git
 2. Rename runanky to runanky.py
-3. In runanki.py change the line sys.path.insert(0, "/usr/share/anki") to sys.path.insert(0, "./anki")
 4. Assume . is anki master folder. In ./anki there may be a file anky.py with only comments. Remove this file
    because it is imported in place of the module (__init__.py) causing errors.
 
@@ -19,11 +18,17 @@ anki-addons_fluent-forever-vocabulary-deck-builder DEMO
 
        anki/__init__.pyc
 
+5. Apply dev-mods patch. This will enable some feature for development purposes.
+6. If we enable the dev mod that loads the addon from a different folder (not the anki addons folder) we need to create a symlinks in the real anki addon folder
+   for the resources that the addon uses. That are the following folders:
+
+      files  icons  images  scripts  ui
+
 #Setup KDevelop
 
 Create a launch script:
 
-    Interpreter: python (or python2) #Anki only supports python2
+    Interpreter: python (or python2) #Anki only supports python2 (python3 from Anki 2.1)
     Always run the same file: (Point to runanki.py)
 
 #Know problems of KDevelop
