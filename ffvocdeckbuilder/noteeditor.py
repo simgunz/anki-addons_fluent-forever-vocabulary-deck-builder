@@ -29,7 +29,7 @@ from anki.utils import ids2str
 from aqt.editor import Editor
 
 from ffvocdeckbuilder.gallerymanager import GalleryManager
-from ffvocdeckbuilder.pronunciationmanager import PronunciationManager
+#from ffvocdeckbuilder.pronunciationmanager import PronunciationManager
 from ffvocdeckbuilder.ipamanager import IpaManager
 
 _galleryCss = """
@@ -89,14 +89,14 @@ class NoteEditor(object):
         #self.prevNotes = list(_nPreload)
         self.loadPreferences()
         self.galleryManager = GalleryManager(self.editor, self.config, "Bing")
-        self.pronunciationManager = PronunciationManager(self.editor, self.config, "Forvo")
-        self.ipaManager = IpaManager(self.editor, self.config)
+        #REENABLE self.pronunciationManager = PronunciationManager(self.editor, self.config, "Forvo")
+        #REENABLE self.ipaManager = IpaManager(self.editor, self.config)
 
     def __del__(self):
         #FIXME: Call this destructor explicitly somewhere
         self.galleryManager.finalizePreviousSelection()
         self.galleryManager.__del__()
-        self.pronunciationManager.__del__()
+        #REENABLE self.pronunciationManager.__del__()
 
     def loadPreferences(self):
         #Load user config
@@ -224,8 +224,8 @@ def wrap(instance, old, new, pos='after'):
 def loadNoteWithVoc(self):
     self.vocDeckBuilder.galleryManager.finalizePreviousSelection()
     self.vocDeckBuilder.showGallery(self.note['Word'])
-    self.vocDeckBuilder.showPronunciationGallery(self.note['Word'])
-    self.vocDeckBuilder.showIpaGallery(self.note['Word'])
+    #REENABLE self.vocDeckBuilder.showPronunciationGallery(self.note['Word'])
+    #REENABLE self.vocDeckBuilder.showIpaGallery(self.note['Word'])
     self.vocDeckBuilder.preload(_nPreload)
 
 def setNoteWithVoc(self, note, hide=True, focus=False):
