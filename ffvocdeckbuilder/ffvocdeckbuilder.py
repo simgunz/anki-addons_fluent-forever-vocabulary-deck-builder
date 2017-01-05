@@ -19,6 +19,8 @@
 import os
 import pdb
 
+from bs4 import BeautifulSoup
+
 from PyQt5 import uic
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QAction
@@ -42,20 +44,18 @@ def toggleVocabularyBuilderView(self, checked):
     else:
         self.vocDeckBuilder.deactivate()
 
-def onSetupEditorButtons(self):
+def onSetupEditorButtons(topbuts):
     """Add an a button to the editor to activate the vocabulary deck building
     mode.
     """
-    # 'text' must be non empty otherwise the function tries to find an icon
-    # into the anki path
-    editorButton = self._addButton(
-        "ffvocdeckbuilder",
-        self.toggleVocabularyBuilderView,
-        tip=u"Build language deck...", text=" ",
-        check=True)
-    editorButton.setIcon(QIcon(os.path.join(iconsDir, 'dictionary.png')))
-    # Remove the empty text to center align the icon
-    editorButton.setText("")
+    soup = BeautifulSoup(topbuts, 'html.parser')
+    topbutsr = soup.find('div', id='topbutsright')
+    ffbtn = soup.new_tag('button', tabindex=-1, type="button", onclick="pycmd('ffvoc');return false;", **{'class': 'linkb'})
+    imgpath = os.path.join(iconsDir, 'dictionary.png')
+    ffbtnimg = soup.new_tag('img', src=imgpath, **{'class': 'topbut'})
+    ffbtn.append(ffbtnimg)
+    topbutsr.append(ffbtn)
+    return soup.prettify()
 
 def enableDeckBuilderButton(self, val=True):
     """Disable the editor button when the note type is not 'FF basic vocabulary'
@@ -101,11 +101,11 @@ def openPreferencesDialog():
     preferences.Preferences(mw)
 
 hooks.addHook("setupEditorButtons", onSetupEditorButtons)
+editor.Editor._links['ffvoc'] = toggleVocabularyBuilderView
 
 editor.Editor.enableButtons = hooks.wrap(
     editor.Editor.enableButtons, enableDeckBuilderButton)
 
-editor.Editor.toggleVocabularyBuilderView = toggleVocabularyBuilderView
 editor.Editor.vocDeckBuilder = None
 
 editor.Editor.addButtonsToTagBar = addButtonsToTagBar
