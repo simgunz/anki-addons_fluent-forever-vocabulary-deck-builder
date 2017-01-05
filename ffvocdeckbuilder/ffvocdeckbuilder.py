@@ -36,13 +36,16 @@ iconsDir = os.path.join(mw.pm.addonFolder(), 'ffvocdeckbuilder', 'icons')
 
 
 #EDITOR
-def toggleVocabularyBuilderView(self, checked):
+def toggleVocabularyBuilderView(self):
     if not self.vocDeckBuilder:
         self.vocDeckBuilder = NoteEditor(self)
-    if checked:
+        self.vocDeckBuilder.isActive = False
+    if not self.vocDeckBuilder.isActive:
         self.vocDeckBuilder.activate()
+        self.vocDeckBuilder.isActive = True
     else:
         self.vocDeckBuilder.deactivate()
+        self.vocDeckBuilder.isActive = False
 
 def onSetupEditorButtons(topbuts):
     """Add an a button to the editor to activate the vocabulary deck building
