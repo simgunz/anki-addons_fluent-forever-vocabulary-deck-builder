@@ -19,8 +19,6 @@
 import os
 import pdb
 
-from bs4 import BeautifulSoup
-
 from PyQt5 import uic
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QAction
@@ -47,18 +45,13 @@ def toggleVocabularyBuilderView(self):
         self.vocDeckBuilder.deactivate()
         self.vocDeckBuilder.isActive = False
 
-def onSetupEditorButtons(topbuts):
+def onSetupEditorButtons(toprightbuts, self):
     """Add an a button to the editor to activate the vocabulary deck building
     mode.
     """
-    soup = BeautifulSoup(topbuts, 'html.parser')
-    topbutsr = soup.find('div', id='topbutsright')
-    ffbtn = soup.new_tag('button', tabindex=-1, type="button", onclick="pycmd('ffvoc');return false;", **{'class': 'linkb'})
-    imgpath = os.path.join(iconsDir, 'dictionary.png')
-    ffbtnimg = soup.new_tag('img', src=imgpath, **{'class': 'topbut'})
-    ffbtn.append(ffbtnimg)
-    topbutsr.append(ffbtn)
-    return soup.prettify()
+    icon = os.path.join(iconsDir, 'dictionary.png')
+    toprightbuts.insert(-1, self._addButton('/home/simone/add16.png', 'ffvoc', "Build language deck..."))
+    return toprightbuts
 
 def enableDeckBuilderButton(self, val=True):
     """Disable the editor button when the note type is not 'FF basic vocabulary'
@@ -105,9 +98,6 @@ def openPreferencesDialog():
 
 hooks.addHook("setupEditorButtons", onSetupEditorButtons)
 editor.Editor._links['ffvoc'] = toggleVocabularyBuilderView
-
-editor.Editor.enableButtons = hooks.wrap(
-    editor.Editor.enableButtons, enableDeckBuilderButton)
 
 editor.Editor.vocDeckBuilder = None
 
