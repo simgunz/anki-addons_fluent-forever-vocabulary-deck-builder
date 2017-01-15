@@ -44,13 +44,10 @@ def toggleVocabularyBuilderView(self):
         return
     if not self.vocDeckBuilder:
         self.vocDeckBuilder = NoteEditor(self)
-        self.vocDeckBuilder.isActive = False
     if not self.vocDeckBuilder.isActive:
-        self.vocDeckBuilder.activate()
-        self.vocDeckBuilder.isActive = True
+        self.web.page().toHtml(self.vocDeckBuilder.activate)
     else:
         self.vocDeckBuilder.deactivate()
-        self.vocDeckBuilder.isActive = False
 
 def onSetupEditorButtons(toprightbuts, self):
     """Add an a button to the editor to activate the vocabulary deck building
