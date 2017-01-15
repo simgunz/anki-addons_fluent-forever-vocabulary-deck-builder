@@ -92,9 +92,9 @@ def config_menu():
     preferencesAction.setText(_(u"FFVDB.."))
     preferencesAction.triggered.connect(openPreferencesDialog)
 
-def openPreferencesDialog():
+def openPreferencesDialog(parentWnd=None):
     #Creates and show the preferences dialog
-    preferences.Preferences(mw)
+    preferences.Preferences(mw, parentWnd)
 
 hooks.addHook("setupEditorButtons", onSetupEditorButtons)
 editor.Editor._links['ffvoc'] = toggleVocabularyBuilderView
