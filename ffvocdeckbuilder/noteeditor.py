@@ -92,6 +92,7 @@ class NoteEditor(object):
         #REENABLE self.pronunciationManager = PronunciationManager(self.editor, self.config, "Forvo")
         #REENABLE self.ipaManager = IpaManager(self.editor, self.config)
         self.isActive = False
+        self.htmlInjected = False
 
     def __del__(self):
         #FIXME: Call this destructor explicitly somewhere
@@ -112,10 +113,8 @@ class NoteEditor(object):
             config.sync()
         self.config = config
 
-    def loadCssStyleSheet(self):
-        css = str(self.webMainFrame.findFirstElement('style').toInnerXml())
-        css += _galleryCss
-        self.webMainFrame.findFirstElement('style').setInnerXml(css)
+    def loadCssStyleSheet(self, html):
+        return html.replace('</style>', _galleryCss + '</style>')
 
     def showGallery(self, word):
         self.galleryManager.buildGallery(word, nThumbs=_nGalleryThumbs)
@@ -126,8 +125,10 @@ class NoteEditor(object):
     def showIpaGallery(self, word):
         self.ipaManager.buildGallery(word)
 
-    def activate(self):
-        self.loadCssStyleSheet()
+    def activate(self, html):
+        if not self.htmlInjected:
+            self.loadCssStyleSheet(html)
+            self.htmlInjected = True
         self._loadNoteVanilla = self.editor.loadNote
         self.editor.loadNote = wrap(self.editor, Editor.loadNote, loadNoteWithVoc)
         self._setNoteVanilla = self.editor.setNote
