@@ -9,8 +9,10 @@ from PyQt5 import uic
 
 class Preferences(QDialog):
 
-    def __init__(self, mw):
-        QDialog.__init__(self, mw)
+    def __init__(self, mw, parentWnd=None):
+        if not parentWnd:
+            parentWnd = mw
+        QDialog.__init__(self, parentWnd)
         self.mw = mw
         #Dynamically loads the ui
         uic.loadUi(mw.pm.addonFolder() + '/ffvocdeckbuilder/ui/preferences.ui', self);

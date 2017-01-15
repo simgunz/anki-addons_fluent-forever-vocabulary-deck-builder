@@ -20,14 +20,15 @@ import os
 import re
 import threading
 
-from ffvocdeckbuilder.extmodules.configobj.configobj import ConfigObj
-
 import anki
-import aqt
 from anki import hooks
 from anki.utils import ids2str
+
+import aqt
+from aqt import QSettings, QMessageBox
 from aqt.editor import Editor
 
+from ffvocdeckbuilder import ffvocdeckbuilder
 from ffvocdeckbuilder.gallerymanager import GalleryManager
 #from ffvocdeckbuilder.pronunciationmanager import PronunciationManager
 from ffvocdeckbuilder.ipamanager import IpaManager
@@ -101,11 +102,15 @@ class NoteEditor(object):
     def loadPreferences(self):
         #Load user config
         self.user = self.mw.pm.name
-        config = ConfigObj('ffvdb.ini')
-        if config.has_key(self.user ):
-            self.config = config[self.user]
-        else:
-            self.config = ""
+        config = QSettings('FFVDB')
+        if not self.user in config.childGroups():
+            browser = aqt.dialogs.open("Browser", self.editor) #I don't know better way to retrieve the instance of the browser
+            QMessageBox.warning(browser,
+                'Missing configuration', 'This is the first time fluent forever vocabulary deck builder is run for the current user.'
+                'The preference dialog will now open.')
+            ffvocdeckbuilder.openPreferencesDialog(browser)
+            config.sync()
+        self.config = config
 
     def loadCssStyleSheet(self):
         css = str(self.webMainFrame.findFirstElement('style').toInnerXml())
