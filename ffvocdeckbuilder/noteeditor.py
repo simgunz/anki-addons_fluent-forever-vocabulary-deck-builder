@@ -227,7 +227,7 @@ def wrap(instance, old, new, pos='after'):
             return old(*args, **kwargs)
         else:
             return new(_old=old, *args, **kwargs)
-    return types.MethodType(repl, instance, instance.__class__)
+    return types.MethodType(repl, instance)
 
 def loadNoteWithVoc(self):
     self.vocDeckBuilder.galleryManager.finalizePreviousSelection()
