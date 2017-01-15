@@ -54,14 +54,13 @@ def onSetupEditorButtons(toprightbuts, self):
                                             id='ffvdbbutton', toggleable=True))
     return toprightbuts
 
-def enableDeckBuilderButton(self, val=True):
-    """Disable the editor button when the note type is not 'FF basic vocabulary'
-    """
-    if self.note:
-        if self.note.model()['name'] == "FF basic vocabulary":
-            self._buttons["ffvocdeckbuilder"].setEnabled(True)
-        else:
-            self._buttons["ffvocdeckbuilder"].setEnabled(False)
+#def enableDeckBuilderButton(self, cmd):
+    #"""Disable the editor button when the note type is not 'FF basic vocabulary'
+    #"""
+    #if not (self.note and self.note.model()['name'] == "FF basic vocabulary"):
+        #self.web.eval('''$(#ffvdbbutton).prop("disabled", true);''')
+    #else:
+        #self.web.eval('''$(#ffvdbbutton).prop("disabled", false);''')
 
 def addButtonsToTagBar(self):
     from aqt.qt import QPushButton, QGroupBox
