@@ -50,7 +50,8 @@ def onSetupEditorButtons(toprightbuts, self):
     mode.
     """
     icon = os.path.join(iconsDir, 'dictionary.png')
-    toprightbuts.insert(-1, self._addButton('/home/simone/add16.png', 'ffvoc', "Build language deck..."))
+    toprightbuts.insert(-1, self._addButton(icon, 'ffvoc', "Build language deck...",
+                                            id='ffvdbbutton', toggleable=True))
     return toprightbuts
 
 def enableDeckBuilderButton(self, val=True):
