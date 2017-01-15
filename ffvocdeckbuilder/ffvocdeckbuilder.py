@@ -25,7 +25,8 @@ from PyQt5.QtWidgets import QAction
 
 from anki import hooks
 
-from aqt import mw, editor, browser
+import aqt
+from aqt import mw, editor, browser, QMessageBox
 
 from . import preferences
 from .noteeditor import NoteEditor
@@ -35,6 +36,12 @@ iconsDir = os.path.join(mw.pm.addonFolder(), 'ffvocdeckbuilder', 'icons')
 
 #EDITOR
 def toggleVocabularyBuilderView(self):
+    #FIXME: The button is enabled even if the activation of the addon doesn't complete
+    if not (self.note and self.note.model()['name'] == "FF basic vocabulary"):
+        browser = aqt.dialogs.open("Browser", self) #I don't know better way to retrieve the instance of the browser
+        QMessageBox.warning(browser,
+            'Wrong note model', 'FFVDB works only for note model: "FF basic vocabulary" ')
+        return
     if not self.vocDeckBuilder:
         self.vocDeckBuilder = NoteEditor(self)
         self.vocDeckBuilder.isActive = False
