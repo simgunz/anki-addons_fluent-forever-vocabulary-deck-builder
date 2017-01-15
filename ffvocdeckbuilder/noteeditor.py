@@ -80,7 +80,6 @@ class NoteEditor(object):
         self.editor = editor
         self.mw = self.editor.mw
         self.web = editor.web
-        self.webMainFrame = self.web.page().mainFrame()
         self.currentWord = ''
         self.preloadedNotesIds = list()
         self.wordUrls = {}
@@ -91,6 +90,7 @@ class NoteEditor(object):
         self.galleryManager = GalleryManager(self.editor, self.config, "Bing")
         #REENABLE self.pronunciationManager = PronunciationManager(self.editor, self.config, "Forvo")
         #REENABLE self.ipaManager = IpaManager(self.editor, self.config)
+        self.isActive = False
 
     def __del__(self):
         #FIXME: Call this destructor explicitly somewhere
@@ -133,6 +133,7 @@ class NoteEditor(object):
         self.editor.addButtonsToTagBar()
         self.editor.web.setLinkHandler(self.ffNoteEditorLinkHandler)
         self.editor.loadNote()
+        self.isActive = True
 
     def deactivate(self):
         self.galleryManager.finalizePreviousSelection()
@@ -142,6 +143,7 @@ class NoteEditor(object):
         self.editor.web.setBridge(self.editor.bridge)
         self.editor.ffNoteEditorLinkHandler = ''
         self.editor.loadNote()
+        self.isActive = False
 
     def ffNoteEditorLinkHandler(self, l):
         l = os.path.basename(l)
