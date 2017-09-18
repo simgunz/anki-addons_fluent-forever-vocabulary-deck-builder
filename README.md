@@ -26,5 +26,5 @@ http://www.gnu.org/copyleft/gpl.html
 
 References
 =============
-[Fluent forever] (https://fluent-forever.com/)
-* [Github page] (https://github.com/simgunz/anki-addons_fluent-forever-vocabulary-deck-builder/)
+* [Fluent forever](https://fluent-forever.com/)
+* [Github page](https://github.com/simgunz/anki-addons_fluent-forever-vocabulary-deck-builder/)
