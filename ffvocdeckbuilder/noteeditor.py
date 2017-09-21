@@ -20,8 +20,6 @@ import os
 import re
 import threading
 
-from configobj import ConfigObj
-
 import anki
 import aqt
 from anki import hooks
