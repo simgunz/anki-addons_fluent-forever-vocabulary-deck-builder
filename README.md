@@ -14,6 +14,10 @@ Due to changes in the distribution of the PyQt libraries, this add-on doesn't wo
 
 This add-on is not compatible with the upcoming Anki 2.1, which underwent a lot of changes in the core of the code. A porting of the add-on for Anki 2.1 has started but it is still in a state where it is not working.
 
+See the DEVELOP file for more information.
+
+Semi-working features
+=====================
 Author
 ======
 Simone Gaiarin \<simgunz AT gmail DOT com\>

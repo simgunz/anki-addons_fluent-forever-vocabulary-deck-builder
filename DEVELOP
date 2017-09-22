@@ -1,7 +1,32 @@
 anki-addons_fluent-forever-vocabulary-deck-builder
 ==================================================
 
-#Setup working environment
+# Current problems in making the addon work (20/19/2017)
+
+As for today, I'm not able to run the addon due to change in the release of the anki dependencies, the new way it is packaged, and the current
+porting to the 2.1 version. The right direction is to finish the porting of the add to anki 2.1/PyQt5, but from my initial work on it I saw that
+it is quite complicated given the new structure of anki, still not impossible.
+
+## Dependency hell
+
+### anki-git
+
+Anki 2.1. In the git repository I cannot find the dot releases of anki 2.0.x. I think that the repository should be only
+used to work on anki 2.1
+
+### anki-src
+
+Anki 2.0.  Downloadable from the website of anki. When executed uses the system libraries. Not present anymore in the arch repository.
+
+Problem: QtWebkit is not supported anymore in PyQt4 and PySide so this version of anki is unusable
+
+### anki-bin
+
+Anki 2.0. Compiled version of anki. Ships all the required dependencies, including the outdated QtWebkit. Run as a self-enclosed
+package and cannot see any system dependencies. The dependencies of the addon must be included in the addon itself.
+This is problematic for some dependencies like "pysox" that need to be compiled and installed. How to do this?
+
+# Setup working environment
 
 1. Download anki from git
 2. Rename runanky to runanky.py
@@ -19,14 +44,16 @@ anki-addons_fluent-forever-vocabulary-deck-builder
 
        anki/__init__.pyc
 
-#Setup KDevelop
+# Setup KDevelop
+
+KDevelop doesn't support python2 debugger anymore.
 
 Create a launch script:
 
     Interpreter: python (or python2) #Anki only supports python2
     Always run the same file: (Point to runanki.py)
 
-#Know problems of KDevelop
+# Know problems of KDevelop
 
     * If we print something in the code, we can actually see the output on the shell online when the main executable is closed.
       So we don't see the output realtime, which is extremely annoying.
