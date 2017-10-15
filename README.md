@@ -30,7 +30,7 @@ Current features
 
 Project management
 ==================
-Initially issues and ideas were managed using this [Trello board] (https://trello.com/b/Q7h3sRoq/anki-vocabulary-deck-builder).
+Initially issues and ideas were managed using this [Trello board](https://trello.com/b/Q7h3sRoq/anki-vocabulary-deck-builder).
 From now on I am planning to slowly move everything to github issues and github project.
 
 Author
