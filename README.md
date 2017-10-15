@@ -14,10 +14,25 @@ Due to changes in the distribution of the PyQt libraries, this add-on doesn't wo
 
 This add-on is not compatible with the upcoming Anki 2.1, which underwent a lot of changes in the core of the code. A porting of the add-on for Anki 2.1 has started but it is still in a state where it is not working.
 
-See the DEVELOP file for more information.
+See the DEVELOP file for more information and [Issue 1](https://github.com/simgunz/anki-addons_fluent-forever-vocabulary-deck-builder/issues/2).
 
-Semi-working features
+Current features
 =====================
+- Gallery loading from Bing images (requires API key, ugly looking)
+- Automatic image rescaling (to minimize disk space and speed up loading in anki)
+- Download audio from Forvo (requires API key)
+- Filter noise and normalize volume form audio tracks
+- IPA download from Wiktionary [on a separate branch]
+- Preloading
+- Embed of Wikitionary and a custom website to manually lookup definitions (and other information) [on a separate branch]
+- Configuration dialog to setup API keys and select current language
+- Anki browser navigation buttons (Previous, Next)
+
+Project management
+==================
+Initially issues and ideas were managed using this [Trello board] (https://trello.com/b/Q7h3sRoq/anki-vocabulary-deck-builder).
+From now on I am planning to slowly move everything to github issues and github project.
+
 Author
 ======
 Simone Gaiarin \<simgunz AT gmail DOT com\>
