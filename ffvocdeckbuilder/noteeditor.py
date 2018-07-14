@@ -104,14 +104,16 @@ class NoteEditor(object):
         #Load user config
         self.user = self.mw.pm.name
         config = QSettings('FFVDB')
-        if not self.user in config.childGroups():
+        configDict = config.value(self.user)
+        if not configDict:
             browser = aqt.dialogs.open("Browser", self.editor) #I don't know better way to retrieve the instance of the browser
             QMessageBox.warning(browser,
                 'Missing configuration', 'This is the first time fluent forever vocabulary deck builder is run for the current user.'
                 'The preference dialog will now open.')
             ffvocdeckbuilder.openPreferencesDialog(browser)
             config.sync()
-        self.config = config
+            configDict = config.value(self.user)
+        self.config = configDict
 
     def loadCssStyleSheet(self, html):
         return html.replace('</style>', _galleryCss + '</style>')
