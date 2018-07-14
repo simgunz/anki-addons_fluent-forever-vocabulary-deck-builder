@@ -140,11 +140,11 @@ class NoteEditor(object):
         self.editor.loadNote = wrap(self.editor, Editor.loadNote, loadNoteWithVoc)
         self._setNoteVanilla = self.editor.setNote
         self.editor.setNote = wrap(self.editor, Editor.setNote, setNoteWithVoc)
-        self._bridgeVanilla = self.editor.bridge
-        self.editor.bridge = wrap(self.editor, Editor.bridge, extendedBridge)
-        self.editor.web.setBridge(self.editor.bridge)
+        self._bridgeVanilla = self.editor.onBridgeCmd
+        self.editor.onBridgeCmd = wrap(self.editor, Editor.onBridgeCmd, extendedBridge)
+        #REENABLE self.editor.web.setBridge(self.editor.bridge)
         self.editor.addButtonsToTagBar()
-        self.editor.web.setLinkHandler(self.ffNoteEditorLinkHandler)
+        #REENABLE self.editor.web.setLinkHandler(self.ffNoteEditorLinkHandler)
         self.editor.loadNote()
         self.isActive = True
 
@@ -154,8 +154,8 @@ class NoteEditor(object):
         self.editor.loadNote = self._loadNoteVanilla
         self.editor.setNote = self._setNoteVanilla
         self.editor.bridge = self._bridgeVanilla
-        self.editor.web.setBridge(self.editor.bridge)
-        self.editor.ffNoteEditorLinkHandler = ''
+        #REENABLE self.editor.web.setBridge(self.editor.bridge)
+        #REENABLE self.editor.ffNoteEditorLinkHandler = ''
         self.editor.loadNote()
         self.isActive = False
 
@@ -249,7 +249,7 @@ def loadNoteWithVoc(self):
         self.vocDeckBuilder.showPronunciationGallery(self.note['Word'])
     if self.vocDeckBuilder.ipaManager:
         self.vocDeckBuilder.showIpaGallery(self.note['Word'])
-    self.vocDeckBuilder.preload(_nPreload)
+    #self.vocDeckBuilder.preload(_nPreload)
 
 def setNoteWithVoc(self, note, hide=True, focus=False):
     self.vocDeckBuilder.loadCssStyleSheet()
