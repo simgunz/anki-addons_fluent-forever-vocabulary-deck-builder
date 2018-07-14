@@ -49,13 +49,13 @@ def toggleVocabularyBuilderView(self):
     else:
         self.vocDeckBuilder.deactivate()
 
-def onSetupEditorButtons(toprightbuts, self):
-    """Add an a button to the editor to activate the vocabulary deck building
+def onSetupEditorButtons(toprightbuts, editor):
+    """Add  a button to the editor to activate the vocabulary deck building
     mode.
     """
     icon = os.path.join(iconsDir, 'dictionary.png')
-    toprightbuts.insert(-1, self._addButton(icon, 'ffvoc', "Build language deck...",
-                                            id='ffvdbbutton', toggleable=True))
+    toprightbuts.insert(-1, editor.addButton(icon, 'ffvoc', toggleVocabularyBuilderView,  "Build language deck...",
+                                            id='ffvdbbutton', toggleable=True)) #FIXME: Can pass a shortcut to addButtons
     return toprightbuts
 
 #def enableDeckBuilderButton(self, cmd):
@@ -101,7 +101,6 @@ def openPreferencesDialog(parentWnd=None):
     preferences.Preferences(mw, parentWnd)
 
 hooks.addHook("setupEditorButtons", onSetupEditorButtons)
-editor.Editor._links['ffvoc'] = toggleVocabularyBuilderView
 
 editor.Editor.vocDeckBuilder = None
 
