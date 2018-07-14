@@ -24,22 +24,23 @@ class Preferences(QDialog):
         #Load user config
         self.user = self.mw.pm.name
         self.config = QSettings('FFVDB')
-        if self.user in self.config.childGroups():
-            self.config.beginGroup(self.user)
-            self.leApiForvo.setText(self.config.value('APIs/forvo'))
-            self.leApiBing.setText(self.config.value('APIs/bing'))
-            self.cbPreferredLanguage.lineEdit().setText(self.languageCodesForward[self.config.value('Languages/Primary')])
-            self.cbSecondaryLanguage.lineEdit().setText(self.languageCodesForward[self.config.value('Languages/Secondary')])
-            self.config.endGroup()
+        configDict = self.config.value(self.user)
+        if configDict:
+            self.leApiForvo.setText(configDict['APIs']['forvo'])
+            self.leApiBing.setText(configDict['APIs']['bing'])
+            self.cbPreferredLanguage.lineEdit().setText(self.languageCodesForward[configDict['Languages']['Primary']])
+            self.cbSecondaryLanguage.lineEdit().setText(self.languageCodesForward[configDict['Languages']['Secondary']])
         self.exec_()
 
     def accept(self):
-        self.config.beginGroup(self.user)
-        self.config.setValue('APIs/forvo', self.leApiForvo.text())
-        self.config.setValue('APIs/bing', self.leApiBing.text())
-        self.config.setValue('Languages/Primary', self.languageCodesBackward[self.cbPreferredLanguage.currentText()])
-        self.config.setValue('Languages/Secondary', self.languageCodesBackward[self.cbSecondaryLanguage.currentText()])
-        self.config.endGroup()
+        configDict = {}
+        configDict['APIs'] = {}
+        configDict['APIs']['forvo'] = self.leApiForvo.text()
+        configDict['APIs']['bing'] = self.leApiBing.text()
+        configDict['Languages'] = {}
+        configDict['Languages']['Primary'] = self.languageCodesBackward[self.cbPreferredLanguage.currentText()]
+        configDict['Languages']['Secondary'] = self.languageCodesBackward[self.cbSecondaryLanguage.currentText()]
+        self.config.setValue(self.user, configDict)
         self.done(0)
 
     def reject(self):
