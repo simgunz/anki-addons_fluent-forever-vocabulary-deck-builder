@@ -217,8 +217,10 @@ def loadNoteWithVoc(self):
 def setNoteWithVoc(self, note, hide=True, focus=False):
     self.vocDeckBuilder.loadCssStyleSheet()
 
-def extendedBridge(self, str):
-    ar = str.split(':')
+def extendedBridge(self, cmd):
+    if not cmd.startswith("ffvdb"):
+        return
+    ar = cmd.split(':')
     if ar[1] == 'setpronunciation':
         self.vocDeckBuilder.pronunciationManager.setPronunciation(int(ar[2]))
     elif ar[1] == 'setipa':
