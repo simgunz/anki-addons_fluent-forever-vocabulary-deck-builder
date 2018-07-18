@@ -97,17 +97,15 @@ class NoteEditor(object):
     def showIpaGallery(self, word):
         self.ipaManager.buildGallery(word)
 
-    def activate(self, html):
+    def activate(self):
         if not self.htmlInjected:
-            self.loadCssStyleSheet(html)
+            self.loadCssStyleSheet()
             self.htmlInjected = True
-        self._loadNoteVanilla = self.editor.loadNote
+        # FIXME: Avoid calling wrap every time, defining new repl methods, just call it once and store repl somewhere
         self.editor.loadNote = wrap(self.editor, Editor.loadNote, loadNoteWithVoc)
-        self._setNoteVanilla = self.editor.setNote
         self.editor.setNote = wrap(self.editor, Editor.setNote, setNoteWithVoc)
-        self._bridgeVanilla = self.editor.onBridgeCmd
         self.editor.onBridgeCmd = wrap(self.editor, Editor.onBridgeCmd, extendedBridge)
-        #REENABLE self.editor.web.setBridge(self.editor.bridge)
+        self.web.onBridgeCmd = self.editor.onBridgeCmd
         self.editor.addButtonsToTagBar()
         #REENABLE self.editor.web.setLinkHandler(self.ffNoteEditorLinkHandler)
         self.editor.loadNote()
@@ -116,10 +114,10 @@ class NoteEditor(object):
     def deactivate(self):
         if self.galleryManager:
             self.galleryManager.finalizePreviousSelection()
-        self.editor.loadNote = self._loadNoteVanilla
-        self.editor.setNote = self._setNoteVanilla
-        self.editor.bridge = self._bridgeVanilla
-        #REENABLE self.editor.web.setBridge(self.editor.bridge)
+        self.editor.loadNote = types.MethodType(Editor.loadNote, self.editor)
+        self.editor.setNote = types.MethodType(Editor.setNote, self.editor)
+        self.editor.onBridgeCmd = types.MethodType(Editor.onBridgeCmd, self.editor)
+        self.web.onBridgeCmd = self.editor.onBridgeCmd
         #REENABLE self.editor.ffNoteEditorLinkHandler = ''
         self.editor.loadNote()
         self.isActive = False
