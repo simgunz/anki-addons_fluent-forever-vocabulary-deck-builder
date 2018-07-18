@@ -33,45 +33,6 @@ from ffvocdeckbuilder.gallerymanager import GalleryManager
 #from ffvocdeckbuilder.pronunciationmanager import PronunciationManager
 from ffvocdeckbuilder.ipamanager import IpaManager
 
-_galleryCss = """
-#normal2, #normal3, #normal4, #normal5 {
-    display: none;
-}
-#gallery {
-    margin: 0 auto;
-}
-#currentimg img {
-    height: 70px;
-    border: 6px solid #0033FF;
-    margin: 6px;
-    float: left;
-}
-#thumbs {
-    margin: 0px auto 0px auto;
-    float: left;
-}
-#thumbs img {
-    height: 70px;
-    border: none;
-}
-#thumbs a:link, #thumbs a:visited {
-    color: #EEE;
-    height: 70px;
-    border: 6px solid #555;
-    margin: 6px;
-    float: left;
-}
-#thumbs a:hover {
-    border: 6px solid #888;
-}
-#audiogallery form {
-    float: left;
-}
-#ipaselector {
-    font-size: 20px;
-}
-"""
-
 _nPreload = 5
 _nGalleryThumbs = 8
 
@@ -119,9 +80,13 @@ class NoteEditor(object):
             config.sync()
             configDict = config.value(self.user)
         self.config = configDict
-
-    def loadCssStyleSheet(self, html):
-        return html.replace('</style>', _galleryCss + '</style>')
+        
+    def loadCssStyleSheet(self):
+        webDir = os.path.join(self.mw.pm.addonFolder(), 'ffvocdeckbuilder', 'web', 'noteeditor.css')
+        with open(webDir, 'r') as f:
+            csssource = ' '.join(f.readlines()).replace('\n', '') #FIXME: How to preserve newlines?
+        s = '$("head").append("<style>{0}</style>")'.format(csssource)
+        self.web.eval(s)
 
     def showGallery(self, word):
         self.galleryManager.buildGallery(word, nThumbs=_nGalleryThumbs)
