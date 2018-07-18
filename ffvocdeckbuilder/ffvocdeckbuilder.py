@@ -45,7 +45,7 @@ def toggleVocabularyBuilderView(self):
     if not self.vocDeckBuilder:
         self.vocDeckBuilder = NoteEditor(self)
     if not self.vocDeckBuilder.isActive:
-        self.web.page().toHtml(self.vocDeckBuilder.activate)
+        self.vocDeckBuilder.activate()
     else:
         self.vocDeckBuilder.deactivate()
 
