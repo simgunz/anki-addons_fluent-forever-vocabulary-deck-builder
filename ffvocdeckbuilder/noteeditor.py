@@ -88,7 +88,10 @@ class NoteEditor(object):
         #self.nextNotes = list(_nPreload)
         #self.prevNotes = list(_nPreload)
         self.loadPreferences()
-        self.galleryManager = GalleryManager(self.editor, self.config, "Bing")
+        self.galleryManager = None
+        self.pronunciationManager = None
+        self.ipaManager = None
+        #REENABLE self.galleryManager = GalleryManager(self.editor, self.config, "Bing")
         #REENABLE self.pronunciationManager = PronunciationManager(self.editor, self.config, "Forvo")
         #REENABLE self.ipaManager = IpaManager(self.editor, self.config)
         self.isActive = False
@@ -96,9 +99,11 @@ class NoteEditor(object):
 
     def __del__(self):
         #FIXME: Call this destructor explicitly somewhere
-        self.galleryManager.finalizePreviousSelection()
-        self.galleryManager.__del__()
-        #REENABLE self.pronunciationManager.__del__()
+        if self.galleryManager:
+            self.galleryManager.finalizePreviousSelection()
+            self.galleryManager.__del__()
+        if self.pronunciationManager:
+            self.pronunciationManager.__del__()
 
     def loadPreferences(self):
         #Load user config
@@ -144,7 +149,8 @@ class NoteEditor(object):
         self.isActive = True
 
     def deactivate(self):
-        self.galleryManager.finalizePreviousSelection()
+        if self.galleryManager:
+            self.galleryManager.finalizePreviousSelection()
         self.editor.loadNote = self._loadNoteVanilla
         self.editor.setNote = self._setNoteVanilla
         self.editor.bridge = self._bridgeVanilla
@@ -201,22 +207,26 @@ where id in {0}""".format(ids2str(
         newPreloadNotesIds = preloadNotesIds.difference(currentIds)
         newPreloadNotesIds = list(newPreloadNotesIds)
         self.preloadedNotesIds += newPreloadNotesIds
-        #Download each note media by spawning new threads
-        newPreloadNotes = list()
-        wordDownloadList = list()
-        for i in range(len(newPreloadNotesIds)):
-            newPreloadNotes.append(self.mw.col.getNote(newPreloadNotesIds[i]))
-            wordDownloadList.append(newPreloadNotes[i]['Word'])
+        
+        if self.galleryManager:
+            #Download each note media by spawning new threads
+            newPreloadNotes = list()
+            wordDownloadList = list()
+            for i in range(len(newPreloadNotesIds)):
+                newPreloadNotes.append(self.mw.col.getNote(newPreloadNotesIds[i]))
+                wordDownloadList.append(newPreloadNotes[i]['Word'])
 
-            thrImg = threading.Thread(target=self.galleryManager.downloadPictures, args=(newPreloadNotes[i]['Word'], newPreloadNotes[i]['Word'], _nGalleryThumbs), kwargs={})
-            thrImg.start()
+                thrImg = threading.Thread(target=self.galleryManager.downloadPictures, args=(newPreloadNotes[i]['Word'], newPreloadNotes[i]['Word'], _nGalleryThumbs), kwargs={})
+                thrImg.start()
 
-        # Put single string args between [] or it is considered as many args as the length of the string
-        thrAudio = threading.Thread(target=self.pronunciationManager.downloadAudios, args=([wordDownloadList]), kwargs={})
-        thrAudio.start()
+        if self.pronunciationManager:
+            # Put single string args between [] or it is considered as many args as the length of the string
+            thrAudio = threading.Thread(target=self.pronunciationManager.downloadAudios, args=([wordDownloadList]), kwargs={})
+            thrAudio.start()
 
-        thrIpa= threading.Thread(target=self.ipaManager.downloadIpas, args=([wordDownloadList]), kwargs={})
-        thrIpa.start()
+        if self.ipaManager:
+            thrIpa= threading.Thread(target=self.ipaManager.downloadIpas, args=([wordDownloadList]), kwargs={})
+            thrIpa.start()
 
 def wrap(instance, old, new, pos='after'):
     "Override an existing function."
@@ -232,10 +242,13 @@ def wrap(instance, old, new, pos='after'):
     return types.MethodType(repl, instance)
 
 def loadNoteWithVoc(self):
-    self.vocDeckBuilder.galleryManager.finalizePreviousSelection()
-    self.vocDeckBuilder.showGallery(self.note['Word'])
-    #REENABLE self.vocDeckBuilder.showPronunciationGallery(self.note['Word'])
-    #REENABLE self.vocDeckBuilder.showIpaGallery(self.note['Word'])
+    if self.vocDeckBuilder.galleryManager:
+        self.vocDeckBuilder.galleryManager.finalizePreviousSelection()
+        self.vocDeckBuilder.showGallery(self.note['Word'])
+    if self.vocDeckBuilder.pronunciationManager:
+        self.vocDeckBuilder.showPronunciationGallery(self.note['Word'])
+    if self.vocDeckBuilder.ipaManager:
+        self.vocDeckBuilder.showIpaGallery(self.note['Word'])
     self.vocDeckBuilder.preload(_nPreload)
 
 def setNoteWithVoc(self, note, hide=True, focus=False):
