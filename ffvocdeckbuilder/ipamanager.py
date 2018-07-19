@@ -19,8 +19,7 @@
 import json
 import os
 import re
-import urllib
-from urllib.request import urlretrieve
+from urllib.request import urlopen
 from bs4 import BeautifulSoup
 
 from .extmodules.tempdir import tempdir
@@ -84,7 +83,7 @@ class IpaManager:
 
             #Wiktionary
             url = u'https://en.wiktionary.org/wiki/{0}'.format(word)
-            r = urllib.urlopen(url.encode('utf-8')).read()
+            r = urlopen(url).read()
             soup = BeautifulSoup(r, 'html.parser')
             rawIpa = soup.find_all("span", class_="IPA")
             for s in rawIpa:
