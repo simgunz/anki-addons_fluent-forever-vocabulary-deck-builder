@@ -110,7 +110,7 @@ class IpaManager:
         #Find IPAs currently in the note
         self.currentIpas = re.findall('\[[^\]]+\]|\/[^\/]+\/', self.currentNote['IPA transcription'])
         gallery = '<div id="ipagallery">'
-        gallery += '<select onchange="getSelectValues(this)" id="ipaselector" name="ipa" multiple>'
+        gallery += '''<select onchange="getSelectValues(this)" onfocus="enableButtons();" id="ipaselector" name="ipa" multiple>''' #FIXME: onfocus="pycmd('focus:6');"
         #Add the current IPAs as red text and selected
         for i, c in enumerate(self.currentIpas):
             gallery += '<option selected="selected" style="color:red;" value="ipac{2}">{0}; {1}'.format(c, 'Current IPA', i)
