@@ -78,11 +78,11 @@ class IpaManager:
                 self.languageCodes[key] = val.rstrip('\n')
 
     def downloadIpa(self, word):
-        if not self.ipa.has_key(word):
+        if not word in self.ipa:
             found = list()
 
             #Wiktionary
-            url = u'https://en.wiktionary.org/wiki/{0}'.format(word)
+            url = 'https://en.wiktionary.org/wiki/{0}'.format(word)
             r = urlopen(url).read()
             soup = BeautifulSoup(r, 'html.parser')
             rawIpa = soup.find_all("span", class_="IPA")
@@ -102,7 +102,7 @@ class IpaManager:
     def buildGallery(self, word, nThumbs=5):
         self.currentNote = self.editor.note
         self.currentWord = word
-        if not self.ipa.has_key(word):
+        if not word in self.ipa:
             self.downloadIpa(word)
         #Find pos in model & make searchid
         pos=[i for i,sr in enumerate(self.currentNote.model()['flds']) \
@@ -110,20 +110,20 @@ class IpaManager:
         s_id="#f"+str(pos[0])
         #Find IPAs currently in the note
         self.currentIpas = re.findall('\[[^\]]+\]|\/[^\/]+\/', self.currentNote['IPA transcription'])
-        gallery = u'<div id="ipagallery">'
-        gallery += u'<select onchange="getSelectValues(this)" id="ipaselector" name="ipa" multiple>'
+        gallery = '<div id="ipagallery">'
+        gallery += '<select onchange="getSelectValues(this)" id="ipaselector" name="ipa" multiple>'
         #Add the current IPAs as red text and selected
         for i, c in enumerate(self.currentIpas):
-            gallery += u'<option selected="selected" style="color:red;" value="ipac{2}">{0}; {1}'.format(c, 'Current IPA', i)
+            gallery += '<option selected="selected" style="color:red;" value="ipac{2}">{0}; {1}'.format(c, 'Current IPA', i)
         for i, v in enumerate(self.ipa[word]):
-            if v.has_key('gender'):
-                gallery += u'<option value="ipa{3}">{0}; {2} {1}'.format(v['ipa'], v['provider'], v['gender'], i)
+            if 'gender' in v:
+                gallery += '<option value="ipa{3}">{0}; {2} {1}'.format(v['ipa'], v['provider'], v['gender'], i)
             else:
-                gallery += u'<option value="ipa{2}">{0}; {1}'.format(v['ipa'], v['provider'], i)
-            if v.has_key('spec'):
-                gallery += u', {0}'.format(v['spec'])
-            gallery += u'</option>'
-        gallery += u'</select></div>'
+                gallery += '<option value="ipa{2}">{0}; {1}'.format(v['ipa'], v['provider'], i)
+            if 'spec' in v:
+                gallery += ', {0}'.format(v['spec'])
+            gallery += '</option>'
+        gallery += '</select></div>'
         self.webMainFrame.findFirstElement(s_id).setOuterXml(gallery)
         self.editor.web.eval(_javaFunctions)
         self.editor.web.eval("formatMulticolumn();")
