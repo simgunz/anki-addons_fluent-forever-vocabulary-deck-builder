@@ -108,7 +108,7 @@ class NoteEditor(object):
         self.web.onBridgeCmd = self.editor.onBridgeCmd
         self.editor.addButtonsToTagBar()
         #REENABLE self.editor.web.setLinkHandler(self.ffNoteEditorLinkHandler)
-        self.editor.loadNote()
+        self.editor.loadNote(focusTo=self.editor.currentField)
         self.isActive = True
 
     def deactivate(self):
@@ -119,7 +119,7 @@ class NoteEditor(object):
         self.editor.onBridgeCmd = types.MethodType(Editor.onBridgeCmd, self.editor)
         self.web.onBridgeCmd = self.editor.onBridgeCmd
         #REENABLE self.editor.ffNoteEditorLinkHandler = ''
-        self.editor.loadNote()
+        self.editor.loadNote(focusTo=self.editor.currentField)
         self.isActive = False
 
     def ffNoteEditorLinkHandler(self, l):
@@ -204,7 +204,7 @@ def wrap(instance, old, new, pos='after'):
             return new(_old=old, *args, **kwargs)
     return types.MethodType(repl, instance)
 
-def loadNoteWithVoc(self):
+def loadNoteWithVoc(self, focusTo=None):
     if self.vocDeckBuilder.galleryManager:
         self.vocDeckBuilder.galleryManager.finalizePreviousSelection()
         self.vocDeckBuilder.showGallery(self.note['Word'])
@@ -214,7 +214,7 @@ def loadNoteWithVoc(self):
         self.vocDeckBuilder.showIpaGallery(self.note['Word'])
     #self.vocDeckBuilder.preload(_nPreload)
 
-def setNoteWithVoc(self, note, hide=True, focus=False):
+def setNoteWithVoc(self, note, hide=True, focusTo=False):
     self.vocDeckBuilder.loadCssStyleSheet()
 
 def extendedBridge(self, cmd):
