@@ -65,7 +65,7 @@ def onSetupEditorButtons(toprightbuts, editor):
         #self.web.eval('''$(#ffvdbbutton).prop("disabled", false);''')
 
 def addButtonsToTagBar(self):
-    from aqt.qt import QPushButton, QGroupBox
+    # FIXME: Add method to remove these buttons
     btnPrev = QPushButton("Previous")
     btnNext = QPushButton("Next")
     #The tag groupbox
@@ -100,7 +100,7 @@ def openPreferencesDialog(parentWnd=None):
 
 hooks.addHook("setupEditorButtons", onSetupEditorButtons)
 
-editor.Editor.vocDeckBuilder = None
+editor.Editor.vocDeckBuilder = None # Placeholder for the method
 
 editor.Editor.addButtonsToTagBar = addButtonsToTagBar
 
