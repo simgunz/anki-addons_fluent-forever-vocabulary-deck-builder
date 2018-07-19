@@ -17,16 +17,14 @@
 #########################################################################
 
 import os
-import pdb
 
-from PyQt5 import uic
-from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QAction
 
 from anki import hooks
 
 import aqt
 from aqt import mw, editor, browser, QMessageBox
+from aqt.qt import QPushButton, QGroupBox
 
 from . import preferences
 from .noteeditor import NoteEditor
