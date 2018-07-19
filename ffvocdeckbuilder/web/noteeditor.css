@@ -1,0 +1,36 @@
+#normal2, #normal3, #normal4, #normal5 {
+    display: none;
+}
+#gallery {
+    margin: 0 auto;
+}
+#currentimg img {
+    height: 70px;
+    border: 6px solid #0033FF;
+    margin: 6px;
+    float: left;
+}
+#thumbs {
+    margin: 0px auto 0px auto;
+    float: left;
+}
+#thumbs img {
+    height: 70px;
+    border: none;
+}
+#thumbs a:link, #thumbs a:visited {
+    color: #EEE;
+    height: 70px;
+    border: 6px solid #555;
+    margin: 6px;
+    float: left;
+}
+#thumbs a:hover {
+    border: 6px solid #888;
+}
+#audiogallery form {
+    float: left;
+}
+#ipaselector {
+    font-size: 20px;
+}
