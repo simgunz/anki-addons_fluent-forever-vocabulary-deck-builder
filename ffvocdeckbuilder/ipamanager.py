@@ -56,7 +56,7 @@ function getSelectValues(select) {
       result.push(opt.value || opt.text);
     }
   }
-  py.run("ffvdb:setipa:" + result);
+  pycmd("ffvdb:setipa:" + result);
 }
 """
 
@@ -64,7 +64,6 @@ class IpaManager:
     def __init__(self, editor, config):
         self.editor = editor
         self.config = config
-        self.webMainFrame = self.editor.web.page().mainFrame()
         self.ipa = {}
         self.loadLanguageCodes()
 
@@ -124,7 +123,7 @@ class IpaManager:
                 gallery += ', {0}'.format(v['spec'])
             gallery += '</option>'
         gallery += '</select></div>'
-        self.webMainFrame.findFirstElement(s_id).setOuterXml(gallery)
+        self.editor.web.eval('''$('{0}').replaceWith('{1}')'''.format(s_id, gallery))
         self.editor.web.eval(_javaFunctions)
         self.editor.web.eval("formatMulticolumn();")
 
