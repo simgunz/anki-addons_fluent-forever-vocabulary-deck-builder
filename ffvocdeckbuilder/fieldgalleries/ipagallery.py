@@ -22,50 +22,15 @@ import re
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
 
-from .extmodules.tempdir import tempdir
+from .fieldgallery import FieldGallery
 
-_javaFunctions="""
-formatMulticolumn = function(){
-  var s = document.getElementsByTagName('SELECT')[0].options,
-      l = 0,
-      d = '';
-  for(i = 0; i < s.length; i++){
-    if(s[i].text.length > l) l = s[i].text.length;
-  }
-  for(i = 0; i < s.length; i++){
-    d = '';
-    line = s[i].text.split(';');
-    l1 = (l - line[0].length);
-    for(j = 0; j < l1; j++){
-      d += '\u00a0';
-    }
-    s[i].text = line[0] + d + line[1];
-  }
-  $('#ipaselector').css('font-family', '"Courier New", Courier, monospace')
-};
-
-function getSelectValues(select) {
-  var result = [];
-  var options = select && select.options;
-  var opt;
-
-  for (var i=0, iLen=options.length; i<iLen; i++) {
-    opt = options[i];
-
-    if (opt.selected) {
-      result.push(opt.value || opt.text);
-    }
-  }
-  pycmd("ffvdb:setipa:" + result);
-}
-"""
-
-class IpaManager:
+class IpaGallery(FieldGallery):
     def __init__(self, editor, config):
         self.editor = editor
         self.config = config
         self.ipa = {}
         self.loadLanguageCodes()
+        super().__init__("ipa")
 
     def loadLanguageCodes(self):
         self.languageCodes = {}
@@ -124,8 +89,6 @@ class IpaManager:
             gallery += '</option>'
         gallery += '</select></div>'
         self.editor.web.eval('''$('{0}').replaceWith('{1}')'''.format(s_id, gallery))
-        self.editor.web.eval(_javaFunctions)
-        self.editor.web.eval("formatMulticolumn();")
 
     def setIpa(self, ipaTxt):
         if re.match("ipa", ipaTxt) is not None:
