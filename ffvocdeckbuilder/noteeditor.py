@@ -54,7 +54,7 @@ class NoteEditor(object):
         self.ipaManager = None
         #REENABLE self.galleryManager = GalleryManager(self.editor, self.config, "Bing")
         #REENABLE self.pronunciationManager = PronunciationManager(self.editor, self.config, "Forvo")
-        #REENABLE self.ipaManager = IpaManager(self.editor, self.config)
+        self.ipaManager = IpaManager(self.editor, self.config)
         self.isActive = False
         self.htmlInjected = False
 
