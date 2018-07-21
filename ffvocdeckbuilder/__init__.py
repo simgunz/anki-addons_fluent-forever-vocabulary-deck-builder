@@ -16,4 +16,9 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.  #
 #########################################################################
 
+"""
+Entry point for Fluent Forever Vocabulary Deck Builder add-on for Anki
+"""
+
 __version__ = "0.1"
+import ffvocdeckbuilder.ffvocdeckbuilder 

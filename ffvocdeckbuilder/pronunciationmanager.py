@@ -23,9 +23,9 @@ import subprocess
 
 from anki.sound import play
 
-from extmodules.tempdir import tempdir
-from extmodules.downloadaudio.downloaders import forvoffvdb
-from extmodules.downloadaudio.field_data import FieldData
+from .extmodules.tempdir import tempdir
+from .extmodules.downloadaudio.downloaders import forvoffvdb
+from .extmodules.downloadaudio.field_data import FieldData
 import pysox #External dep
 
 _myScript="""
@@ -72,7 +72,7 @@ class PronunciationManager:
         if not self.audios.has_key(word):
             self.downloadAudio(word)
         self.currentNote = self.editor.note
-        #Find pos in model & make searchid 
+        #Find pos in model & make searchid
         pos=[i for i,sr in enumerate(self.currentNote.model()['flds']) \
                 if re.match('Pronunciation sound',sr['name'])]
         s_id="#f"+str(pos[0])

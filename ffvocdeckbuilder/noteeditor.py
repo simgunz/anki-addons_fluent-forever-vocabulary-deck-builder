@@ -21,52 +21,17 @@ import re
 import threading
 
 import anki
-import aqt
 from anki import hooks
 from anki.utils import ids2str
-from aqt.editor import Editor
-from gallerymanager import GalleryManager
-from pronunciationmanager import PronunciationManager
-from ipamanager import IpaManager
 
-_galleryCss = """
-#normal2, #normal3, #normal4, #normal5 {
-    display: none;
-}
-#gallery {
-    margin: 0 auto;
-}
-#currentimg img {
-    height: 70px;
-    border: 6px solid #0033FF;
-    margin: 6px;
-    float: left;
-}
-#thumbs {
-    margin: 0px auto 0px auto;
-    float: left;
-}
-#thumbs img {
-    height: 70px;
-    border: none;
-}
-#thumbs a:link, #thumbs a:visited {
-    color: #EEE;
-    height: 70px;
-    border: 6px solid #555;
-    margin: 6px;
-    float: left;
-}
-#thumbs a:hover {
-    border: 6px solid #888;
-}
-#audiogallery form {
-    float: left;
-}
-#ipaselector {
-    font-size: 20px;
-}
-"""
+import aqt
+from aqt import QSettings, QMessageBox
+from aqt.editor import Editor
+
+from ffvocdeckbuilder import ffvocdeckbuilder
+from ffvocdeckbuilder.gallerymanager import GalleryManager
+#from ffvocdeckbuilder.pronunciationmanager import PronunciationManager
+from ffvocdeckbuilder.ipamanager import IpaManager
 
 _nPreload = 5
 _nGalleryThumbs = 8
@@ -77,7 +42,6 @@ class NoteEditor(object):
         self.editor = editor
         self.mw = self.editor.mw
         self.web = editor.web
-        self.webMainFrame = self.web.page().mainFrame()
         self.currentWord = ''
         self.preloadedNotesIds = list()
         self.wordUrls = {}
@@ -85,29 +49,44 @@ class NoteEditor(object):
         #self.nextNotes = list(_nPreload)
         #self.prevNotes = list(_nPreload)
         self.loadPreferences()
-        self.galleryManager = GalleryManager(self.editor, self.config, "Bing")
-        self.pronunciationManager = PronunciationManager(self.editor, self.config, "Forvo")
+        self.galleryManager = None
+        self.pronunciationManager = None
+        self.ipaManager = None
+        #REENABLE self.galleryManager = GalleryManager(self.editor, self.config, "Bing")
+        #REENABLE self.pronunciationManager = PronunciationManager(self.editor, self.config, "Forvo")
         self.ipaManager = IpaManager(self.editor, self.config)
+        self.isActive = False
+        self.htmlInjected = False
 
     def __del__(self):
         #FIXME: Call this destructor explicitly somewhere
-        self.galleryManager.finalizePreviousSelection()
-        self.galleryManager.__del__()
-        self.pronunciationManager.__del__()
+        if self.galleryManager:
+            self.galleryManager.finalizePreviousSelection()
+            self.galleryManager.__del__()
+        if self.pronunciationManager:
+            self.pronunciationManager.__del__()
 
     def loadPreferences(self):
         #Load user config
         self.user = self.mw.pm.name
-        config = ConfigObj('ffvdb.ini')
-        if config.has_key(self.user ):
-            self.config = config[self.user]
-        else:
-            self.config = ""
-
+        config = QSettings('FFVDB')
+        configDict = config.value(self.user)
+        if not configDict:
+            browser = aqt.dialogs.open("Browser", self.editor) #I don't know better way to retrieve the instance of the browser
+            QMessageBox.warning(browser,
+                'Missing configuration', 'This is the first time fluent forever vocabulary deck builder is run for the current user.'
+                'The preference dialog will now open.')
+            ffvocdeckbuilder.openPreferencesDialog(browser)
+            config.sync()
+            configDict = config.value(self.user)
+        self.config = configDict
+        
     def loadCssStyleSheet(self):
-        css = str(self.webMainFrame.findFirstElement('style').toInnerXml())
-        css += _galleryCss
-        self.webMainFrame.findFirstElement('style').setInnerXml(css)
+        webDir = os.path.join(self.mw.pm.addonFolder(), 'ffvocdeckbuilder', 'web', 'noteeditor.css')
+        with open(webDir, 'r') as f:
+            csssource = ' '.join(f.readlines()).replace('\n', '') #FIXME: How to preserve newlines?
+        s = '$("head").append("<style>{0}</style>")'.format(csssource)
+        self.web.eval(s)
 
     def showGallery(self, word):
         self.galleryManager.buildGallery(word, nThumbs=_nGalleryThumbs)
@@ -119,26 +98,29 @@ class NoteEditor(object):
         self.ipaManager.buildGallery(word)
 
     def activate(self):
-        self.loadCssStyleSheet()
-        self._loadNoteVanilla = self.editor.loadNote
+        if not self.htmlInjected:
+            self.loadCssStyleSheet()
+            self.htmlInjected = True
+        # FIXME: Avoid calling wrap every time, defining new repl methods, just call it once and store repl somewhere
         self.editor.loadNote = wrap(self.editor, Editor.loadNote, loadNoteWithVoc)
-        self._setNoteVanilla = self.editor.setNote
         self.editor.setNote = wrap(self.editor, Editor.setNote, setNoteWithVoc)
-        self._bridgeVanilla = self.editor.bridge
-        self.editor.bridge = wrap(self.editor, Editor.bridge, extendedBridge)
-        self.editor.web.setBridge(self.editor.bridge)
+        self.editor.onBridgeCmd = wrap(self.editor, Editor.onBridgeCmd, extendedBridge)
+        self.web.onBridgeCmd = self.editor.onBridgeCmd
         self.editor.addButtonsToTagBar()
-        self.editor.web.setLinkHandler(self.ffNoteEditorLinkHandler)
-        self.editor.loadNote()
+        #REENABLE self.editor.web.setLinkHandler(self.ffNoteEditorLinkHandler)
+        self.editor.loadNote(focusTo=self.editor.currentField)
+        self.isActive = True
 
     def deactivate(self):
-        self.galleryManager.finalizePreviousSelection()
-        self.editor.loadNote = self._loadNoteVanilla
-        self.editor.setNote = self._setNoteVanilla
-        self.editor.bridge = self._bridgeVanilla
-        self.editor.web.setBridge(self.editor.bridge)
-        self.editor.ffNoteEditorLinkHandler = ''
-        self.editor.loadNote()
+        if self.galleryManager:
+            self.galleryManager.finalizePreviousSelection()
+        self.editor.loadNote = types.MethodType(Editor.loadNote, self.editor)
+        self.editor.setNote = types.MethodType(Editor.setNote, self.editor)
+        self.editor.onBridgeCmd = types.MethodType(Editor.onBridgeCmd, self.editor)
+        self.web.onBridgeCmd = self.editor.onBridgeCmd
+        #REENABLE self.editor.ffNoteEditorLinkHandler = ''
+        self.editor.loadNote(focusTo=self.editor.currentField)
+        self.isActive = False
 
     def ffNoteEditorLinkHandler(self, l):
         l = os.path.basename(l)
@@ -188,22 +170,26 @@ where id in {0}""".format(ids2str(
         newPreloadNotesIds = preloadNotesIds.difference(currentIds)
         newPreloadNotesIds = list(newPreloadNotesIds)
         self.preloadedNotesIds += newPreloadNotesIds
-        #Download each note media by spawning new threads
-        newPreloadNotes = list()
-        wordDownloadList = list()
-        for i in range(len(newPreloadNotesIds)):
-            newPreloadNotes.append(self.mw.col.getNote(newPreloadNotesIds[i]))
-            wordDownloadList.append(newPreloadNotes[i]['Word'])
+        
+        if self.galleryManager:
+            #Download each note media by spawning new threads
+            newPreloadNotes = list()
+            wordDownloadList = list()
+            for i in range(len(newPreloadNotesIds)):
+                newPreloadNotes.append(self.mw.col.getNote(newPreloadNotesIds[i]))
+                wordDownloadList.append(newPreloadNotes[i]['Word'])
 
-            thrImg = threading.Thread(target=self.galleryManager.downloadPictures, args=(newPreloadNotes[i]['Word'], newPreloadNotes[i]['Word'], _nGalleryThumbs), kwargs={})
-            thrImg.start()
+                thrImg = threading.Thread(target=self.galleryManager.downloadPictures, args=(newPreloadNotes[i]['Word'], newPreloadNotes[i]['Word'], _nGalleryThumbs), kwargs={})
+                thrImg.start()
 
-        # Put single string args between [] or it is considered as many args as the length of the string
-        thrAudio = threading.Thread(target=self.pronunciationManager.downloadAudios, args=([wordDownloadList]), kwargs={})
-        thrAudio.start()
+        if self.pronunciationManager:
+            # Put single string args between [] or it is considered as many args as the length of the string
+            thrAudio = threading.Thread(target=self.pronunciationManager.downloadAudios, args=([wordDownloadList]), kwargs={})
+            thrAudio.start()
 
-        thrIpa= threading.Thread(target=self.ipaManager.downloadIpas, args=([wordDownloadList]), kwargs={})
-        thrIpa.start()
+        if self.ipaManager:
+            thrIpa= threading.Thread(target=self.ipaManager.downloadIpas, args=([wordDownloadList]), kwargs={})
+            thrIpa.start()
 
 def wrap(instance, old, new, pos='after'):
     "Override an existing function."
@@ -216,20 +202,25 @@ def wrap(instance, old, new, pos='after'):
             return old(*args, **kwargs)
         else:
             return new(_old=old, *args, **kwargs)
-    return types.MethodType(repl, instance, instance.__class__)
+    return types.MethodType(repl, instance)
 
-def loadNoteWithVoc(self):
-    self.vocDeckBuilder.galleryManager.finalizePreviousSelection()
-    self.vocDeckBuilder.showGallery(self.note['Word'])
-    self.vocDeckBuilder.showPronunciationGallery(self.note['Word'])
-    self.vocDeckBuilder.showIpaGallery(self.note['Word'])
-    self.vocDeckBuilder.preload(_nPreload)
+def loadNoteWithVoc(self, focusTo=None):
+    if self.vocDeckBuilder.galleryManager:
+        self.vocDeckBuilder.galleryManager.finalizePreviousSelection()
+        self.vocDeckBuilder.showGallery(self.note['Word'])
+    if self.vocDeckBuilder.pronunciationManager:
+        self.vocDeckBuilder.showPronunciationGallery(self.note['Word'])
+    if self.vocDeckBuilder.ipaManager:
+        self.vocDeckBuilder.showIpaGallery(self.note['Word'])
+    #self.vocDeckBuilder.preload(_nPreload)
 
-def setNoteWithVoc(self, note, hide=True, focus=False):
+def setNoteWithVoc(self, note, hide=True, focusTo=False):
     self.vocDeckBuilder.loadCssStyleSheet()
 
-def extendedBridge(self, str):
-    ar = str.split(':')
+def extendedBridge(self, cmd):
+    if not cmd.startswith("ffvdb"):
+        return
+    ar = cmd.split(':')
     if ar[1] == 'setpronunciation':
         self.vocDeckBuilder.pronunciationManager.setPronunciation(int(ar[2]))
     elif ar[1] == 'setipa':

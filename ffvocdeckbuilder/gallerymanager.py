@@ -19,12 +19,12 @@
 import json
 import os
 import re
-from urllib import urlretrieve
+from urllib.request import urlretrieve
 
 import aqt
 from aqt import QImage, QImageReader, Qt, QMessageBox
 
-from extmodules.tempdir import tempdir
+from .extmodules.tempdir import tempdir
 
 class GalleryManager:
     def __init__(self, editor, config, provider):
@@ -62,7 +62,7 @@ class GalleryManager:
         self.chosenImg = ""
         self.currentNote = self.editor.note
         nid = self.currentNote.id
-        #Find pos in model & make searchid 
+        #Find pos in model & make searchid
         pos=[i for i,sr in enumerate(self.currentNote.model()['flds']) \
                 if re.match('Picture',sr['name'])]
         s_id="#f"+str(pos[0])

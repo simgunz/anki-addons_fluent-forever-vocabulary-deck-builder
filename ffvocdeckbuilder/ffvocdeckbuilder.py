@@ -17,56 +17,55 @@
 #########################################################################
 
 import os
-import pdb
 
-from PyQt4 import uic
-from PyQt4.QtGui import QIcon, QAction
+from PyQt5.QtWidgets import QAction
 
 from anki import hooks
 
-from aqt import mw, editor, browser
+import aqt
+from aqt import mw, editor, browser, QMessageBox
+from aqt.qt import QPushButton, QGroupBox
 
-from noteeditor import NoteEditor
-import preferences
+from . import preferences
+from .noteeditor import NoteEditor
 
 iconsDir = os.path.join(mw.pm.addonFolder(), 'ffvocdeckbuilder', 'icons')
 
 
 #EDITOR
-def toggleVocabularyBuilderView(self, checked):
+def toggleVocabularyBuilderView(self):
+    #FIXME: The button is enabled even if the activation of the addon doesn't complete
+    if not (self.note and self.note.model()['name'] == "FF basic vocabulary"):
+        browser = aqt.dialogs.open("Browser", self) #I don't know better way to retrieve the instance of the browser
+        QMessageBox.warning(browser,
+            'Wrong note model', 'FFVDB works only for note model: "FF basic vocabulary" ')
+        return
     if not self.vocDeckBuilder:
         self.vocDeckBuilder = NoteEditor(self)
-    if checked:
+    if not self.vocDeckBuilder.isActive:
         self.vocDeckBuilder.activate()
     else:
         self.vocDeckBuilder.deactivate()
 
-def onSetupEditorButtons(self):
-    """Add an a button to the editor to activate the vocabulary deck building
+def onSetupEditorButtons(toprightbuts, editor):
+    """Add  a button to the editor to activate the vocabulary deck building
     mode.
     """
-    # 'text' must be non empty otherwise the function tries to find an icon
-    # into the anki path
-    editorButton = self._addButton(
-        "ffvocdeckbuilder",
-        self.toggleVocabularyBuilderView,
-        tip=u"Build language deck...", text=" ",
-        check=True)
-    editorButton.setIcon(QIcon(os.path.join(iconsDir, 'dictionary.png')))
-    # Remove the empty text to center align the icon
-    editorButton.setText("")
+    icon = os.path.join(iconsDir, 'dictionary.png')
+    toprightbuts.insert(-1, editor.addButton(icon, 'ffvoc', toggleVocabularyBuilderView,  "Build language deck...",
+                                            id='ffvdbbutton', toggleable=True)) #FIXME: Can pass a shortcut to addButtons
+    return toprightbuts
 
-def enableDeckBuilderButton(self, val=True):
-    """Disable the editor button when the note type is not 'FF basic vocabulary'
-    """
-    if self.note:
-        if self.note.model()['name'] == "FF basic vocabulary":
-            self._buttons["ffvocdeckbuilder"].setEnabled(True)
-        else:
-            self._buttons["ffvocdeckbuilder"].setEnabled(False)
+#def enableDeckBuilderButton(self, cmd):
+    #"""Disable the editor button when the note type is not 'FF basic vocabulary'
+    #"""
+    #if not (self.note and self.note.model()['name'] == "FF basic vocabulary"):
+        #self.web.eval('''$(#ffvdbbutton).prop("disabled", true);''')
+    #else:
+        #self.web.eval('''$(#ffvdbbutton).prop("disabled", false);''')
 
 def addButtonsToTagBar(self):
-    from aqt.qt import QPushButton, QGroupBox
+    # FIXME: Add method to remove these buttons
     btnPrev = QPushButton("Previous")
     btnNext = QPushButton("Next")
     #The tag groupbox
@@ -95,17 +94,13 @@ def config_menu():
     preferencesAction.setText(_(u"FFVDB.."))
     preferencesAction.triggered.connect(openPreferencesDialog)
 
-def openPreferencesDialog():
+def openPreferencesDialog(parentWnd=None):
     #Creates and show the preferences dialog
-    preferences.Preferences(mw)
+    preferences.Preferences(mw, parentWnd)
 
 hooks.addHook("setupEditorButtons", onSetupEditorButtons)
 
-editor.Editor.enableButtons = hooks.wrap(
-    editor.Editor.enableButtons, enableDeckBuilderButton)
-
-editor.Editor.toggleVocabularyBuilderView = toggleVocabularyBuilderView
-editor.Editor.vocDeckBuilder = None
+editor.Editor.vocDeckBuilder = None # Placeholder for the method
 
 editor.Editor.addButtonsToTagBar = addButtonsToTagBar
 
