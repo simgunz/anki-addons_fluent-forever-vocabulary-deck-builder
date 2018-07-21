@@ -14,7 +14,19 @@ class FieldGallery(ABC):
         pass
     
     def loadTag(self, tagtype):
-        pass
+        if tagtype == "css":
+            tagname = "style"
+        elif tagtype == "js":
+            tagname = "script"
+            
+        jsfile = os.path.join(self.editor.mw.pm.addonFolder(), 'ffvocdeckbuilder', 'web', 'gallery_{0}.{1}'.format(self.name, tagtype))
+        if not os.access(jsfile, os.R_OK):
+            return
+        
+        with open(jsfile, 'r') as f:
+            tagfile = ' '.join(f.readlines()).replace('\n', '') #FIXME: How to preserve newlines?
+        s = '''$('head').append('<{1}>{0}</{1}>')'''.format(tagfile, tagname)
+        self.editor.web.eval(s)
         
     def loadJS(self):
         self.loadTag("js")
