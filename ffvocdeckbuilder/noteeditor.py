@@ -98,8 +98,8 @@ class NoteEditor(object):
         self.isActive = True
 
     def deactivate(self):
-        if self.galleryManager:
-            self.galleryManager.finalizePreviousSelection()
+        #if self.galleryManager:
+            #self.galleryManager.finalizePreviousSelection()
         self.editor.loadNote = types.MethodType(Editor.loadNote, self.editor)
         self.editor.setNote = types.MethodType(Editor.setNote, self.editor)
         self.editor.onBridgeCmd = types.MethodType(Editor.onBridgeCmd, self.editor)
