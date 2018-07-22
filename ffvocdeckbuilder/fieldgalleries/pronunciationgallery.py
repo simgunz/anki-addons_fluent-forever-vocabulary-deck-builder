@@ -28,12 +28,14 @@ from .extmodules.downloadaudio.downloaders import forvoffvdb
 from .extmodules.downloadaudio.field_data import FieldData
 import pysox #External dep
 
+from .fieldgallery import FieldGallery
+
 _myScript="""
 function setFfvdbPronunciation(n) {
     py.run("ffvdb:setpronunciation:" + n);
 }
 """
-class PronunciationManager:
+class PronunciationGallery(FieldGallery):
     def __init__(self, editor, config, provider):
         self.editor = editor
         self.config = config
@@ -46,6 +48,7 @@ class PronunciationManager:
                 #Load modal dialog to setup API
                 pass
             self.servant = forvoffvdb.ForvoDownloader(self.config['APIs']['forvo'])
+        super().__init__("pronunciation")
 
     def __del__(self):
         #self.servant.__del__()
