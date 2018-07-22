@@ -191,13 +191,9 @@ def wrap(instance, old, new, pos='after'):
     return types.MethodType(repl, instance)
 
 def loadNoteWithVoc(self, focusTo=None):
-    if self.vocDeckBuilder.galleryManager:
-        self.vocDeckBuilder.galleryManager.finalizePreviousSelection()
-        self.vocDeckBuilder.showGallery(self.note['Word'])
-    if self.vocDeckBuilder.pronunciationManager:
-        self.vocDeckBuilder.showPronunciationGallery(self.note['Word'])
-    if self.vocDeckBuilder.ipaManager:
-        self.vocDeckBuilder.showIpaGallery(self.note['Word'])
+    #if self.vocDeckBuilder.galleryManager:
+        #self.vocDeckBuilder.galleryManager.finalizePreviousSelection()
+    self.vocDeckBuilder.showFieldGalleries(self.note['Word'])
     #self.vocDeckBuilder.preload(_nPreload)
 
 def setNoteWithVoc(self, note, hide=True, focusTo=False):
