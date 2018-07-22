@@ -45,16 +45,11 @@ class NoteEditor(object):
         self.wordThumbs = {}
         #self.nextNotes = list(_nPreload)
         #self.prevNotes = list(_nPreload)
-        self.loadPreferences()
-        self.galleryManager = None
-        self.pronunciationManager = None
-        self.ipaManager = None
-        #REENABLE self.galleryManager = GalleryManager(self.editor, self.config, "Bing")
-        #REENABLE self.pronunciationManager = PronunciationManager(self.editor, self.config, "Forvo")
-        self.ipaManager = IpaManager(self.editor, self.config)
         self.isActive = False
         self.htmlInjected = False
-
+        self.loadPreferences()
+        self.initFieldGalleries()
+        
     def __del__(self):
         #FIXME: Call this destructor explicitly somewhere
         if self.galleryManager:
@@ -63,6 +58,9 @@ class NoteEditor(object):
         if self.pronunciationManager:
             self.pronunciationManager.__del__()
 
+    def initFieldGalleries(self):
+        self.fieldGalleries = dict()
+    
     def loadPreferences(self):
         #Load user config
         self.user = self.mw.pm.name
