@@ -13,6 +13,10 @@ class FieldGallery(ABC):
     def showGallery(self):
         pass
     
+    @abstractmethod
+    def onBridgeCmd(self, cmd):
+        pass
+    
     def _loadTag(self, tagtype):
         if tagtype == "css":
             tagname = "style"
