@@ -29,9 +29,6 @@ from aqt import QSettings, QMessageBox
 from aqt.editor import Editor
 
 from ffvocdeckbuilder import ffvocdeckbuilder
-from ffvocdeckbuilder.gallerymanager import GalleryManager
-#from ffvocdeckbuilder.pronunciationmanager import PronunciationManager
-from ffvocdeckbuilder.ipamanager import IpaManager
 
 _nPreload = 5
 _nGalleryThumbs = 8
@@ -48,24 +45,18 @@ class NoteEditor(object):
         self.wordThumbs = {}
         #self.nextNotes = list(_nPreload)
         #self.prevNotes = list(_nPreload)
-        self.loadPreferences()
-        self.galleryManager = None
-        self.pronunciationManager = None
-        self.ipaManager = None
-        #REENABLE self.galleryManager = GalleryManager(self.editor, self.config, "Bing")
-        #REENABLE self.pronunciationManager = PronunciationManager(self.editor, self.config, "Forvo")
-        self.ipaManager = IpaManager(self.editor, self.config)
         self.isActive = False
         self.htmlInjected = False
+        self.loadPreferences()
+        self.initFieldGalleries()
 
-    def __del__(self):
-        #FIXME: Call this destructor explicitly somewhere
-        if self.galleryManager:
-            self.galleryManager.finalizePreviousSelection()
-            self.galleryManager.__del__()
-        if self.pronunciationManager:
-            self.pronunciationManager.__del__()
+    def cleanUp(self):
+        for gallery in self.fieldGalleries.values():
+            gallery.cleanUp()
 
+    def initFieldGalleries(self):
+        self.fieldGalleries = dict()
+    
     def loadPreferences(self):
         #Load user config
         self.user = self.mw.pm.name
@@ -88,14 +79,9 @@ class NoteEditor(object):
         s = '$("head").append("<style>{0}</style>")'.format(csssource)
         self.web.eval(s)
 
-    def showGallery(self, word):
-        self.galleryManager.buildGallery(word, nThumbs=_nGalleryThumbs)
-
-    def showPronunciationGallery(self, word):
-        self.pronunciationManager.buildGallery(word)
-
-    def showIpaGallery(self, word):
-        self.ipaManager.buildGallery(word)
+    def showFieldGalleries(self, word):
+        for gallery in self.fieldGalleries.values():
+            gallery.showGallery(word)
 
     def activate(self):
         if not self.htmlInjected:
@@ -112,8 +98,8 @@ class NoteEditor(object):
         self.isActive = True
 
     def deactivate(self):
-        if self.galleryManager:
-            self.galleryManager.finalizePreviousSelection()
+        #if self.galleryManager:
+            #self.galleryManager.finalizePreviousSelection()
         self.editor.loadNote = types.MethodType(Editor.loadNote, self.editor)
         self.editor.setNote = types.MethodType(Editor.setNote, self.editor)
         self.editor.onBridgeCmd = types.MethodType(Editor.onBridgeCmd, self.editor)
@@ -205,13 +191,9 @@ def wrap(instance, old, new, pos='after'):
     return types.MethodType(repl, instance)
 
 def loadNoteWithVoc(self, focusTo=None):
-    if self.vocDeckBuilder.galleryManager:
-        self.vocDeckBuilder.galleryManager.finalizePreviousSelection()
-        self.vocDeckBuilder.showGallery(self.note['Word'])
-    if self.vocDeckBuilder.pronunciationManager:
-        self.vocDeckBuilder.showPronunciationGallery(self.note['Word'])
-    if self.vocDeckBuilder.ipaManager:
-        self.vocDeckBuilder.showIpaGallery(self.note['Word'])
+    #if self.vocDeckBuilder.galleryManager:
+        #self.vocDeckBuilder.galleryManager.finalizePreviousSelection()
+    self.vocDeckBuilder.showFieldGalleries(self.note['Word'])
     #self.vocDeckBuilder.preload(_nPreload)
 
 def setNoteWithVoc(self, note, hide=True, focusTo=False):
@@ -220,8 +202,5 @@ def setNoteWithVoc(self, note, hide=True, focusTo=False):
 def extendedBridge(self, cmd):
     if not cmd.startswith("ffvdb"):
         return
-    ar = cmd.split(':')
-    if ar[1] == 'setpronunciation':
-        self.vocDeckBuilder.pronunciationManager.setPronunciation(int(ar[2]))
-    elif ar[1] == 'setipa':
-        self.vocDeckBuilder.ipaManager.setIpa(ar[2])
+    (_, galleryid, fieldcmd) = tuple(cmd.split(':'))
+    self.vocDeckBuilder.fieldGalleries[galleryid].onBridgeCmd(fieldcmd)
