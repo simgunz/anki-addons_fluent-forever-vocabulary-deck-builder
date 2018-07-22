@@ -39,8 +39,6 @@ class PronunciationGallery(FieldGallery):
     def __init__(self, editor, config, provider):
         self.editor = editor
         self.config = config
-        self.webMainFrame = self.editor.web.page().mainFrame()
-        self.tempDir = tempdir.TempDir()
         self.audios = {}
         self.provider = provider.lower()
         if self.provider == "forvo":
@@ -49,10 +47,6 @@ class PronunciationGallery(FieldGallery):
                 pass
             self.servant = forvoffvdb.ForvoDownloader(self.config['APIs']['forvo'])
         super().__init__("pronunciation")
-
-    def __del__(self):
-        #self.servant.__del__()
-        self.tempDir.dissolve()
 
     def downloadAudio(self, word):
         if not self.audios.has_key(word):
