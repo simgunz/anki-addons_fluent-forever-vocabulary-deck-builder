@@ -10,5 +10,5 @@ function getSelectValues(select) {
       result.push(opt.value || opt.text);
     }
   }
-  pycmd("ffvdb:setipa:" + result);
+  pycmd("ffvdb:ipa:" + result);
 }

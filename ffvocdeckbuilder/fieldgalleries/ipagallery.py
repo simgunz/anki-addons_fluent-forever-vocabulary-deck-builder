@@ -90,12 +90,12 @@ class IpaGallery(FieldGallery):
         gallery += '</select></div>'
         self.editor.web.eval('''$('{0}').replaceWith('{1}')'''.format(s_id, gallery))
 
-    def setIpa(self, ipaTxt):
-        if re.match("ipa", ipaTxt) is not None:
+    def onBridgeCmd(self, cmd):
+        if re.match("ipa", cmd) is not None:
             self.currentNote['IPA transcription'] = ''
-            for i in re.findall("ipac([0-9]+)", ipaTxt):
+            for i in re.findall("ipac([0-9]+)", cmd):
                 self.currentNote['IPA transcription'] += self.currentIpas[int(i)] + ' '
-            for i in re.findall("ipa([0-9]+)", ipaTxt):
+            for i in re.findall("ipa([0-9]+)", cmd):
                 self.currentNote['IPA transcription'] += self.ipa[self.currentWord][int(i)]['ipa'] + ' '
                 #FIXME: Flush only once at the end from noteeditor
             self.currentNote.flush()
