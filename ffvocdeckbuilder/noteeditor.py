@@ -202,8 +202,5 @@ def setNoteWithVoc(self, note, hide=True, focusTo=False):
 def extendedBridge(self, cmd):
     if not cmd.startswith("ffvdb"):
         return
-    ar = cmd.split(':')
-    if ar[1] == 'setpronunciation':
-        self.vocDeckBuilder.pronunciationManager.setPronunciation(int(ar[2]))
-    elif ar[1] == 'setipa':
-        self.vocDeckBuilder.ipaManager.setIpa(ar[2])
+    (_, galleryid, fieldcmd) = tuple(cmd.split(':'))
+    self.vocDeckBuilder.fieldGalleries[galleryid].onBridgeCmd(fieldcmd)
