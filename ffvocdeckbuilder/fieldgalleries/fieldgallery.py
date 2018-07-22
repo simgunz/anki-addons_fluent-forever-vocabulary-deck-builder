@@ -40,7 +40,11 @@ class FieldGallery(ABC):
             self._temporaryDirectory = QTemporaryDir()
         if self._temporaryDirectory.isValid():
             return self._temporaryDirectory.path()
-                 
+        
+    def cleanUp(self):
+        if self._temporaryDirectory is not None:
+            self._temporaryDirectory.remove()
+            
     def loadJS(self):
         self._loadTag("js")
     
