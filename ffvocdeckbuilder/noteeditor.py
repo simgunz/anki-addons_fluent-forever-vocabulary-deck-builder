@@ -29,6 +29,7 @@ from aqt import QSettings, QMessageBox
 from aqt.editor import Editor
 
 from ffvocdeckbuilder import ffvocdeckbuilder
+from .fieldgalleries.ipagallery import IpaGallery
 
 _nPreload = 5
 _nGalleryThumbs = 8
@@ -56,6 +57,7 @@ class NoteEditor(object):
 
     def initFieldGalleries(self):
         self.fieldGalleries = dict()
+        self.fieldGalleries['ipa'] = IpaGallery(self.editor, self.config)
     
     def loadPreferences(self):
         #Load user config
