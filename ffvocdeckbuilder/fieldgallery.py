@@ -10,7 +10,7 @@ class FieldGallery(ABC):
         self.loadCSS()
     
     @abstractmethod
-    def buildGallery(self):
+    def showGallery(self):
         pass
     
     def loadTag(self, tagtype):
