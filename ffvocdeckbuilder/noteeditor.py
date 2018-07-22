@@ -83,14 +83,9 @@ class NoteEditor(object):
         s = '$("head").append("<style>{0}</style>")'.format(csssource)
         self.web.eval(s)
 
-    def showGallery(self, word):
-        self.galleryManager.buildGallery(word, nThumbs=_nGalleryThumbs)
-
-    def showPronunciationGallery(self, word):
-        self.pronunciationManager.buildGallery(word)
-
-    def showIpaGallery(self, word):
-        self.ipaManager.buildGallery(word)
+    def showFieldGalleries(self, word):
+        for gallery in self.fieldGalleries.values():
+            gallery.showGallery(word)
 
     def activate(self):
         if not self.htmlInjected:
