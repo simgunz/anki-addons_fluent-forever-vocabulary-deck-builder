@@ -29,10 +29,10 @@ class IpaGallery(FieldGallery):
         self.editor = editor
         self.config = config
         self.ipa = {}
-        self.loadLanguageCodes()
+        self._loadLanguageCodes()
         super().__init__("ipa")
 
-    def loadLanguageCodes(self):
+    def _loadLanguageCodes(self):
         self.languageCodes = {}
         fileName = u"{0}/ffvocdeckbuilder/files/iso-639-1-language-codes" \
             .format(self.editor.mw.pm.addonFolder())
@@ -41,7 +41,7 @@ class IpaGallery(FieldGallery):
                 (key, val) = line.split(',')
                 self.languageCodes[key] = val.rstrip('\n')
 
-    def downloadIpa(self, word):
+    def _downloadIpa(self, word):
         if not word in self.ipa:
             found = list()
 
@@ -61,13 +61,13 @@ class IpaGallery(FieldGallery):
 
     def downloadIpas(self, wordList):
         for word in wordList:
-            self.downloadIpa(word)
+            self._downloadIpa(word)
 
     def showGallery(self, word, nThumbs=5):
         self.currentNote = self.editor.note
         self.currentWord = word
         if not word in self.ipa:
-            self.downloadIpa(word)
+            self._downloadIpa(word)
         #Find pos in model & make searchid
         pos=[i for i,sr in enumerate(self.currentNote.model()['flds']) \
                 if re.match('IPA transcription',sr['name'])]
