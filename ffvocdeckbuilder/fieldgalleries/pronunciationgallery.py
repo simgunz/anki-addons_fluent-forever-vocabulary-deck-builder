@@ -23,7 +23,6 @@ import subprocess
 
 from anki.sound import play
 
-from .extmodules.tempdir import tempdir
 from .extmodules.downloadaudio.downloaders import forvoffvdb
 from .extmodules.downloadaudio.field_data import FieldData
 import pysox #External dep
