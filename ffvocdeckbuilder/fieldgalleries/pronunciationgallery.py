@@ -23,8 +23,8 @@ import subprocess
 
 from anki.sound import play
 
-from .extmodules.downloadaudio.downloaders import forvoffvdb
-from .extmodules.downloadaudio.field_data import FieldData
+from downloadaudio.downloaders import downloaders
+from downloadaudio.field_data import FieldData
 import pysox #External dep
 
 from .fieldgallery import FieldGallery
