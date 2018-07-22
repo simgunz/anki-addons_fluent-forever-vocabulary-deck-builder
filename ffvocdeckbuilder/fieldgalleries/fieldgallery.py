@@ -1,11 +1,14 @@
 import os
 
 from abc import ABC, abstractmethod
- 
+
+from aqt import QTemporaryDir
+
 class FieldGallery(ABC):
- 
+    
     def __init__(self, name):
         self.name = name
+        self._temporaryDirectory = None
         self.loadJS()
         self.loadCSS()
     
@@ -32,6 +35,12 @@ class FieldGallery(ABC):
         s = '''$('head').append('<{1}>{0}</{1}>')'''.format(tagfile, tagname)
         self.editor.web.eval(s)
         
+    def _tempDir(self):
+        if self._temporaryDirectory is None:
+            self._temporaryDirectory = QTemporaryDir()
+        if self._temporaryDirectory.isValid():
+            return self._temporaryDirectory.path()
+                 
     def loadJS(self):
         self._loadTag("js")
     
