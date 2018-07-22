@@ -13,7 +13,7 @@ class FieldGallery(ABC):
     def showGallery(self):
         pass
     
-    def loadTag(self, tagtype):
+    def _loadTag(self, tagtype):
         if tagtype == "css":
             tagname = "style"
         elif tagtype == "js":
@@ -29,8 +29,8 @@ class FieldGallery(ABC):
         self.editor.web.eval(s)
         
     def loadJS(self):
-        self.loadTag("js")
+        self._loadTag("js")
     
     def loadCSS(self):
-        self.loadTag("css")
+        self._loadTag("css")
         
