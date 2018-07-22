@@ -49,14 +49,10 @@ class NoteEditor(object):
         self.htmlInjected = False
         self.loadPreferences()
         self.initFieldGalleries()
-        
-    def __del__(self):
-        #FIXME: Call this destructor explicitly somewhere
-        if self.galleryManager:
-            self.galleryManager.finalizePreviousSelection()
-            self.galleryManager.__del__()
-        if self.pronunciationManager:
-            self.pronunciationManager.__del__()
+
+    def cleanUp(self):
+        for gallery in self.fieldGalleries.values():
+            gallery.cleanUp()
 
     def initFieldGalleries(self):
         self.fieldGalleries = dict()
