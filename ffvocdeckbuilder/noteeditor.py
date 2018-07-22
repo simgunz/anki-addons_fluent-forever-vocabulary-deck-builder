@@ -29,9 +29,6 @@ from aqt import QSettings, QMessageBox
 from aqt.editor import Editor
 
 from ffvocdeckbuilder import ffvocdeckbuilder
-from ffvocdeckbuilder.gallerymanager import GalleryManager
-#from ffvocdeckbuilder.pronunciationmanager import PronunciationManager
-from ffvocdeckbuilder.ipamanager import IpaManager
 
 _nPreload = 5
 _nGalleryThumbs = 8
