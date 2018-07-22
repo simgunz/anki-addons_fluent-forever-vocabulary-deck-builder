@@ -63,7 +63,7 @@ class IpaGallery(FieldGallery):
         for word in wordList:
             self.downloadIpa(word)
 
-    def buildGallery(self, word, nThumbs=5):
+    def showGallery(self, word, nThumbs=5):
         self.currentNote = self.editor.note
         self.currentWord = word
         if not word in self.ipa:
