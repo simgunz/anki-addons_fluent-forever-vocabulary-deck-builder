@@ -49,7 +49,7 @@ class PronunciationGallery(FieldGallery):
         super().__init__("pronunciation")
 
     def downloadAudio(self, word):
-        if not self.audios.has_key(word):
+        if not word in self.audios:
             self.audios[word] = self.getAudio(word, 1)
 
     def downloadAudios(self, wordList):
@@ -66,7 +66,7 @@ class PronunciationGallery(FieldGallery):
         #FIXME: Add this to an activate function
 
         self.editor.web.eval(_myScript)
-        if not self.audios.has_key(word):
+        if not word in self.audios:
             self.downloadAudio(word)
         self.currentNote = self.editor.note
         #Find pos in model & make searchid
