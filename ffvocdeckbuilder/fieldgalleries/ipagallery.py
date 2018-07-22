@@ -22,52 +22,17 @@ import re
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
 
-from .extmodules.tempdir import tempdir
+from .fieldgallery import FieldGallery
 
-_javaFunctions="""
-formatMulticolumn = function(){
-  var s = document.getElementsByTagName('SELECT')[0].options,
-      l = 0,
-      d = '';
-  for(i = 0; i < s.length; i++){
-    if(s[i].text.length > l) l = s[i].text.length;
-  }
-  for(i = 0; i < s.length; i++){
-    d = '';
-    line = s[i].text.split(';');
-    l1 = (l - line[0].length);
-    for(j = 0; j < l1; j++){
-      d += '\u00a0';
-    }
-    s[i].text = line[0] + d + line[1];
-  }
-  $('#ipaselector').css('font-family', '"Courier New", Courier, monospace')
-};
-
-function getSelectValues(select) {
-  var result = [];
-  var options = select && select.options;
-  var opt;
-
-  for (var i=0, iLen=options.length; i<iLen; i++) {
-    opt = options[i];
-
-    if (opt.selected) {
-      result.push(opt.value || opt.text);
-    }
-  }
-  pycmd("ffvdb:setipa:" + result);
-}
-"""
-
-class IpaManager:
+class IpaGallery(FieldGallery):
     def __init__(self, editor, config):
         self.editor = editor
         self.config = config
         self.ipa = {}
-        self.loadLanguageCodes()
+        self._loadLanguageCodes()
+        super().__init__("ipa")
 
-    def loadLanguageCodes(self):
+    def _loadLanguageCodes(self):
         self.languageCodes = {}
         fileName = u"{0}/ffvocdeckbuilder/files/iso-639-1-language-codes" \
             .format(self.editor.mw.pm.addonFolder())
@@ -76,7 +41,7 @@ class IpaManager:
                 (key, val) = line.split(',')
                 self.languageCodes[key] = val.rstrip('\n')
 
-    def downloadIpa(self, word):
+    def _downloadIpa(self, word):
         if not word in self.ipa:
             found = list()
 
@@ -96,13 +61,13 @@ class IpaManager:
 
     def downloadIpas(self, wordList):
         for word in wordList:
-            self.downloadIpa(word)
+            self._downloadIpa(word)
 
-    def buildGallery(self, word, nThumbs=5):
+    def showGallery(self, word, nThumbs=5):
         self.currentNote = self.editor.note
         self.currentWord = word
         if not word in self.ipa:
-            self.downloadIpa(word)
+            self._downloadIpa(word)
         #Find pos in model & make searchid
         pos=[i for i,sr in enumerate(self.currentNote.model()['flds']) \
                 if re.match('IPA transcription',sr['name'])]
@@ -124,15 +89,13 @@ class IpaManager:
             gallery += '</option>'
         gallery += '</select></div>'
         self.editor.web.eval('''$('{0}').replaceWith('{1}')'''.format(s_id, gallery))
-        self.editor.web.eval(_javaFunctions)
-        self.editor.web.eval("formatMulticolumn();")
 
-    def setIpa(self, ipaTxt):
-        if re.match("ipa", ipaTxt) is not None:
+    def onBridgeCmd(self, cmd):
+        if re.match("ipa", cmd) is not None:
             self.currentNote['IPA transcription'] = ''
-            for i in re.findall("ipac([0-9]+)", ipaTxt):
+            for i in re.findall("ipac([0-9]+)", cmd):
                 self.currentNote['IPA transcription'] += self.currentIpas[int(i)] + ' '
-            for i in re.findall("ipa([0-9]+)", ipaTxt):
+            for i in re.findall("ipa([0-9]+)", cmd):
                 self.currentNote['IPA transcription'] += self.ipa[self.currentWord][int(i)]['ipa'] + ' '
                 #FIXME: Flush only once at the end from noteeditor
             self.currentNote.flush()
