@@ -30,6 +30,7 @@ from aqt.editor import Editor
 
 from ffvocdeckbuilder import ffvocdeckbuilder
 from .fieldgalleries.ipagallery import IpaGallery
+from .fieldgalleries.pronunciationgallery import PronunciationGallery
 
 _nPreload = 5
 _nGalleryThumbs = 8
@@ -56,7 +57,8 @@ class NoteEditor(object):
 
     def initFieldGalleries(self):
         self.fieldGalleries = dict()
-        self.fieldGalleries['ipa'] = IpaGallery(self.editor, self.config)
+        self.fieldGalleries['pronunciation'] = PronunciationGallery(self.editor, self.config, "forvo")
+        self.fieldGalleries['ipa'] = IpaGallery(self.editor, self.config)        
     
     def loadPreferences(self):
         #Load user config
