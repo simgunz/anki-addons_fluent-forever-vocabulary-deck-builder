@@ -30,11 +30,6 @@ import pysox #External dep
 
 from .fieldgallery import FieldGallery
 
-_myScript="""
-function setFfvdbPronunciation(n) {
-    py.run("ffvdb:setpronunciation:" + n);
-}
-"""
 class PronunciationGallery(FieldGallery):
     def __init__(self, editor, config, provider):
         self.editor = editor
@@ -65,7 +60,6 @@ class PronunciationGallery(FieldGallery):
         #Load our javascript code
         #FIXME: Add this to an activate function
 
-        self.editor.web.eval(_myScript)
         if not word in self.audios:
             self.downloadAudio(word)
         self.currentNote = self.editor.note
