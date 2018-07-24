@@ -47,7 +47,6 @@ class NoteEditor(object):
         #self.nextNotes = list(_nPreload)
         #self.prevNotes = list(_nPreload)
         self.isActive = False
-        self.htmlInjected = False
         self.loadPreferences()
         self.initFieldGalleries()
 
@@ -73,25 +72,14 @@ class NoteEditor(object):
             config.sync()
             configDict = config.value(self.user)
         self.config = configDict
-        
-    def loadCssStyleSheet(self):
-        webDir = os.path.join(self.mw.pm.addonFolder(), 'ffvocdeckbuilder', 'web', 'noteeditor.css')
-        with open(webDir, 'r') as f:
-            csssource = ' '.join(f.readlines()).replace('\n', '') #FIXME: How to preserve newlines?
-        s = '$("head").append("<style>{0}</style>")'.format(csssource)
-        self.web.eval(s)
 
     def showFieldGalleries(self, word):
         for gallery in self.fieldGalleries.values():
             gallery.showGallery(word)
 
     def activate(self):
-        if not self.htmlInjected:
-            self.loadCssStyleSheet()
-            self.htmlInjected = True
         # FIXME: Avoid calling wrap every time, defining new repl methods, just call it once and store repl somewhere
         self.editor.loadNote = wrap(self.editor, Editor.loadNote, loadNoteWithVoc)
-        self.editor.setNote = wrap(self.editor, Editor.setNote, setNoteWithVoc)
         self.editor.onBridgeCmd = wrap(self.editor, Editor.onBridgeCmd, extendedBridge)
         self.web.onBridgeCmd = self.editor.onBridgeCmd
         self.editor.addButtonsToTagBar()
@@ -103,7 +91,6 @@ class NoteEditor(object):
         #if self.galleryManager:
             #self.galleryManager.finalizePreviousSelection()
         self.editor.loadNote = types.MethodType(Editor.loadNote, self.editor)
-        self.editor.setNote = types.MethodType(Editor.setNote, self.editor)
         self.editor.onBridgeCmd = types.MethodType(Editor.onBridgeCmd, self.editor)
         self.web.onBridgeCmd = self.editor.onBridgeCmd
         #REENABLE self.editor.ffNoteEditorLinkHandler = ''
@@ -197,9 +184,6 @@ def loadNoteWithVoc(self, focusTo=None):
         #self.vocDeckBuilder.galleryManager.finalizePreviousSelection()
     self.vocDeckBuilder.showFieldGalleries(self.note['Word'])
     #self.vocDeckBuilder.preload(_nPreload)
-
-def setNoteWithVoc(self, note, hide=True, focusTo=False):
-    self.vocDeckBuilder.loadCssStyleSheet()
 
 def extendedBridge(self, cmd):
     if not cmd.startswith("ffvdb"):
