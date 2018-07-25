@@ -76,18 +76,18 @@ class PronunciationGallery(FieldGallery):
         gallery = '<div id="audiogallery">'
         gallery += '<form action="">'
         if self.currentSound != "":
-            gallery += u'<input class="container" onclick="setFfvdbPronunciation(-2)" type="radio" name="pronunciation" value="{0}">' \
-                       u'<img class="container" src="{1}/ffvocdeckbuilder/icons/no_sound.png" style="max-width: 32px; max-height: 1em; min-height:24px;"/>'.format(self.currentSound, self.editor.mw.pm.addonFolder())
-            gallery += u'<input class="container" onclick="setFfvdbPronunciation(-1)" type="radio" name="pronunciation" value="{0}" checked>' \
-                       u'<a href="soundCurrent"><img class="container" src="{1}/ffvocdeckbuilder/icons/current_sound.png" alt="play"' \
-                       u'style="max-width: 32px; max-height: 1em; min-height:24px;" /></a>'.format(self.currentSound, self.editor.mw.pm.addonFolder())
+            gallery += '<input class="container" onclick="setFfvdbPronunciation(-2)" type="radio" name="pronunciation" value="{0}">' \
+                       '<img class="container" src="{1}/ffvocdeckbuilder/icons/no_sound.png" style="max-width: 32px; max-height: 1em; min-height:24px;"/>'.format(self.currentSound, self.editor.mw.pm.addonFolder())
+            gallery += '<input class="container" onclick="setFfvdbPronunciation(-1)" type="radio" name="pronunciation" value="{0}" checked>' \
+                       '<a onclick="playPronunciation(-1);" href="#"><img class="container" src="{1}/ffvocdeckbuilder/icons/current_sound.png" alt="play"' \
+                       'style="max-width: 32px; max-height: 1em; min-height:24px;" /></a>'.format(self.currentSound, self.editor.mw.pm.addonFolder())
         else:
-            gallery += u'<input class="container" onclick="setFfvdbPronunciation(-2)" type="radio" name="pronunciation" value="{0}" checked>' \
-                       u'<img class="container" src="{1}/ffvocdeckbuilder/icons/no_sound.png" style="max-width: 32px; max-height: 1em; min-height:24px;"/>'.format(self.currentSound, self.editor.mw.pm.addonFolder())
+            gallery += '<input class="container" onclick="setFfvdbPronunciation(-2)" type="radio" name="pronunciation" value="{0}" checked>' \
+                       '<img class="container" src="{1}/ffvocdeckbuilder/icons/no_sound.png" style="max-width: 32px; max-height: 1em; min-height:24px;"/>'.format(self.currentSound, self.editor.mw.pm.addonFolder())
         for i, af in enumerate(self.audios[word]):
-            gallery += u'<input class="container" onclick="setFfvdbPronunciation({0})" type="radio" name="pronunciation" value="{1}">' \
-                       u'<a href="sound{0}"><img class="container" src="{2}/ffvocdeckbuilder/icons/play.png" alt="play"' \
-                       u'style="max-width: 32px; max-height: 1em; min-height:24px;" /></a>'.format(i, self.audios[word][i], self.editor.mw.pm.addonFolder())
+            gallery += '<input class="container" onclick="setFfvdbPronunciation({0})" type="radio" name="pronunciation" value="{1}">' \
+                       '<a onclick="playPronunciation({0});" href="#"><img class="container" src="{2}/ffvocdeckbuilder/icons/play.png" alt="play"' \
+                       'style="max-width: 32px; max-height: 1em; min-height:24px;" /></a>'.format(i, self.audios[word][i], self.editor.mw.pm.addonFolder())
                        #'style="max-width: 32px; max-height: 1em; min-height:24px;" /></a>' % (self.audios[i].file_path, i, self.editor.mw.pm.addonFolder())
         gallery += '</form>'
         gallery += '</div>'
@@ -126,30 +126,29 @@ class PronunciationGallery(FieldGallery):
             ret.append(newfile)
         return ret
 
-    def onBridgeCmd(self, n):
-        n = int(n)
+    def onBridgeCmd(self, cmd):
         """Callback called when a radio button is clicked. The first radio button (-2)
         means delete the sound, the second (-1) means keep current sound, they others (0..N) allow to
         select the downloaded sounds.
         """
-        if n == -2:
-            self.chosenSnd = ''
-        elif n == -1:
-            self.chosenSnd = u"[sound:{0}]".format(self.currentSound)
-        else:
-            sndName = self.editor.mw.col.media.addFile(self.audios[self.currentWord][n])
-            self.chosenSnd = u"[sound:{0}]".format(sndName)
+        action, n = tuple(cmd.split('.'))
+        n = int(n)
+        if action == "set":
+            if n == -2:
+                self.chosenSnd = ''
+            elif n == -1:
+                self.chosenSnd = "[sound:{0}]".format(self.currentSound)
+            else:
+                sndName = self.editor.mw.col.media.addFile(self.audios[self.currentWord][n])
+                self.chosenSnd = "[sound:{0}]".format(sndName)
 
-        self.currentNote['Pronunciation sound'] = self.chosenSnd
-        self.currentNote.flush()
-
-    def linkHandler(self, l):
-        if re.match("sound[0-9]+", l) is not None:
-            idx=int(l.replace("sound", ""))
-            playSound = self.audios[self.currentWord][idx]
-            play(playSound)
-        elif l == 'soundCurrent':
-            playSound = self.currentSound
+            self.currentNote['Pronunciation sound'] = self.chosenSnd
+            self.currentNote.flush()
+        elif action == "play":
+            if n >= 0:
+                playSound = self.audios[self.currentWord][n]
+            else:
+                playSound = self.currentSound #playSound = self.currentSound[-n-1]
             play(playSound)
 
     def cleanAudio(self, audioFile, noiseSampleLength=0.3):
