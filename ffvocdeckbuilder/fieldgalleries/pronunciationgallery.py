@@ -102,18 +102,35 @@ class PronunciationGallery(FieldGallery):
 
            Returns a list containing the full file name of the downloaded tracks.
         """
-        field_data = FieldData('Pronunciation sound', 'Word', word)
-        self.servant.download_files(field_data, self.config['Languages']['Primary'])
         ret = list()
+        
+        retrieved_entries = []
+        field_data = FieldData('Pronunciation sound', 'Word', word)
+        for dloader in downloaders:
+            # Use a public variable to set the language.
+            dloader.language = self.config['Languages']['Primary']
+            try:
+                # Make it easer inside the downloader. If anything
+                # goes wrong, don't catch, or raise whatever you want.
+                dloader.download_files(field_data)
+            except:
+                #  # Uncomment this raise while testing a new
+                #  # downloaders.  Also use the “For testing”
+                #  # downloaders list with your downloader in
+                #  # downloaders.__init__
+                # raise
+                continue
+            retrieved_entries += dloader.downloads_list
+                
         #Normalise and noise filter the downloaded audio tracks
-        for i, el in enumerate(self.servant.downloads_list):
+        for i, el in enumerate(retrieved_entries):
             #Verify that the file is a proper audio file
             #FIXME: This is forvo related. Shouldn't be managed in forvo servant?
             with open(el.file_path, 'r') as f:
                 try:
                     errorMessageFromForvo = f.readline()
                     if errorMessageFromForvo == '["Audio request is expired."]':
-                        print('{0}: {1}'.format(el.file_path, errorMessageFromForvo))
+                        print(('{0}: {1}'.format(el.file_path, errorMessageFromForvo)))
                         continue #Skip this audio pronunciation
                 except:
                     pass
@@ -121,7 +138,7 @@ class PronunciationGallery(FieldGallery):
             #cleanAudioFile = self.cleanAudio(el.file_path)
             cleanAudioFile = el.file_path
             extension = os.path.splitext(cleanAudioFile)[1][1:].strip().lower()
-            newfile = u"/tmp/ipa_voc_da_{0}{1}.{2}".format(word, i, extension)
+            newfile = "/tmp/ipa_voc_da_{0}{1}.{2}".format(word, i, extension)
             shutil.move(cleanAudioFile, newfile)
             ret.append(newfile)
         return ret
