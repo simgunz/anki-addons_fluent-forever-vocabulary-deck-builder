@@ -89,9 +89,9 @@ class PronunciationGallery(FieldGallery):
                        u'<a href="sound{0}"><img class="container" src="{2}/ffvocdeckbuilder/icons/play.png" alt="play"' \
                        u'style="max-width: 32px; max-height: 1em; min-height:24px;" /></a>'.format(i, self.audios[word][i], self.editor.mw.pm.addonFolder())
                        #'style="max-width: 32px; max-height: 1em; min-height:24px;" /></a>' % (self.audios[i].file_path, i, self.editor.mw.pm.addonFolder())
-        gallery += '</form>\n'
-        gallery += '</div>\n'
-        self.webMainFrame.findFirstElement(s_id).setOuterXml(gallery)
+        gallery += '</form>'
+        gallery += '</div>'
+        self.editor.web.eval('''$('{0}').replaceWith('{1}')'''.format(s_id, gallery))
 
     def getAudio(self, word, nThumbs):
         """Download, normalize and filter pronunciations track from the given service.
