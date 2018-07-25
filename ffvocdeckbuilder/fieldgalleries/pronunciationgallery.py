@@ -25,7 +25,7 @@ from anki.sound import play
 
 from downloadaudio.downloaders import downloaders
 from downloadaudio.field_data import FieldData
-import pysox #External dep
+#import sox #External dep
 
 from .fieldgallery import FieldGallery
 
@@ -39,7 +39,7 @@ class PronunciationGallery(FieldGallery):
             if not self.config['APIs']['forvo']:
                 #Load modal dialog to setup API
                 pass
-            self.servant = forvoffvdb.ForvoDownloader(self.config['APIs']['forvo'])
+            #self.servant = forvoffvdb.ForvoDownloader(self.config['APIs']['forvo'])
         super().__init__("pronunciation")
 
     def downloadAudio(self, word):
@@ -118,7 +118,8 @@ class PronunciationGallery(FieldGallery):
                 except:
                     pass
 
-            cleanAudioFile = self.cleanAudio(el.file_path)
+            #cleanAudioFile = self.cleanAudio(el.file_path)
+            cleanAudioFile = el.file_path
             extension = os.path.splitext(cleanAudioFile)[1][1:].strip().lower()
             newfile = u"/tmp/ipa_voc_da_{0}{1}.{2}".format(word, i, extension)
             shutil.move(cleanAudioFile, newfile)
