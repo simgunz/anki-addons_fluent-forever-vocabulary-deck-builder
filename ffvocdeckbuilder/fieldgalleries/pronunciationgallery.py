@@ -23,43 +23,34 @@ import subprocess
 
 from anki.sound import play
 
-from .extmodules.tempdir import tempdir
-from .extmodules.downloadaudio.downloaders import forvoffvdb
-from .extmodules.downloadaudio.field_data import FieldData
-import pysox #External dep
+from downloadaudio.downloaders import downloaders
+from downloadaudio.field_data import FieldData
+#import sox #External dep
 
-_myScript="""
-function setFfvdbPronunciation(n) {
-    py.run("ffvdb:setpronunciation:" + n);
-}
-"""
-class PronunciationManager:
+from .fieldgallery import FieldGallery
+
+class PronunciationGallery(FieldGallery):
     def __init__(self, editor, config, provider):
         self.editor = editor
         self.config = config
-        self.webMainFrame = self.editor.web.page().mainFrame()
-        self.tempDir = tempdir.TempDir()
         self.audios = {}
         self.provider = provider.lower()
         if self.provider == "forvo":
             if not self.config['APIs']['forvo']:
                 #Load modal dialog to setup API
                 pass
-            self.servant = forvoffvdb.ForvoDownloader(self.config['APIs']['forvo'])
-
-    def __del__(self):
-        #self.servant.__del__()
-        self.tempDir.dissolve()
+            #self.servant = forvoffvdb.ForvoDownloader(self.config['APIs']['forvo'])
+        super().__init__("pronunciation")
 
     def downloadAudio(self, word):
-        if not self.audios.has_key(word):
+        if not word in self.audios:
             self.audios[word] = self.getAudio(word, 1)
 
     def downloadAudios(self, wordList):
         for word in wordList:
             self.downloadAudio(word)
 
-    def buildGallery(self, word, nThumbs=5):
+    def showGallery(self, word, nThumbs=5):
         """Creates an html gallery for the pronunciation tracks.
 
         Show radio buttons to choose among the different pronuciation tracks
@@ -68,8 +59,7 @@ class PronunciationManager:
         #Load our javascript code
         #FIXME: Add this to an activate function
 
-        self.editor.web.eval(_myScript)
-        if not self.audios.has_key(word):
+        if not word in self.audios:
             self.downloadAudio(word)
         self.currentNote = self.editor.note
         #Find pos in model & make searchid
@@ -85,23 +75,26 @@ class PronunciationManager:
         #Build html gallery
         gallery = '<div id="audiogallery">'
         gallery += '<form action="">'
+        icon_no_sound = self.editor.resourceToData('{0}/ffvocdeckbuilder/icons/no_sound.png'.format(self.editor.mw.pm.addonFolder()))
+        icon_current_sound = self.editor.resourceToData('{0}/ffvocdeckbuilder/icons/current_sound.png'.format(self.editor.mw.pm.addonFolder()))
+        icon_sound = self.editor.resourceToData('{0}/ffvocdeckbuilder/icons/play.png'.format(self.editor.mw.pm.addonFolder()))
         if self.currentSound != "":
-            gallery += u'<input class="container" onclick="setFfvdbPronunciation(-2)" type="radio" name="pronunciation" value="{0}">' \
-                       u'<img class="container" src="{1}/ffvocdeckbuilder/icons/no_sound.png" style="max-width: 32px; max-height: 1em; min-height:24px;"/>'.format(self.currentSound, self.editor.mw.pm.addonFolder())
-            gallery += u'<input class="container" onclick="setFfvdbPronunciation(-1)" type="radio" name="pronunciation" value="{0}" checked>' \
-                       u'<a href="soundCurrent"><img class="container" src="{1}/ffvocdeckbuilder/icons/current_sound.png" alt="play"' \
-                       u'style="max-width: 32px; max-height: 1em; min-height:24px;" /></a>'.format(self.currentSound, self.editor.mw.pm.addonFolder())
+            gallery += '<input class="container" onclick="setFfvdbPronunciation(-2)" type="radio" name="pronunciation" value="{0}">' \
+                       '<img class="container" src="{1}" style="max-width: 32px; max-height: 1em; min-height:24px;"/>'.format(self.currentSound, icon_no_sound)
+            gallery += '<input class="container" onclick="setFfvdbPronunciation(-1)" type="radio" name="pronunciation" value="{0}" checked>' \
+                       '<a onclick="playPronunciation(-1);" href="#"><img class="container" src="{1}" alt="play"' \
+                       'style="max-width: 32px; max-height: 1em; min-height:24px;" /></a>'.format(self.currentSound, icon_current_sound)
         else:
-            gallery += u'<input class="container" onclick="setFfvdbPronunciation(-2)" type="radio" name="pronunciation" value="{0}" checked>' \
-                       u'<img class="container" src="{1}/ffvocdeckbuilder/icons/no_sound.png" style="max-width: 32px; max-height: 1em; min-height:24px;"/>'.format(self.currentSound, self.editor.mw.pm.addonFolder())
+            gallery += '<input class="container" onclick="setFfvdbPronunciation(-2)" type="radio" name="pronunciation" value="{0}" checked>' \
+                       '<img class="container" src="{1}" style="max-width: 32px; max-height: 1em; min-height:24px;"/>'.format(self.currentSound, icon_current_sound)
         for i, af in enumerate(self.audios[word]):
-            gallery += u'<input class="container" onclick="setFfvdbPronunciation({0})" type="radio" name="pronunciation" value="{1}">' \
-                       u'<a href="sound{0}"><img class="container" src="{2}/ffvocdeckbuilder/icons/play.png" alt="play"' \
-                       u'style="max-width: 32px; max-height: 1em; min-height:24px;" /></a>'.format(i, self.audios[word][i], self.editor.mw.pm.addonFolder())
+            gallery += '<input class="container" onclick="setFfvdbPronunciation({0})" type="radio" name="pronunciation" value="{1}">' \
+                       '<a onclick="playPronunciation({0});" href="#"><img class="container" src="{2}" alt="play"' \
+                       'style="max-width: 32px; max-height: 1em; min-height:24px;" /></a>'.format(i, self.audios[word][i], icon_sound)
                        #'style="max-width: 32px; max-height: 1em; min-height:24px;" /></a>' % (self.audios[i].file_path, i, self.editor.mw.pm.addonFolder())
-        gallery += '</form>\n'
-        gallery += '</div>\n'
-        self.webMainFrame.findFirstElement(s_id).setOuterXml(gallery)
+        gallery += '</form>'
+        gallery += '</div>'
+        self.editor.web.eval('''$('{0}').replaceWith('{1}')'''.format(s_id, gallery))
 
     def getAudio(self, word, nThumbs):
         """Download, normalize and filter pronunciations track from the given service.
@@ -112,52 +105,70 @@ class PronunciationManager:
 
            Returns a list containing the full file name of the downloaded tracks.
         """
-        field_data = FieldData('Pronunciation sound', 'Word', word)
-        self.servant.download_files(field_data, self.config['Languages']['Primary'])
         ret = list()
+        
+        retrieved_entries = []
+        field_data = FieldData('Pronunciation sound', 'Word', word)
+        for dloader in downloaders:
+            # Use a public variable to set the language.
+            dloader.language = self.config['Languages']['Primary']
+            try:
+                # Make it easer inside the downloader. If anything
+                # goes wrong, don't catch, or raise whatever you want.
+                dloader.download_files(field_data)
+            except:
+                #  # Uncomment this raise while testing a new
+                #  # downloaders.  Also use the “For testing”
+                #  # downloaders list with your downloader in
+                #  # downloaders.__init__
+                # raise
+                continue
+            retrieved_entries += dloader.downloads_list
+                
         #Normalise and noise filter the downloaded audio tracks
-        for i, el in enumerate(self.servant.downloads_list):
+        for i, el in enumerate(retrieved_entries):
             #Verify that the file is a proper audio file
             #FIXME: This is forvo related. Shouldn't be managed in forvo servant?
             with open(el.file_path, 'r') as f:
                 try:
                     errorMessageFromForvo = f.readline()
                     if errorMessageFromForvo == '["Audio request is expired."]':
-                        print('{0}: {1}'.format(el.file_path, errorMessageFromForvo))
+                        print(('{0}: {1}'.format(el.file_path, errorMessageFromForvo)))
                         continue #Skip this audio pronunciation
                 except:
                     pass
 
-            cleanAudioFile = self.cleanAudio(el.file_path)
+            #cleanAudioFile = self.cleanAudio(el.file_path)
+            cleanAudioFile = el.file_path
             extension = os.path.splitext(cleanAudioFile)[1][1:].strip().lower()
-            newfile = u"/tmp/ipa_voc_da_{0}{1}.{2}".format(word, i, extension)
+            newfile = "/tmp/ipa_voc_da_{0}{1}.{2}".format(word, i, extension)
             shutil.move(cleanAudioFile, newfile)
             ret.append(newfile)
         return ret
 
-    def setPronunciation(self, n):
+    def onBridgeCmd(self, cmd):
         """Callback called when a radio button is clicked. The first radio button (-2)
         means delete the sound, the second (-1) means keep current sound, they others (0..N) allow to
         select the downloaded sounds.
         """
-        if n == -2:
-            self.chosenSnd = ''
-        elif n == -1:
-            self.chosenSnd = u"[sound:{0}]".format(self.currentSound)
-        else:
-            sndName = self.editor.mw.col.media.addFile(self.audios[self.currentWord][n])
-            self.chosenSnd = u"[sound:{0}]".format(sndName)
+        action, n = tuple(cmd.split('.'))
+        n = int(n)
+        if action == "set":
+            if n == -2:
+                self.chosenSnd = ''
+            elif n == -1:
+                self.chosenSnd = "[sound:{0}]".format(self.currentSound)
+            else:
+                sndName = self.editor.mw.col.media.addFile(self.audios[self.currentWord][n])
+                self.chosenSnd = "[sound:{0}]".format(sndName)
 
-        self.currentNote['Pronunciation sound'] = self.chosenSnd
-        self.currentNote.flush()
-
-    def linkHandler(self, l):
-        if re.match("sound[0-9]+", l) is not None:
-            idx=int(l.replace("sound", ""))
-            playSound = self.audios[self.currentWord][idx]
-            play(playSound)
-        elif l == 'soundCurrent':
-            playSound = self.currentSound
+            self.currentNote['Pronunciation sound'] = self.chosenSnd
+            self.currentNote.flush()
+        elif action == "play":
+            if n >= 0:
+                playSound = self.audios[self.currentWord][n]
+            else:
+                playSound = self.currentSound #playSound = self.currentSound[-n-1]
             play(playSound)
 
     def cleanAudio(self, audioFile, noiseSampleLength=0.3):

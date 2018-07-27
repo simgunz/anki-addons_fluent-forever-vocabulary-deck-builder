@@ -1,1 +1,1 @@
-__all__ = ["ipagallery"] 
+__all__ = ["ipagallery", "pronunciationgallery"] 
