@@ -75,19 +75,22 @@ class PronunciationGallery(FieldGallery):
         #Build html gallery
         gallery = '<div id="audiogallery">'
         gallery += '<form action="">'
+        icon_no_sound = self.editor.resourceToData('{0}/ffvocdeckbuilder/icons/no_sound.png'.format(self.editor.mw.pm.addonFolder()))
+        icon_current_sound = self.editor.resourceToData('{0}/ffvocdeckbuilder/icons/current_sound.png'.format(self.editor.mw.pm.addonFolder()))
+        icon_sound = self.editor.resourceToData('{0}/ffvocdeckbuilder/icons/play.png'.format(self.editor.mw.pm.addonFolder()))
         if self.currentSound != "":
             gallery += '<input class="container" onclick="setFfvdbPronunciation(-2)" type="radio" name="pronunciation" value="{0}">' \
-                       '<img class="container" src="{1}/ffvocdeckbuilder/icons/no_sound.png" style="max-width: 32px; max-height: 1em; min-height:24px;"/>'.format(self.currentSound, self.editor.mw.pm.addonFolder())
+                       '<img class="container" src="{1}" style="max-width: 32px; max-height: 1em; min-height:24px;"/>'.format(self.currentSound, icon_no_sound)
             gallery += '<input class="container" onclick="setFfvdbPronunciation(-1)" type="radio" name="pronunciation" value="{0}" checked>' \
-                       '<a onclick="playPronunciation(-1);" href="#"><img class="container" src="{1}/ffvocdeckbuilder/icons/current_sound.png" alt="play"' \
-                       'style="max-width: 32px; max-height: 1em; min-height:24px;" /></a>'.format(self.currentSound, self.editor.mw.pm.addonFolder())
+                       '<a onclick="playPronunciation(-1);" href="#"><img class="container" src="{1}" alt="play"' \
+                       'style="max-width: 32px; max-height: 1em; min-height:24px;" /></a>'.format(self.currentSound, icon_current_sound)
         else:
             gallery += '<input class="container" onclick="setFfvdbPronunciation(-2)" type="radio" name="pronunciation" value="{0}" checked>' \
-                       '<img class="container" src="{1}/ffvocdeckbuilder/icons/no_sound.png" style="max-width: 32px; max-height: 1em; min-height:24px;"/>'.format(self.currentSound, self.editor.mw.pm.addonFolder())
+                       '<img class="container" src="{1}" style="max-width: 32px; max-height: 1em; min-height:24px;"/>'.format(self.currentSound, icon_current_sound)
         for i, af in enumerate(self.audios[word]):
             gallery += '<input class="container" onclick="setFfvdbPronunciation({0})" type="radio" name="pronunciation" value="{1}">' \
-                       '<a onclick="playPronunciation({0});" href="#"><img class="container" src="{2}/ffvocdeckbuilder/icons/play.png" alt="play"' \
-                       'style="max-width: 32px; max-height: 1em; min-height:24px;" /></a>'.format(i, self.audios[word][i], self.editor.mw.pm.addonFolder())
+                       '<a onclick="playPronunciation({0});" href="#"><img class="container" src="{2}" alt="play"' \
+                       'style="max-width: 32px; max-height: 1em; min-height:24px;" /></a>'.format(i, self.audios[word][i], icon_sound)
                        #'style="max-width: 32px; max-height: 1em; min-height:24px;" /></a>' % (self.audios[i].file_path, i, self.editor.mw.pm.addonFolder())
         gallery += '</form>'
         gallery += '</div>'
