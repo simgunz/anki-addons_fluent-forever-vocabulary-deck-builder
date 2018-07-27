@@ -34,6 +34,9 @@ class FieldGallery(ABC):
             tagfile = ' '.join(f.readlines()).replace('\n', '') #FIXME: How to preserve newlines?
         s = '''$('head').append('<{1}>{0}</{1}>')'''.format(tagfile, tagname)
         self.editor.web.eval(s)
+      
+    def _insertGalleryInHTML(self, field_id, gallery_div):
+        self.editor.web.eval('''$('{0}').replaceWith('{1}')'''.format(field_id, gallery_div))
         
     def _tempDir(self):
         if self._temporaryDirectory is None:
