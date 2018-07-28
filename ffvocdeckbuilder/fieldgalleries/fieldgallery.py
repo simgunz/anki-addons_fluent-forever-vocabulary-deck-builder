@@ -9,8 +9,8 @@ class FieldGallery(ABC):
     def __init__(self, name):
         self.name = name
         self._temporaryDirectory = None
-        self.loadJS()
-        self.loadCSS()
+        self._loadJS()
+        self._loadCSS()
     
     @abstractmethod
     def showGallery(self):
@@ -19,7 +19,11 @@ class FieldGallery(ABC):
     @abstractmethod
     def onBridgeCmd(self, cmd):
         pass
-    
+      
+    def cleanUp(self):
+        if self._temporaryDirectory is not None:
+            self._temporaryDirectory.remove()
+            
     def _loadTag(self, tagtype):
         if tagtype == "css":
             tagname = "style"
@@ -34,9 +38,12 @@ class FieldGallery(ABC):
             tagfile = ' '.join(f.readlines()).replace('\n', '') #FIXME: How to preserve newlines?
         s = '''$('head').append('<{1}>{0}</{1}>')'''.format(tagfile, tagname)
         self.editor.web.eval(s)
-      
-    def _insertGalleryInHTML(self, field_id, gallery_div):
-        self.editor.web.eval('''$('{0}').replaceWith('{1}')'''.format(field_id, gallery_div))
+        
+    def _loadJS(self):
+        self._loadTag("js")
+    
+    def _loadCSS(self):
+        self._loadTag("css")
         
     def _tempDir(self):
         if self._temporaryDirectory is None:
@@ -44,13 +51,5 @@ class FieldGallery(ABC):
         if self._temporaryDirectory.isValid():
             return self._temporaryDirectory.path()
         
-    def cleanUp(self):
-        if self._temporaryDirectory is not None:
-            self._temporaryDirectory.remove()
-            
-    def loadJS(self):
-        self._loadTag("js")
-    
-    def loadCSS(self):
-        self._loadTag("css")
-        
+    def _insertGalleryInHTML(self, field_id, gallery_div):
+        self.editor.web.eval('''$('{0}').replaceWith('{1}')'''.format(field_id, gallery_div))
