@@ -85,7 +85,6 @@ class NoteEditor(object):
         self.editor.onBridgeCmd = wrap(self.editor, Editor.onBridgeCmd, extendedBridge)
         self.web.onBridgeCmd = self.editor.onBridgeCmd
         self.editor.addButtonsToTagBar()
-        #REENABLE self.editor.web.setLinkHandler(self.ffNoteEditorLinkHandler)
         self.editor.loadNote(focusTo=self.editor.currentField)
         self.isActive = True
 
@@ -95,16 +94,8 @@ class NoteEditor(object):
         self.editor.loadNote = types.MethodType(Editor.loadNote, self.editor)
         self.editor.onBridgeCmd = types.MethodType(Editor.onBridgeCmd, self.editor)
         self.web.onBridgeCmd = self.editor.onBridgeCmd
-        #REENABLE self.editor.ffNoteEditorLinkHandler = ''
         self.editor.loadNote(focusTo=self.editor.currentField)
         self.isActive = False
-
-    def ffNoteEditorLinkHandler(self, l):
-        l = os.path.basename(l)
-        if re.match("img[0-9]+", l) is not None:
-            self.galleryManager.linkHandler(l)
-        if re.match("sound.*", l) is not None:
-            self.pronunciationManager.linkHandler(l)
 
     def getNotes(self, idxs):
         """
