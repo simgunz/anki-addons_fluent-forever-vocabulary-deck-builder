@@ -81,7 +81,7 @@ def addButtonsToTagBar(self):
 #BROWSER
 def closeEvent(self, event):
     if self.editor.vocDeckBuilder:
-        self.editor.vocDeckBuilder.__del__()
+        self.editor.vocDeckBuilder.cleanUp()
 
 #LOCAL
 def config_menu():
