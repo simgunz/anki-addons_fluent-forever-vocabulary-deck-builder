@@ -94,7 +94,7 @@ class PronunciationGallery(FieldGallery):
                        #'style="max-width: 32px; max-height: 1em; min-height:24px;" /></a>' % (self.audios[i].file_path, i, self.editor.mw.pm.addonFolder())
         gallery += '</form>'
         gallery += '</div>'
-        self.editor.web.eval('''$('{0}').replaceWith('{1}')'''.format(s_id, gallery))
+        self._insertGalleryInHTML(s_id, gallery)
 
     def getAudio(self, word, nThumbs):
         """Download, normalize and filter pronunciations track from the given service.
@@ -109,7 +109,7 @@ class PronunciationGallery(FieldGallery):
         
         retrieved_entries = []
         field_data = FieldData('Pronunciation sound', 'Word', word)
-        for dloader in downloaders:
+        for dloader in downloaders[0:2]:
             # Use a public variable to set the language.
             dloader.language = self.config['Languages']['Primary']
             try:

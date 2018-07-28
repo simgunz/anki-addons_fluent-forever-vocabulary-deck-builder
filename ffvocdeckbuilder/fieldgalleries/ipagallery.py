@@ -88,7 +88,7 @@ class IpaGallery(FieldGallery):
                 gallery += ', {0}'.format(v['spec'])
             gallery += '</option>'
         gallery += '</select></div>'
-        self.editor.web.eval('''$('{0}').replaceWith('{1}')'''.format(s_id, gallery))
+        self._insertGalleryInHTML(s_id, gallery)
 
     def onBridgeCmd(self, cmd):
         if re.match("ipa", cmd) is not None:
