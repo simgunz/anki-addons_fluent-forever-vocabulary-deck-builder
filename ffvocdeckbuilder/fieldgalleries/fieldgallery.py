@@ -13,7 +13,7 @@ class FieldGallery(ABC):
         self._loadCSS()
     
     @abstractmethod
-    def showGallery(self):
+    def showGallery(self, word):
         pass
     
     @abstractmethod
