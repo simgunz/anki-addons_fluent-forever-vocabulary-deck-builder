@@ -43,11 +43,8 @@ class NoteEditor(object):
         self.mw = self.editor.mw
         self.browser = aqt.dialogs.open("Browser", self.mw)
         self.web = editor.web
-        self.currentWord = ''
         self.loadedWords = set()
         self.preloaderRunningThreads = dict()
-        #self.nextNotes = list(_nPreload)
-        #self.prevNotes = list(_nPreload)
         self.isActive = False
         self.loadPreferences()
         self.initFieldGalleries()
