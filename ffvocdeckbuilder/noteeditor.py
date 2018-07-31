@@ -35,7 +35,6 @@ from .fieldgalleries.ipagallery import IpaGallery
 from .fieldgalleries.pronunciationgallery import PronunciationGallery
 
 _nPreload = 5
-_nGalleryThumbs = 8
 
 class NoteEditor(object):
 
