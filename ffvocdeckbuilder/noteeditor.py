@@ -15,11 +15,13 @@
 # You should have received a copy of the GNU General Public License     #
 # along with this program; if not, see <http://www.gnu.org/licenses/>.  #
 #########################################################################
+import itertools
 import types
 import os
 import re
 import threading
-
+from collections import OrderedDict
+ 
 import anki
 from anki import hooks
 from anki.utils import ids2str
@@ -97,16 +99,19 @@ class NoteEditor(object):
         self.editor.loadNote(focusTo=self.editor.currentField)
         self.isActive = False
 
-    def getNotes(self, idxs):
+    def getNoteIds(self, idxs):
         """
         Return the note ids of the notes corresponding to the browser rows given by idx
+        maintaining the order of idxs. 
         Adapted from aqt.browser.selectedNotes
         """
-        return self.mw.col.db.list(u"""
-select distinct nid from cards
-where id in {0}""".format(ids2str(
-    [self.browser.model.cards[idx] for idx in idxs])))
-
+        # OPTIMIZE: Is there a way to perform a single query to the DB while retrieving the note ids sorted by idxs?
+        strids = [str(self.browser.model.cards[idx]) for idx in idxs]
+        noteIds = [self.mw.col.db.list('select nid from cards where id is {0}'.format(id)) for id in strids]
+        noteIds = list(itertools.chain.from_iterable(noteIds))
+        noteIds = list(OrderedDict.fromkeys(noteIds)) # Remove duplicates preserving order
+        return noteIds
+    
     def preload(self, nPreload):
         """ Preload media for the next cards in the browser tableView
 
