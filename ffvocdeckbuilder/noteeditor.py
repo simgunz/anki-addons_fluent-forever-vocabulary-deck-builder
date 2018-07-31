@@ -52,6 +52,8 @@ class NoteEditor(object):
         self.isActive = False
         self.loadPreferences()
         self.initFieldGalleries()
+        self.loadNote = wrap(self.editor, Editor.loadNote, loadNoteWithVoc)
+        self.onBridgeCmd = wrap(self.editor, Editor.onBridgeCmd, extendedBridge)
 
     def cleanUp(self):
         for gallery in self.fieldGalleries.values():
@@ -90,9 +92,8 @@ class NoteEditor(object):
         self.loadedWords.add(word)
 
     def activate(self):
-        # FIXME: Avoid calling wrap every time, defining new repl methods, just call it once and store repl somewhere
-        self.editor.loadNote = wrap(self.editor, Editor.loadNote, loadNoteWithVoc)
-        self.editor.onBridgeCmd = wrap(self.editor, Editor.onBridgeCmd, extendedBridge)
+        self.editor.loadNote = self.loadNote
+        self.editor.onBridgeCmd = self.onBridgeCmd
         self.web.onBridgeCmd = self.editor.onBridgeCmd
         self.editor.addButtonsToTagBar()
         self.editor.loadNoteKeepingFocus()
