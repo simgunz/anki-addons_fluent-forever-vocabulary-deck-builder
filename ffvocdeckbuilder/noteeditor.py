@@ -95,7 +95,7 @@ class NoteEditor(object):
         self.editor.onBridgeCmd = wrap(self.editor, Editor.onBridgeCmd, extendedBridge)
         self.web.onBridgeCmd = self.editor.onBridgeCmd
         self.editor.addButtonsToTagBar()
-        self.editor.loadNote(focusTo=self.editor.currentField)
+        self.editor.loadNoteKeepingFocus()
         self.isActive = True
 
     def deactivate(self):
@@ -104,7 +104,7 @@ class NoteEditor(object):
         self.editor.loadNote = types.MethodType(Editor.loadNote, self.editor)
         self.editor.onBridgeCmd = types.MethodType(Editor.onBridgeCmd, self.editor)
         self.web.onBridgeCmd = self.editor.onBridgeCmd
-        self.editor.loadNote(focusTo=self.editor.currentField)
+        self.editor.loadNoteKeepingFocus()
         self.isActive = False
 
     def getNoteIds(self, idxs):
