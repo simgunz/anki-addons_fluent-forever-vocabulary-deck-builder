@@ -42,6 +42,7 @@ class NoteEditor(object):
     def __init__(self, editor):
         self.editor = editor
         self.mw = self.editor.mw
+        self.browser = aqt.dialogs.open("Browser", self.mw)
         self.web = editor.web
         self.currentWord = ''
         self.preloadedNotesIds = list()
