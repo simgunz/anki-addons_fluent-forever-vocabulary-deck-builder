@@ -42,7 +42,7 @@ class PronunciationGallery(FieldGallery):
             #self.servant = forvoffvdb.ForvoDownloader(self.config['APIs']['forvo'])
         super().__init__("pronunciation")
 
-    def showGallery(self, word, nThumbs=5):
+    def showGallery(self, word):
         """Creates an html gallery for the pronunciation tracks.
 
         Show radio buttons to choose among the different pronuciation tracks
