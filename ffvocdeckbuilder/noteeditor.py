@@ -48,9 +48,13 @@ class NoteEditor(object):
         self.isActive = False
         self.loadPreferences()
         self.initFieldGalleries()
-        self.loadNote = hooks.wrap(Editor.loadNote, loadNoteWithVoc)
-        self.onBridgeCmd = hooks.wrap(Editor.onBridgeCmd, extendedBridge)
-
+        self.createEditorMethodWrappers()
+        
+    def createEditorMethodWrappers(self):
+        self._wrappedMethods = dict()
+        self._wrappedMethods['loadNote'] = hooks.wrap(Editor.loadNote, loadNoteWithVoc)
+        self._wrappedMethods['onBridgeCmd'] = hooks.wrap(Editor.onBridgeCmd, extendedBridge)
+        
     def cleanUp(self):
         for gallery in self.fieldGalleries.values():
             gallery.cleanUp()
@@ -88,8 +92,8 @@ class NoteEditor(object):
         self.loadedWords.add(word)
 
     def activate(self):
-        self.editor.loadNote = types.MethodType(self.loadNote, self.editor)
-        self.editor.onBridgeCmd = types.MethodType(self.onBridgeCmd, self.editor)
+        self.editor.loadNote = types.MethodType(self._wrappedMethods['loadNote'], self.editor)
+        self.editor.onBridgeCmd = types.MethodType(self._wrappedMethods['onBridgeCmd'], self.editor)
         self.web.onBridgeCmd = self.editor.onBridgeCmd
         self.editor.addButtonsToTagBar()
         self.editor.loadNoteKeepingFocus()
