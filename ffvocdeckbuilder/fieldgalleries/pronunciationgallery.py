@@ -16,6 +16,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.  #
 #########################################################################
 
+import copy
 import os
 import re
 import shutil
@@ -95,7 +96,7 @@ class PronunciationGallery(FieldGallery):
 
            Returns a list containing the full file name of the downloaded tracks.
            
-           Not-thread safe: reuses the same downloaders objects
+           Thread safe
         """
         ret = list()
         
@@ -103,11 +104,12 @@ class PronunciationGallery(FieldGallery):
         field_data = FieldData('Pronunciation sound', 'Word', word)
         for dloader in downloaders[0:2]:
             # Use a public variable to set the language.
-            dloader.language = self.config['Languages']['Primary']
+            currentdloader = copy.deepcopy(dloader)
+            currentdloader.language = self.config['Languages']['Primary']
             try:
                 # Make it easer inside the downloader. If anything
                 # goes wrong, don't catch, or raise whatever you want.
-                dloader.download_files(field_data)
+                currentdloader.download_files(field_data)
             except:
                 #  # Uncomment this raise while testing a new
                 #  # downloaders.  Also use the “For testing”
@@ -115,7 +117,7 @@ class PronunciationGallery(FieldGallery):
                 #  # downloaders.__init__
                 # raise
                 continue
-            retrieved_entries += dloader.downloads_list
+            retrieved_entries += currentdloader.downloads_list
                 
         #Normalise and noise filter the downloaded audio tracks
         for i, el in enumerate(retrieved_entries):
