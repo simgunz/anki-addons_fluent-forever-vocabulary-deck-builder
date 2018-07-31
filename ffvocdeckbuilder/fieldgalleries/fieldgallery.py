@@ -9,6 +9,7 @@ class FieldGallery(ABC):
     def __init__(self, name):
         self.name = name
         self._temporaryDirectory = None
+        self._downloadedItems = dict()
         self._loadJS()
         self._loadCSS()
     
@@ -19,7 +20,21 @@ class FieldGallery(ABC):
     @abstractmethod
     def onBridgeCmd(self, cmd):
         pass
-      
+    
+    @abstractmethod
+    def _download(self, word):
+        pass
+    
+    def download(self, wordList):
+        if isinstance(wordList, str):
+            wordList = [wordList]
+        for word in wordList:
+            # Check for the key existence and add it if missing
+            # Two operations so not fully thread safe
+            if not word in self._downloadedItems:
+                result = self._download(word) 
+                self._downloadedItems[word] = result
+                
     def cleanUp(self):
         if self._temporaryDirectory is not None:
             self._temporaryDirectory.remove()

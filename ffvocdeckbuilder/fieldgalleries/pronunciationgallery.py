@@ -33,7 +33,6 @@ class PronunciationGallery(FieldGallery):
     def __init__(self, editor, config, provider):
         self.editor = editor
         self.config = config
-        self.audios = {}
         self.provider = provider.lower()
         if self.provider == "forvo":
             if not self.config['APIs']['forvo']:
@@ -41,14 +40,6 @@ class PronunciationGallery(FieldGallery):
                 pass
             #self.servant = forvoffvdb.ForvoDownloader(self.config['APIs']['forvo'])
         super().__init__("pronunciation")
-
-    def downloadAudio(self, word):
-        if not word in self.audios:
-            self.audios[word] = self.getAudio(word, 1)
-
-    def downloadAudios(self, wordList):
-        for word in wordList:
-            self.downloadAudio(word)
 
     def showGallery(self, word, nThumbs=5):
         """Creates an html gallery for the pronunciation tracks.
@@ -59,8 +50,7 @@ class PronunciationGallery(FieldGallery):
         #Load our javascript code
         #FIXME: Add this to an activate function
 
-        if not word in self.audios:
-            self.downloadAudio(word)
+        self.download(word)
         self.currentNote = self.editor.note
         #Find pos in model & make searchid
         pos=[i for i,sr in enumerate(self.currentNote.model()['flds']) \
@@ -87,16 +77,16 @@ class PronunciationGallery(FieldGallery):
         else:
             gallery += '<input class="container" onclick="setFfvdbPronunciation(-2)" type="radio" name="pronunciation" value="{0}" checked>' \
                        '<img class="container" src="{1}" style="max-width: 32px; max-height: 1em; min-height:24px;"/>'.format(self.currentSound, icon_current_sound)
-        for i, af in enumerate(self.audios[word]):
+        for i, af in enumerate(self._downloadedItems[word]):
             gallery += '<input class="container" onclick="setFfvdbPronunciation({0})" type="radio" name="pronunciation" value="{1}">' \
                        '<a onclick="playPronunciation({0});" href="#"><img class="container" src="{2}" alt="play"' \
-                       'style="max-width: 32px; max-height: 1em; min-height:24px;" /></a>'.format(i, self.audios[word][i], icon_sound)
+                       'style="max-width: 32px; max-height: 1em; min-height:24px;" /></a>'.format(i, self._downloadedItems[word][i], icon_sound)
                        #'style="max-width: 32px; max-height: 1em; min-height:24px;" /></a>' % (self.audios[i].file_path, i, self.editor.mw.pm.addonFolder())
         gallery += '</form>'
         gallery += '</div>'
         self._insertGalleryInHTML(s_id, gallery)
 
-    def getAudio(self, word, nThumbs):
+    def _download(self, word):
         """Download, normalize and filter pronunciations track from the given service.
 
            Retrieve audio pronunciations of the given word using a single downloader.
@@ -104,6 +94,8 @@ class PronunciationGallery(FieldGallery):
            removal on the downloaded tracks.
 
            Returns a list containing the full file name of the downloaded tracks.
+           
+           Not-thread safe: reuses the same downloaders objects
         """
         ret = list()
         
@@ -159,14 +151,14 @@ class PronunciationGallery(FieldGallery):
             elif n == -1:
                 self.chosenSnd = "[sound:{0}]".format(self.currentSound)
             else:
-                sndName = self.editor.mw.col.media.addFile(self.audios[self.currentWord][n])
+                sndName = self.editor.mw.col.media.addFile(self._downloadedItems[self.currentWord][n])
                 self.chosenSnd = "[sound:{0}]".format(sndName)
 
             self.currentNote['Pronunciation sound'] = self.chosenSnd
             self.currentNote.flush()
         elif action == "play":
             if n >= 0:
-                playSound = self.audios[self.currentWord][n]
+                playSound = self._downloadedItems[self.currentWord][n]
             else:
                 playSound = self.currentSound #playSound = self.currentSound[-n-1]
             play(playSound)
