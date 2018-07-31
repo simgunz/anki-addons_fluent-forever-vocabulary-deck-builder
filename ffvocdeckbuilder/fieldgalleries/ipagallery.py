@@ -19,6 +19,7 @@
 import json
 import os
 import re
+
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
 
@@ -28,7 +29,6 @@ class IpaGallery(FieldGallery):
     def __init__(self, editor, config):
         self.editor = editor
         self.config = config
-        self.ipa = {}
         self._loadLanguageCodes()
         super().__init__("ipa")
 
@@ -41,33 +41,31 @@ class IpaGallery(FieldGallery):
                 (key, val) = line.split(',')
                 self.languageCodes[key] = val.rstrip('\n')
 
-    def _downloadIpa(self, word):
-        if not word in self.ipa:
-            found = list()
+    def _download(self, word):
+        """
+        Thread-safe
+        """
+        found = list()
 
-            #Wiktionary
-            url = 'https://en.wiktionary.org/wiki/{0}'.format(word)
-            r = urlopen(url).read()
-            soup = BeautifulSoup(r, 'html.parser')
-            rawIpa = soup.find_all("span", class_="IPA")
-            for s in rawIpa:
-                foundIpaLanguage = s.findPrevious('h2').span.get_text()
-                if re.match(self.languageCodes[self.config['Languages']['Primary']], foundIpaLanguage):
-                    found.append({'provider': 'Wiktionary (en)', 'ipa' : s.get_text().rstrip(' ')})
-                    a = s.findPrevious('span', id=re.compile('Etymology_\d+'))
-                    if a:
-                        found[-1]['spec'] = a.get_text()
-            self.ipa[word] = found
-
-    def downloadIpas(self, wordList):
-        for word in wordList:
-            self._downloadIpa(word)
+        #Wiktionary
+        url = 'https://en.wiktionary.org/wiki/{0}'.format(word)
+        r = urlopen(url).read()
+        soup = BeautifulSoup(r, 'html.parser')
+        rawIpa = soup.find_all("span", class_="IPA")
+        for s in rawIpa:
+            foundIpaLanguage = s.findPrevious('h2').span.get_text()
+            if re.match(self.languageCodes[self.config['Languages']['Primary']], foundIpaLanguage):
+                found.append({'provider': 'Wiktionary (en)', 'ipa' : s.get_text().rstrip(' ')})
+                a = s.findPrevious('span', id=re.compile('Etymology_\d+'))
+                if a:
+                    found[-1]['spec'] = a.get_text()
+        return found
 
     def showGallery(self, word, nThumbs=5):
         self.currentNote = self.editor.note
         self.currentWord = word
-        if not word in self.ipa:
-            self._downloadIpa(word)
+        
+        self.download(word)
         #Find pos in model & make searchid
         pos=[i for i,sr in enumerate(self.currentNote.model()['flds']) \
                 if re.match('IPA transcription',sr['name'])]
@@ -79,7 +77,7 @@ class IpaGallery(FieldGallery):
         #Add the current IPAs as red text and selected
         for i, c in enumerate(self.currentIpas):
             gallery += '<option selected="selected" style="color:red;" value="ipac{2}">{0}; {1}'.format(c, 'Current IPA', i)
-        for i, v in enumerate(self.ipa[word]):
+        for i, v in enumerate(self._downloadedItems[word]):
             if 'gender' in v:
                 gallery += '<option value="ipa{3}">{0}; {2} {1}'.format(v['ipa'], v['provider'], v['gender'], i)
             else:
@@ -96,6 +94,6 @@ class IpaGallery(FieldGallery):
             for i in re.findall("ipac([0-9]+)", cmd):
                 self.currentNote['IPA transcription'] += self.currentIpas[int(i)] + ' '
             for i in re.findall("ipa([0-9]+)", cmd):
-                self.currentNote['IPA transcription'] += self.ipa[self.currentWord][int(i)]['ipa'] + ' '
+                self.currentNote['IPA transcription'] += self._downloadedItems[self.currentWord][int(i)]['ipa'] + ' '
                 #FIXME: Flush only once at the end from noteeditor
             self.currentNote.flush()
