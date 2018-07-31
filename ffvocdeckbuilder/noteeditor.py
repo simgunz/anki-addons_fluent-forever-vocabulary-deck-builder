@@ -52,8 +52,8 @@ class NoteEditor(object):
         
     def createEditorMethodWrappers(self):
         self._wrappedMethods = dict()
-        self._wrappedMethods['loadNote'] = hooks.wrap(Editor.loadNote, loadNoteWithVoc)
-        self._wrappedMethods['onBridgeCmd'] = hooks.wrap(Editor.onBridgeCmd, extendedBridge)
+        self._wrappedMethods['loadNote'] = hooks.wrap(Editor.loadNote, noteEditorLoadNote)
+        self._wrappedMethods['onBridgeCmd'] = hooks.wrap(Editor.onBridgeCmd, noteEditorOnBridgeCmd)
         
     def cleanUp(self):
         for gallery in self.fieldGalleries.values():
@@ -151,13 +151,13 @@ class NoteEditor(object):
                 self.preloaderRunningThreads[word].append(thread)
                 
 
-def loadNoteWithVoc(self, focusTo=None):
+def noteEditorLoadNote(self, focusTo=None):
     #if self.vocDeckBuilder.galleryManager:
         #self.vocDeckBuilder.galleryManager.finalizePreviousSelection()
     self.vocDeckBuilder.showFieldGalleries(self.note['Word'])
     self.vocDeckBuilder.preload(_nPreload)
 
-def extendedBridge(self, cmd):
+def noteEditorOnBridgeCmd(self, cmd):
     if not cmd.startswith("ffvdb"):
         return
     (_, galleryid, fieldcmd) = tuple(cmd.split(':'))
