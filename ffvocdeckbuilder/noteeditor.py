@@ -16,10 +16,10 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.  #
 #########################################################################
 import itertools
-import types
 import os
 import re
 import threading
+import types
 from collections import OrderedDict
  
 import anki
@@ -48,8 +48,8 @@ class NoteEditor(object):
         self.isActive = False
         self.loadPreferences()
         self.initFieldGalleries()
-        self.loadNote = wrap(self.editor, Editor.loadNote, loadNoteWithVoc)
-        self.onBridgeCmd = wrap(self.editor, Editor.onBridgeCmd, extendedBridge)
+        self.loadNote = hooks.wrap(Editor.loadNote, loadNoteWithVoc)
+        self.onBridgeCmd = hooks.wrap(Editor.onBridgeCmd, extendedBridge)
 
     def cleanUp(self):
         for gallery in self.fieldGalleries.values():
@@ -88,8 +88,8 @@ class NoteEditor(object):
         self.loadedWords.add(word)
 
     def activate(self):
-        self.editor.loadNote = self.loadNote
-        self.editor.onBridgeCmd = self.onBridgeCmd
+        self.editor.loadNote = types.MethodType(self.loadNote, self.editor)
+        self.editor.onBridgeCmd = types.MethodType(self.onBridgeCmd, self.editor)
         self.web.onBridgeCmd = self.editor.onBridgeCmd
         self.editor.addButtonsToTagBar()
         self.editor.loadNoteKeepingFocus()
@@ -145,19 +145,7 @@ class NoteEditor(object):
                 thread = threading.Thread(target=gallery.download, args=([word]), kwargs={})
                 thread.start()
                 self.preloaderRunningThreads[word].append(thread)
-
-def wrap(instance, old, new, pos='after'):
-    "Override an existing function."
-    def repl(*args, **kwargs):
-        if pos == 'after':
-            old(*args, **kwargs)
-            return new(*args, **kwargs)
-        elif pos == 'before':
-            new(*args, **kwargs)
-            return old(*args, **kwargs)
-        else:
-            return new(_old=old, *args, **kwargs)
-    return types.MethodType(repl, instance)
+                
 
 def loadNoteWithVoc(self, focusTo=None):
     #if self.vocDeckBuilder.galleryManager:
